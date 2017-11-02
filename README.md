@@ -6,7 +6,7 @@ Allows the kdb+ interpreter to call Python functions.
 ## Status
 
 This library is in development. 
-If you would like to participate in the beta tests, please write to jhanna@kx.com. 
+If you would like to participate in the beta tests, please write to ai@kx.com. 
 
 
 ## Build and installation
@@ -41,11 +41,14 @@ q)p)print(1+2)
 3
 ```
 Multiline Python code in q scripts can be loaded and executed. Prefix the first line of the code with `p)`. Subsequent lines of Python code should be indented according to the usual Python indentation rules. e.g.
-```q
+```bash
 $ cat test.q
 a:1                   / q code
 p)def add1(arg1):     / Python code
     return arg1+1     / still Python code
+```
+Then in a q session
+```q
 q)\l test.q
 q)p)print(add1(12))
 13
@@ -91,7 +94,7 @@ foreign
 
 ### Converting data 
 
-The functionz `.p.py2q` and `.p.q2py` will convert Python data to q and vice versa.
+The functions `.p.py2q` and `.p.q2py` will convert Python data to q and vice versa.
 ```q
 q)qvar:.p.get[`var1]
 q).p.py2q qvar
@@ -107,7 +110,7 @@ It is safe to call `.p.py2q` on q data and `.p.q2py` on Python data: they will r
 
 #### `None` and identity `::` 
 
-Python `None` maps to the q identity function `::`. When converting from Python to q and vice versa, there is one exception to this. When calling Python functions, methods or classes with a single q data argument, passing `::` will result in the Python object being called with _no_ arguments, not a single argument of `None`. See the section below on callables for how to call a Python callable with a single argument of `None` if you need to do this. 
+Python `None` maps to the q identity function `::` when converting from Python to q and vice versa. There is one exception to this. When calling Python functions, methods or classes with a single q data argument, passing `::` will result in the Python object being called with _no_ arguments, not a single argument of `None`. See the section below on callables for how to call a Python callable with a single argument of `None` if you need to do this. 
 
 
 ### Imports 
@@ -166,13 +169,13 @@ q).p.py2q .p.value qdict
 
 ### Calling Python functions or instantiating classes from q 
 
-Python allows for calling functions with a mixture of positional and keyword arguments. It also supports default arguments such that functions may be called with fewer arguments than are specified in the function signature, provided defaults are specified in the funtion signature. The same behaviour is available for class instantiation through the `__init__` method of classes. 
+Python allows for calling functions with a mixture of positional and keyword arguments. It also supports default arguments such that functions may be called with fewer arguments than are specified in the function signature, provided defaults are specified in the function signature. The same behaviour is available for class instantiation through the `__init__` method of classes. 
 
-Both variadic and keyword arguments are available through the function interface. The functions in that table below will produce q functions which can be called with a variable number of positional and keyword arguments.
+Both variadic and keyword arguments are available through the function interface. The functions in the table below will produce q functions which can be called with a variable number of positional and keyword arguments.
 
 There are three ways of creating variadic q functions from Python callables, and for each of these a function returning either q data or Python data can be created. 
 
-||returning Q|returning Python|
+||returning q|returning Python|
 |:---|:---|:---|
 |from Python callable|`.p.callable`|`.p.pycallable`|
 |from attribute `y` of Python object `x`|`.p.callable_attr`|`.p.pycallable_attr`|
@@ -267,7 +270,7 @@ q)qfunc[4;pyarglist enlist 3;`d pykw 2;pykwargs (1#`c)!(),2]
 
 #### Calling functions with zero arguments or `None` 
 
-In q every function takes at least one argument, whenever a function is called with `func[]` the argument is identity `(::)`. In embedPy, if a function is called with `::` as the only argument the underlying Python function will be called with _no_ arguments. As we noted above `::` in q maps to `None` in Python, however in Python these two calls are not equivalent:
+In q every function takes at least one argument, whenever a function is called with `func[]` the argument is the identity function `::`. In embedPy, if a function is called with `::` as the only argument the underlying Python function will be called with _no_ arguments. As we noted above `::` in q maps to `None` in Python, however in Python these two calls are not equivalent:
 ```
 func()
 func(None)
@@ -325,7 +328,7 @@ dumps       | .[code[foreign]]`.p.q2pargsenlist
 ```
 In this dictionary, the original Python object is stored under the key `_pyobj`, and each method or function and data attribute or property has an entry in the dictionary.
 
-**NB** Currently no attributes of the object preceded by `_` or `__` are wrapped are wrapped into the dictionary.
+**NB** Currently no attributes of the object preceded by `_` or `__` are wrapped into the dictionary.
 
 
 #### Calling functions for wrapped objects 
@@ -366,12 +369,7 @@ Interactive help on Python objects in the q console is available through `.p.hel
 
 Both `.p.help` and `.p.helpstr` will also work on q functions created from Python callables using `.p.callable` and objects wrapped using `.p.obj2dict`, in these two cases the help displayed or retrieved will be the Python docstring help on the underlying Python object.
 
-For convenience `p.q` defines `print` and `help` in the top-level namespace of a q workspace it is loaded into, these are aliases for `.p.printpy` and `.p.help` respectively. If you do not want this behavior, comment out these lines in `p.q` before loading it.
-```
-/comment out if you do not want print or help defined in your top level directory
-@[`.;`help;:;help];
-@[`.;`print;:;printpy];
-
+```q
 q)pyarray:.p.pyeval"np.array(np.arange(10))"
 q)pyarray
 foreign
@@ -381,6 +379,16 @@ q)print pyarray
 
 q)help pyarray / interactive help on object
 ```
+
+For convenience `p.q` defines `print` and `help` in the top-level namespace of a q workspace it is loaded into, these are aliases for `.p.printpy` and `.p.help` respectively. If you do not want this behavior, comment out these lines in `p.q` before loading it.
+
+```q
+/comment out if you do not want print or help defined in your top level directory
+@[`.;`help;:;help];
+@[`.;`print;:;printpy];
+```
+
+
 
 
 ### Further examples 
@@ -409,7 +417,7 @@ name                 | description
 `.p.obj2dict`        | extract the methods, properties and data attributes of a Python object `x - foreign` into a dictionary, keys are `symbols`, values are `pycallables`
 `.p.printpy`         | print a Python object's string representation
 `.p.help`            | display help on Python objects as `foreign` and the underlying Python object for `callables`, `pycallables` and dictionaries created using `.p.obj2dict`
-`.p.helpstr`         | give the docstring for Python objects as `foreign` and the underlying Python object for `callables`, `pycallables` and dictionaries created using `.p.obj2dict`
+`.p.helpstr`         | give the docstring for Python objects and the underlying Python object for `callables`, `pycallables` and dictionaries created using `.p.obj2dict`
 `.p.arraydims`       | give the shape of `x - foreign` a numpy multi-dimensional array.
 `.p.callable`        | create a callable q function from a Python callable object `x - foreign` the function will convert results to q when subsequently called
 `.p.pycallable`      | create a callable q function from a Python callable object `x - foreign` the function will return `foreign` when subsequently called
