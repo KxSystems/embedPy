@@ -3,6 +3,11 @@
 Allows the kdb+ interpreter to call Python functions.
 
 
+## Status
+
+This library is in development. 
+If you would like to participate in the beta tests, please write to jhanna@kx.com. 
+
 
 ## Build and installation
 
