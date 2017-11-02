@@ -15,7 +15,7 @@ If you are running this in an environment without Internet access you will need 
 
 Install by placing `p.q` in `QHOME` and `p.so` in `QHOME/{l64|m64}`. Note that if you are currently using PyQ it also has a file called p.so which it places in QHOME/{l64|m64}, so you may want to run from the local build directory without installing initially.
 
-`p.q` defines the `.p` directory, this includes a `.p.e` function so `p)` can be used at the start of a line to run statements in python
+`p.q` defines the `.p` directory, this includes a `.p.e` function so `p)` can be used at the start of a line to run statements in Python
 
 
 ## Example usage
@@ -35,12 +35,12 @@ The interface allows execution of Python code directly in a q console or from a 
 q)p)print(1+2)
 3
 ```
-Multiline Python code in q scripts can be loaded and executed. Prefix the first line of the code with `p)`. Subsequent lines of python code should be indented according to the usual Python indentation rules. e.g.
+Multiline Python code in q scripts can be loaded and executed. Prefix the first line of the code with `p)`. Subsequent lines of Python code should be indented according to the usual Python indentation rules. e.g.
 ```q
 $ cat test.q
 a:1                   / q code
-p)def add1(arg1):     / python code
-    return arg1+1     / still python code
+p)def add1(arg1):     / Python code
+    return arg1+1     / still Python code
 q)\l test.q
 q)p)print(add1(12))
 13
@@ -49,7 +49,7 @@ q)p)print(add1(12))
 
 ### The foreign datatype
 
-Python objects which have not been converted to q data are stored as a `foreign` datatype, these contain pointers to python objects in the python memory space, and will display `foreign` when you look at them in the q console or try to view the string representation of them with `.Q.s` or `string`.
+Python objects which have not been converted to q data are stored as a `foreign` datatype, these contain pointers to Python objects in the Python memory space, and will display `foreign` when you look at them in the q console or try to view the string representation of them with `.Q.s` or `string`.
 
 These objects can be stored just like any other q datatype in variables or as part of tables, dictionary or lists.
 
@@ -92,7 +92,7 @@ q)qvar:.p.get[`var1]
 q).p.py2q qvar
 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 ..
 ```
-`.p.q2py` is the corresponding function to convert q objects to python objects. This will rarely be used in practice, as conversion of q data to Python objects is performed automatically whenever q data is passed to Python.
+`.p.q2py` is the corresponding function to convert q objects to Python objects. This will rarely be used in practice, as conversion of q data to Python objects is performed automatically whenever q data is passed to Python.
 ```q
 q).p.q2py 1 2 3
 foreign
@@ -145,7 +145,7 @@ foreign
 
 Whilst Python dictionaries can be retrieved and converted to q dictionaries as with other Python objects, two functions are provided to retrieve the keys and values of a Python dictionary as a `foreign` object without performing the conversion to a q dictionary. 
 
-- `.p.key` will return the keys of a python dictionary as a python object. Use `.p.py2q` to convert this to q data.
+- `.p.key` will return the keys of a Python dictionary as a Python object. Use `.p.py2q` to convert this to q data.
 - `.p.value` will return the values of a Python dictionary as a Python object, use `.p.py2q` to convert this to q data.
 
 ```q
@@ -165,7 +165,7 @@ Python allows for calling functions with a mixture of positional and keyword arg
 
 Both variadic and keyword arguments are available through the function interface. The functions in that table below will produce q functions which can be called with a variable number of positional and keyword arguments.
 
-There are three ways of creating variadic q functions from python callables, and for each of these a function returning either q data or python data can be created. 
+There are three ways of creating variadic q functions from Python callables, and for each of these a function returning either q data or Python data can be created. 
 
 ||returning Q|returning Python|
 |:---|:---|:---|
@@ -320,7 +320,7 @@ dumps       | .[code[foreign]]`.p.q2pargsenlist
 ```
 In this dictionary, the original Python object is stored under the key `_pyobj`, and each method or function and data attribute or property has an entry in the dictionary.
 
-**NB** currently no attributes of the object preceded by `_` or `__` are wrapped are wrapped into the dictionary.
+**NB** Currently no attributes of the object preceded by `_` or `__` are wrapped are wrapped into the dictionary.
 
 
 #### Calling functions for wrapped objects 
@@ -361,7 +361,7 @@ Interactive help on Python objects in the q console is available through `.p.hel
 
 Both `.p.help` and `.p.helpstr` will also work on q functions created from Python callables using `.p.callable` and objects wrapped using `.p.obj2dict`, in these two cases the help displayed or retrieved will be the Python docstring help on the underlying Python object.
 
-For convenience `p.q` defines `print` and `help` in the top level namespace of a q workspace it is loaded into, these are aliases for `.p.printpy` and `.p.help` respectively. If you do not want this behavior, comment out these lines in `p.q` before loading it.
+For convenience `p.q` defines `print` and `help` in the top-level namespace of a q workspace it is loaded into, these are aliases for `.p.printpy` and `.p.help` respectively. If you do not want this behavior, comment out these lines in `p.q` before loading it.
 ```
 /comment out if you do not want print or help defined in your top level directory
 @[`.;`help;:;help];
@@ -380,16 +380,16 @@ q)help pyarray / interactive help on object
 
 ### Further examples 
 
-You’ll find further examples in the [examples](examples) directory. This includes an example of creating simple charts in matplotlib either by running Python code in a kdb+ process or importing the matplotlib.pyplot module into kdb+ and using functions from it in q code.
+You’ll find further examples in the [examples](examples) directory. This includes an example of creating simple charts in Matplotlib either by running Python code in a kdb+ process or importing the `matplotlib.pyplot` module into kdb+ and using functions from it in q code.
  
 
 ### `.p` directory reference 
 
 name                 | description                                                                                                                             
 ---------------------|-----------------------------------------------------------------------------------------------------------------------------------------
-`.p.eval`            | evaluate `char[]` as Python code and convert returned result to q via `py2q`
-`.p.pyeval`          | evaluate `char[]` as Python code and return result as foreign
-`.p.e`               | evaluate `char[]` as Python code, used for the p language, returns `::`
+`.p.eval`            | evaluate string as Python code and convert returned result to q via `py2q`
+`.p.pyeval`          | evaluate string as Python code and return result as foreign
+`.p.e`               | evaluate string as Python code, used for the p language, returns `::`
 `.p.set`             | set a variable in Python `__main__` , `x - symbol`, `y - any q object`
 `.p.import`          | import a module `x - symbol`
 `.p.imp`             | import `y - symbol` from module `x - symbol` and return a foreign object, like `from x import y` 
