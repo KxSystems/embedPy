@@ -5,7 +5,7 @@ Allows the kdb+ interpreter to call Python functions.
 
 ## Status
 
-This library is in development.  
+This library is still in development.  
 If you would like to participate in the beta tests, please write to ai@kx.com. 
 
 
@@ -16,19 +16,20 @@ Build the interface and run sanity checks with
 ```bash
 ./configure && make test
 ```
-If you are running in an environment without Internet access, you will need to download the kdb+ [C API header file](https://raw.githubusercontent.com/KxSystems/kdb/master/c/c/k.h) manually and place it in the directory you are building from.
+If you are running in an environment without Internet access, you will need to download the kdb+ [C API header file](https://raw.githubusercontent.com/KxSystems/kdb/master/c/c/k.h) manually and place it in the directory that you are building from.
 
 Install by placing `p.q` in `QHOME` and `p.so` in `QHOME/{l64|m64}`.  
-Note that if you are currently using PyQ it also has a file called p.so which it places in QHOME/{l64|m64}, so you may want to run from the local build directory without installing initially.
 
-`p.q` defines the `.p` directory, this includes a `.p.e` function so `p)` can be used at the start of a line to run statements in Python
+**NB** If you are currently using PyQ, it also has a file called p.so, which it places in QHOME/{l64|m64}. In this case, you may want to initially run from the local build directory without installing.
+
+`p.q` defines the `.p` directory, which includes a `.p.e` function. This allows Python statements to be run from a `p)` prompt.
 
 
 ## Example usage
 
 ### Running the examples
 
-In each of the code snippets below we assume that `p.q` has been loaded.  It can be loaded into a running q console with 
+In each of the code snippets below, we assume that `p.q` has been loaded.  It can be loaded into a running q console with 
 ```q
 q)\l p.q
 ```
@@ -41,7 +42,8 @@ The interface allows execution of Python code directly in a q console or from a 
 q)p)print(1+2)
 3
 ```
-Multiline Python code can be loaded and executed in q scripts. Prefix the first line of the code with `p)`.  Subsequent lines of Python code should be indented according to the usual Python indentation rules.  e.g.
+Multiline Python code can be loaded and executed using q scripts (but not from the console). Prefix the first line of the code with `p)` and indent subsequent lines of Python code according to the usual Python indentation rules.  
+e.g.
 ```bash
 $ cat test.q
 a:1                   / q code
@@ -58,15 +60,15 @@ q)p)print(add1(12))
 
 ### The foreign datatype
 
-Python objects that have not been converted to q data are stored as `foreign` datatype objects. These contain pointers to objects in the Python memory space, and will display `foreign` when you inspect them in the q console or view the string representation with `.Q.s` or `string`.
+Python objects that have not been explicitly converted to q data, are stored as `foreign` datatype objects. These contain pointers to objects in the Python memory space, and will display `foreign` when inspected in the q console or using the `string` (or `.Q.s`) representation.
 
-Foreign objects can be stored just like any other q datatype in variables, or as part of tables, dictionary or lists.
+Foreign objects can be stored in variables just like any other q datatype, or as part of tables, dictionary or lists.
 
 **NB** Foreign object types cannot be serialized by kdb+ and sent over IPC: they live in the embedded Python memory space. If you need to pass these objects to other processes over IPC, then you must convert them to q, possibly after choosing some serialization of them in Python.
 
 
-### `.p.eval` and `.p.pyeval`
-To execute Python code (as a string) and return results to q, you should use either `.p.eval` or `.p.pyeval`. 
+### Evaluating code
+To execute Python code (as a string) and return results to q, use either `.p.eval` or `.p.pyeval`. 
 ```q
 q).p.eval"1+2"
 3
@@ -74,9 +76,8 @@ q).p.pyeval"1+2"
 foreign
 ```
 Note the difference in the two results here: 
-
 -   `.p.eval` will attempt to convert the Python result of the statement to a q result; 
--   `.p.pyeval` will leave the result as a Python object and return it as  `foreign` to q without any attempt at conversion. This result can be stored in a variable for use later: e.g. it might be passed back to Python, examined using one of the other `.p` functions or converted to q data.
+-   `.p.pyeval` will return the result as a Python (`foreign`) object, without any attempt at conversion. The result can be stored in a variable for use later, passed back to Python, examined using one of the other `.p` functions, or converted to q data.
 
 
 ### Getting and setting Python variables
@@ -95,17 +96,19 @@ foreign
 
 ### Converting data 
 
-The functions `.p.py2q` and `.p.q2py` will convert Python data to q and vice versa.
+Function `.p.py2q` will convert Python (`foreign`) data to q
 ```q
 q)qvar:.p.get[`var1]
 q).p.py2q qvar
 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 ..
 ```
-`.p.q2py` is the corresponding function to convert q objects to Python objects. This will rarely be used in practice, as conversion of q data to Python objects is performed automatically whenever q data is passed to Python.
+Corresponding function `.p.q2py` converts q objects to Python objects  
 ```q
 q).p.q2py 1 2 3
 foreign
 ```
+This will rarely be used in practice, as conversion of q data to Python objects is performed automatically whenever q data is passed to Python.
+
 It is safe to call `.p.py2q` on q data and `.p.q2py` on Python data: they will return the argument unchanged in these cases.
 
 
@@ -123,7 +126,7 @@ Python modules (or objects from modules) can be imported using `.p.import` or `.
 - `.p.import` imports a Python module
 - `.p.imp`    imports an object from a Python module or package 
 
-Both of these functions return the imported object as `foreign`.
+Each of these functions returns the imported object as `foreign`.
 ```q
 q)np:.p.import`numpy
 q).p.attr[np;`BUFSIZE]
@@ -136,9 +139,10 @@ q).p.attr[npversion;`full_version]
 
 ### Attributes 
 
-We can retrieve the value of a particular attribute of a Python object using `.p.attr` or `.p.pyattr`. 
+We can retrieve attributes of Python objects using `.p.attr` or `.p.pyattr`. 
+-   `.p.attr` will attempt to convert to a q result
+-   `.p.pyattr` will return the result as a Python (`foreign`) object, without any attempt at conversion
 
-As before with the eval functions, `.p.attr` will attempt to convert the Python object to q data and `.p.pyattr` will return the Python object as `foreign`.
 ```q
 p)class AnObject(object):pass     # These lines define a simple object with two attributes
 p)anobject=AnObject()
@@ -154,13 +158,13 @@ foreign
 
 ### Dictionary keys and values
 
-Python dictionaries can be retrieved and converted to q dictionaries, as with other Python objects.  
-Additionally, functions are provided to retrieve the keys and values of a Python dictionary as a `foreign` without performing the conversion to a q dictionary. 
+As with other Python objects, Python dictionaries can be retrieved and converted to q dictionaries.  
+Additionally, functions are provided to directly retrieve the keys and values of a `foreign` Python dictionary, without performing the conversion to a q dictionary. 
 
 - `.p.key` will return the keys of a Python dictionary
 - `.p.value` will return the values of a Python dictionary
 
-In each case, use `.p.py2q` to convert this to q data.
+In each case, `.p.py2q` can be used to convert this to q data.
 ```q
 p)dict={'key1':12,'key2':42}
 q)qdict:.p.get`dict
@@ -187,7 +191,7 @@ There are three ways of creating variadic q functions from Python callables, and
 |from attribute `y` of Python object `x`|`.p.callable_attr`|`.p.pycallable_attr`|
 |from content item `y` of Python module name `x`|`.p.callable_imp`|`.p.pycallable_imp`|
 
-In each of the examples below, we create two q functions which will call the `numpy.eye` Python function. One returning the result as q data and the other returning a Python foreign object.
+In each of the examples below, we create two q functions to call the `numpy.eye` Python function. One returns the result as q data and the other returns a Python (`foreign`) object.
 
 
 #### Getting `numpy.eye` as a `foreign` and creating q functions from it 
@@ -290,14 +294,14 @@ None
 ```
 
 
-#### `.p.call` ####
+#### Raw function calling ####
 
 All of the functions above use `.p.call` internally. This can be used directly if you do not need the variadic or keyword argument behavior.  
 `.p.call`, when run on a Python callable object, will return a q function taking exactly 2 arguments.
 - a list of positional arguments
 - a dictionary of keyword argument names to values
 
-Either of these can be empty.
+Either of these arguments can be empty.
 
 The result of calling this function, will be a `foreign`.
 
@@ -305,9 +309,9 @@ The result of calling this function, will be a `foreign`.
 ### Wrapping Python objects as q dictionaries 
 
 It can be useful to extract the contents of a Python object into a q dictionary.  
-This allows members of the object to be accessed using dot notation, rather than using `.p.attr/.p.pyattr` each time
+This allows members of the object to be accessed using dot notation, rather than using `.p.attr/.p.pyattr` each time.
 
-The `.p.obj2dict` function will do this. 
+The `.p.obj2dict` function will achieve this. 
 
 **NB** Currently this is not supported for module objects, only for instances of classes in Python.
 ```q
@@ -345,9 +349,9 @@ In this dictionary, the original Python object is stored under the key `_pyobj`,
 **NB** Attributes of the object preceded by `_` or `__` are not wrapped into the dictionary.
 
 
-#### Calling functions for wrapped objects 
+#### Calling functions
 
-Any method or function of a wrapped object has an entry which is a callable q function, with variadic and keyword argument support. This function will return a `foreign`
+Any method or function of a wrapped object has an entry which is a callable q function, with variadic and keyword argument support. Each function will return a `foreign`
 ```q
 q)arraywrap.diagonal[]
 foreign
@@ -359,9 +363,9 @@ q).p.py2q arraywrap.diagonal[]
 ```
 
 
-#### Getting or setting attributes of wrapped objects 
+#### Getting and setting attributes
 
-For data attributes and properties of Python objects, we don’t take a snapshot of the value of the attribute at a point in time, but provide a function to access or set the value of a property from the underlying Python object.
+For data attributes and properties of wrapped objects, we don’t take a snapshot of the value of the attribute at a point in time, but provide a function to access or set the value of a property from the underlying Python object.
 ```q
 q)qarray:.p.py2q arraywrap._pyobj
 q).p.py2q arraywrap.real[]        / get the value of the real attribute
