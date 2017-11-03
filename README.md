@@ -18,9 +18,9 @@ Build the interface and run sanity checks with
 ```
 If you are running in an environment without Internet access, you will need to download the kdb+ [C API header file](https://raw.githubusercontent.com/KxSystems/kdb/master/c/c/k.h) manually and place it in the directory that you are building from.
 
-Install by placing `p.q` in `QHOME` and `p.so` in `QHOME/{l64|m64}`.  
+Install by placing `p.q` in `$QHOME` and `p.so` in `$QHOME/{l64|m64}`.  
 
-**NB** If you are currently using PyQ, it also has a file called p.so, which it places in QHOME/{l64|m64}. In this case, you may want to initially run from the local build directory without installing.
+**NB** If you are currently using PyQ, it also has a file called p.so, which it places in `$QHOME/{l64|m64}`. In this case, you may want to initially run from the local build directory without installing.
 
 `p.q` defines the `.p` directory, which includes a `.p.e` function. This allows Python statements to be run from a `p)` prompt.
 
@@ -42,8 +42,7 @@ The interface allows execution of Python code directly in a q console or from a 
 q)p)print(1+2)
 3
 ```
-Multiline Python code can be loaded and executed using q scripts (but not from the console). Prefix the first line of the code with `p)` and indent subsequent lines of Python code according to the usual Python indentation rules.  
-e.g.
+Multiline Python code can be loaded and executed using q scripts (but not from the console). Prefix the first line of the code with `p)` and indent subsequent lines of Python code according to the usual Python indentation rules. e.g.
 ```bash
 $ cat test.q
 a:1                   / q code
@@ -64,7 +63,7 @@ Python objects that have not been explicitly converted to q data, are stored as 
 
 Foreign objects can be stored in variables just like any other q datatype, or as part of tables, dictionary or lists.
 
-**NB** Foreign object types cannot be serialized by kdb+ and sent over IPC: they live in the embedded Python memory space. If you need to pass these objects to other processes over IPC, then you must convert them to q, possibly after choosing some serialization of them in Python.
+**NB** Foreign object types cannot be serialized by kdb+ and sent over IPC: they live in the embedded Python memory space. If you need to pass these objects to other processes over IPC, then you must first convert them to q.
 
 
 ### Evaluating code
@@ -77,7 +76,7 @@ foreign
 ```
 Note the difference in the two results here: 
 -   `.p.eval` will attempt to convert the Python result of the statement to a q result; 
--   `.p.pyeval` will return the result as a Python (`foreign`) object, without any attempt at conversion. The result can be stored in a variable for use later, passed back to Python, examined using one of the other `.p` functions, or converted to q data.
+-   `.p.pyeval` will return the result as a Python (`foreign`) object, without any attempt at conversion. The result can be stored in a variable for use later, passed back to Python, examined using another `.p` function, or converted to q data.
 
 
 ### Getting and setting Python variables
@@ -91,12 +90,12 @@ q)qvar:.p.get[`var1]
 q)qvar
 foreign
 ```
-**NB** `.p.get` will not convert Python objects to q data automatically. The result can be converted using `.p.py2q`.
+**NB** `.p.get` will not convert Python objects to q data automatically.
 
 
 ### Converting data 
 
-Function `.p.py2q` will convert Python (`foreign`) data to q
+Function `.p.py2q` will attempt to convert Python (`foreign`) data to q
 ```q
 q)qvar:.p.get[`var1]
 q).p.py2q qvar
@@ -116,7 +115,7 @@ It is safe to call `.p.py2q` on q data and `.p.q2py` on Python data: they will r
 
 Python `None` maps to the q identity function `::` when converting from Python to q and vice versa.
 
-There is one exception to this. When calling Python functions, methods or classes with a single q data argument, passing `::` will result in the Python object being called with _no_ arguments, not a single argument of `None`. See the section below on callables for how to call a Python callable with a single argument of `None` if you need to do this. 
+There is one exception to this. When calling Python functions, methods or classes with a single q data argument, passing `::` will result in the Python object being called with _no_ arguments, rather than a single argument of `None`. See the section below on callables for how to call a Python callable with a single argument of `None`. 
 
 
 ### Imports 
@@ -158,13 +157,14 @@ foreign
 
 ### Dictionary keys and values
 
-As with other Python objects, Python dictionaries can be retrieved and converted to q dictionaries.  
+Python dictionaries can be retrieved and converted to q dictionaries.  
 Additionally, functions are provided to directly retrieve the keys and values of a `foreign` Python dictionary, without performing the conversion to a q dictionary. 
 
 - `.p.key` will return the keys of a Python dictionary
 - `.p.value` will return the values of a Python dictionary
 
-In each case, `.p.py2q` can be used to convert this to q data.
+In each case, the result will be a Python (foreign) object.
+
 ```q
 p)dict={'key1':12,'key2':42}
 q)qdict:.p.get`dict
@@ -191,7 +191,8 @@ There are three ways of creating variadic q functions from Python callables, and
 |from attribute `y` of Python object `x`|`.p.callable_attr`|`.p.pycallable_attr`|
 |from content item `y` of Python module name `x`|`.p.callable_imp`|`.p.pycallable_imp`|
 
-In each of the examples below, we create two q functions to call the `numpy.eye` Python function. One returns the result as q data and the other returns a Python (`foreign`) object.
+In each of the examples below, we create two q functions to call the Python `numpy.eye` function.  
+One returns the result as q data and the other returns a Python (`foreign`) object.
 
 
 #### Getting `numpy.eye` as a `foreign` and creating q functions from it 
@@ -294,9 +295,9 @@ None
 ```
 
 
-#### Raw function calling ####
+#### Raw function calls ####
 
-All of the functions above use `.p.call` internally. This can be used directly if you do not need the variadic or keyword argument behavior.  
+All of the above functions use the `.p.call` function internally. This function can be used directly if you do not need the variadic or keyword argument behavior.  
 `.p.call`, when run on a Python callable object, will return a q function taking exactly 2 arguments.
 - a list of positional arguments
 - a dictionary of keyword argument names to values
@@ -304,7 +305,11 @@ All of the functions above use `.p.call` internally. This can be used directly i
 Either of these arguments can be empty.
 
 The result of calling this function, will be a `foreign`.
-
+```q
+q)p)def f4(a,b,c,d):return (a*b,c*d)
+q).p.py2q .p.call[.p.get`f4;1 2;`d`c!4 3]
+2 12
+```
 
 ### Wrapping Python objects as q dictionaries 
 
@@ -346,7 +351,7 @@ dumps       | .[code[foreign]]`.p.q2pargsenlist
 ```
 In this dictionary, the original Python object is stored under the key `_pyobj`, and each method or function and data attribute or property has an entry in the dictionary.
 
-**NB** Attributes of the object preceded by `_` or `__` are not wrapped into the dictionary.
+**NB** Attributes preceded by `_` or `__` are not wrapped into the dictionary.
 
 
 #### Calling functions
