@@ -29,7 +29,7 @@ Install by placing `p.q` in `$QHOME` and `p.so` in `$QHOME/{l64|m64}`.
 
 ### Running the examples
 
-In each of the code snippets below, we assume that `p.q` has been loaded.  It can be loaded into a running q console with 
+In each of the code snippets below, we assume that `p.q` has been loaded into a running q console with 
 ```q
 q)\l p.q
 ```
@@ -61,7 +61,7 @@ q)p)print(add1(12))
 
 Python objects that have not been explicitly converted to q data, are stored as `foreign` datatype objects. These contain pointers to objects in the Python memory space, and will display `foreign` when inspected in the q console or using the `string` (or `.Q.s`) representation.
 
-Foreign objects can be stored in variables just like any other q datatype, or as part of tables, dictionary or lists.
+Foreign objects can be stored in variables just like any other q datatype, or as part of lists, dictionaries or tables.
 
 **NB** Foreign object types cannot be serialized by kdb+ and sent over IPC: they live in the embedded Python memory space. If you need to pass these objects to other processes over IPC, then you must first convert them to q.
 
@@ -115,7 +115,7 @@ It is safe to call `.p.py2q` on q data and `.p.q2py` on Python data: they will r
 
 Python `None` maps to the q identity function `::` when converting from Python to q and vice versa.
 
-There is one exception to this. When calling Python functions, methods or classes with a single q data argument, passing `::` will result in the Python object being called with _no_ arguments, rather than a single argument of `None`. See the section below on callables for how to call a Python callable with a single argument of `None`. 
+There is one exception to this. When calling Python functions, methods or classes with a single q data argument, passing `::` will result in the Python object being called with _no_ arguments, rather than a single argument of `None`. See the section below on callables for how to explicitly call a Python callable with a single `None` argument. 
 
 
 ### Imports 
@@ -163,7 +163,7 @@ Additionally, functions are provided to directly retrieve the keys and values of
 - `.p.key` will return the keys of a Python dictionary
 - `.p.value` will return the values of a Python dictionary
 
-In each case, the result will be a Python (foreign) object.
+In each case, the result will be a Python (`foreign`) object.
 
 ```q
 p)dict={'key1':12,'key2':42}
