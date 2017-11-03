@@ -90,7 +90,7 @@ q)qvar:.p.get[`var1]
 q)qvar
 foreign
 ```
-**NB** `.p.get` will not convert Python objects to q data automatically.
+**NB** Like `.p.eval`, `.p.get` will not automatically convert Python objects to q data.
 
 
 ### Converting data 
@@ -138,7 +138,7 @@ q).p.attr[npversion;`full_version]
 
 ### Attributes 
 
-We can retrieve attributes of Python objects using `.p.attr` or `.p.pyattr`. 
+Attributes of Python objects can be retrieved using `.p.attr` or `.p.pyattr`. 
 -   `.p.attr` will attempt to convert to a q result
 -   `.p.pyattr` will return the result as a Python (`foreign`) object, without any attempt at conversion
 
