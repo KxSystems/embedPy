@@ -11,9 +11,9 @@ If you would like to participate in the beta tests, please write to ai@kx.com.
 
 ## Requirements ##
 
-KDB+ >=3.5 64-bit
-Python 3.x
-Mac/Linux 
+- KDB+ >=3.5 64-bit
+- Python 3.x
+- Mac/Linux 
 
 ## Build and installation
 
