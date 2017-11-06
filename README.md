@@ -9,6 +9,12 @@ This library is still in development.
 If you would like to participate in the beta tests, please write to ai@kx.com. 
 
 
+## Requirements ##
+
+KDB+ >=3.5 64-bit
+Python 3.x
+Mac/Linux 
+
 ## Build and installation
 
 Build the interface and run sanity checks with 
@@ -46,8 +52,8 @@ Multiline Python code can be loaded and executed using q scripts (but not from t
 ```bash
 $ cat test.q
 a:1                   / q code
-p)def add1(arg1):     / Python code
-    return arg1+1     / still Python code
+p)def add1(arg1):     # Python code
+    return arg1+1     # still Python code
 ```
 Then in a q session
 ```q
