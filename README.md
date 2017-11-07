@@ -46,8 +46,8 @@ Multiline Python code can be loaded and executed using q scripts (but not from t
 ```bash
 $ cat test.q
 a:1                   / q code
-p)def add1(arg1):     / Python code
-    return arg1+1     / still Python code
+p)def add1(arg1):     # Python code
+    return arg1+1     # still Python code
 ```
 Then in a q session
 ```q
