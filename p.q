@@ -121,7 +121,6 @@ obj2dict:{[x]
 
 / class content info helpers
 i.ccattrs:pycallable_imp[`inspect]`classify_class_attrs
-/i.anames:{`${x where not x like"_*"}callable[.p.pyeval"lambda xlist,y: [xi.name for xi in xlist if xi.kind in y]"][x;y]}
 i.anames:{`${x where not x like"_*"}f[x;y]}callable .p.pyeval"lambda xlist,y: [xi.name for xi in xlist if xi.kind in y]"
 i.pparams:{`.property_access;2#x}
 i.setattr:pycallable_imp[`builtins;`setattr]; / maybe should be in c? TODO maybe available in Jacks now 
