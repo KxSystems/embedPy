@@ -30,6 +30,7 @@ Z V dyl(S x){}
 
 #undef O
 typedef PyObject*O;typedef PyArrayObject*A;O d,M;K m;
+#define PE   (PyErr_Print(),E(pyerr))
 #define A(x) {typeof(x)x_=(x);x_?x_:*(V*)0;}
 
 Z K ko(O);Z O nk(K);Z O ok(K);
@@ -48,8 +49,8 @@ C pynt[13]={NPY_OBJECT,NPY_BOOL,0,0,NPY_UINT8,NPY_INT16,NPY_INT32,NPY_INT64,NPY_
 #define CK(x) Py##x##_Check
 #define Co(x) P(!CK(x)(o),E(pytype))
 #define PyC_Check PY(PyString_Check,PyUnicode_Check)
-Z K kseq(O o){O f=PySequence_Fast(o,0);K x=ktn(0,PySequence_Fast_GET_SIZE(f));DO(xn,kK(x)[i]=ko(PySequence_Fast_GET_ITEM(f,i)))Py_DECREF(f);R x;}
-typedef V*(*T)(S);Z V*PyC_utf8(T f,O o){PY(0,o=PyUnicode_AsUTF8String(o));S s=PY(PyString_AsString,PyBytes_AS_STRING)(o);V*r=f(s);PY(0,Py_DECREF(o));R r;}
+Z K kseq(O o){O f=PySequence_Fast(o,0);K x=ktn(0,PySequence_Fast_GET_SIZE(f));DO(xn,(kK(x)[i]=ko(o=PySequence_Fast_GET_ITEM(f,i)),Py_INCREF(o)))Py_DECREF(f);R x;}
+typedef V*(*T)(S);Z V*PyC_utf8(T f,O o){PY(0,P(!(o=PyUnicode_AsUTF8String(o)),PE));S s=PY(PyString_AsString,PyBytes_AS_STRING)(o);V*r=f(s);PY(0,Py_DECREF(o));R r;}
 #define KO(x) Z K ko##x(O o)
 KO(b){Co(Bool)R kb(Py_True==o);}   KO(j){Co(Long)R kj(PyLong_AsUnsignedLongLongMask(o));}        KO(f){Co(Float)R kf(PyFloat_AsDouble(o));}
 KO(C){Co(C)R PyC_utf8((T)kp,o);}   KO(G){Co(Bytes)R kpn(PyBytes_AS_STRING(o),PyBytes_Size(o));}  KO(none){P(o-Py_None,E(none))R K("::");}         KO(buffer){P(!PyObject_CheckBuffer(o),E(buffer))R ks("<buffer>");}
@@ -62,23 +63,23 @@ Z O ok(K x){P(pq(x),kget(x))P(gnull(x),Py_None)P(xt<0,-128==xt?PyErr_Format(PyEx
 Z O nk(K x){O r;npy_intp n=xn/*q<3?*/;R r=PyArray_SimpleNewFromData(1,&n,pynt[xt],xG),PyArray_SetBaseObject((A)r,pwrap(x)),PyArray_CLEARFLAGS((A)r,NPY_ARRAY_WRITEABLE),r;}
 
 #define Oo O o;P(!(o=kget(x)),E(type))
-#define PE    (PyErr_Print(),E(pyerr))
 #define Ro(o) {PyErr_Clear();R ko(o)?:PE;}
 #define X0(a) {typeof(a)r=a;r0(x);R r;}
+#define O0(a) {typeof(a)r=a;Py_DECREF(o);R r?:PE;}
 Z K2(runs){P(xt!=-KJ||y->t!=KC,E(type))J j=x->j;x=y;x=K(",[;10h$0]",r1(x));PyErr_Clear();O o=PyRun_String(xG,j?Py_eval_input:Py_file_input,d,d);r0(x);R ko(o)?:PE;} //evaluate a string, x, returning a foreign.  $[y;evaluate;runasfile]   TODO check return
 Z K2(set){P(xt!=-KS,E(type))PyDict_SetItemString(d,xs,ok(y));R 0;}//set a python variable x (symbol) with value y in the __main__ module TODO - check SIS return
 Z K1(import){P(xt!=-KS,E(type))O m=PyImport_ImportModule(xs);P(!m,F(xs))R ko(m);}//import x (symbol) returns a foreign with the contents of module named by x
 Z K2(getattr){P(y->t!=-KS,E(type))Oo;O f=PyObject_GetAttrString(o,TX(S,y));P(!f,F(TX(S,y)))Py_DECREF(o);R ko(f);}//for a foreign, x, get the attribute named by y (symbol)
-Z K3(call){O f=kget(x),o,s,t;P(!PyCallable_Check(f),E(type))o=PyObject_Call(f,t=pq(y)?kget(y):atup(y),s=pq(z)?kget(z):odict(z));Py_DECREF(t);Py_DECREF(s);P(!o,PE)R ko(o);}//call a foreign, x, with positional args y and keyword args z
+Z K3(call){P(y->t<0,E(type))O f=kget(x),o,s,t;P(!PyCallable_Check(f),E(type))o=PyObject_Call(f,t=pq(y)?kget(y):atup(y),s=pq(z)?kget(z):odict(z));Py_DECREF(t);Py_DECREF(s);Py_DECREF(f);P(!o,PE)R ko(o);}//call a foreign, x, with positional args y and keyword args z
 Z K1(repr){O o;K r;P(!pq(x),E(type))P(!(o=PyObject_Repr(kget(x))),PE)r=koC(o);Py_DECREF(o);R r;}//return a string like repr(x)
-Z K1(getseq){Oo;R kseq(o);}//return an array of foreigns from x. x should be a sequence
+Z K1(getseq){Oo;O0(kseq(o))}//return an array of foreigns from x. x should be a sequence
 #define GX(x) Z K1(get##x){Oo;R ko##x(o);}
 GX(b)GX(none)GX(j)GX(f)GX(G)GX(C)GX(buffer)//these functions return a foreign (x) as a bool, none, long, float, G, C or buffer(G)
 #define TY(x) {H h=x;r=ja(&r,&h);}
-#define CH(x,y) if(CK(x)(o))TY(y);
-Z K1(type){Oo;K r=ktn(KH,0);CH(Bool,-1)CH(Long,-7)CH(Float,-9)if(PyArray_CheckScalar(o))TY(-30);if(PyArray_Check(o)){TY(30)TY(npyt(PyArray_TYPE((A)o)))}CH(Bytes,4)CH(Number,-22)CH(Type,-21)
+#define CH(x,y) if(CK(x)(o))TY(y)
+Z K1(type){Oo;K r=ktn(KH,0);CH(Bool,-1)CH(Long,-7)CH(Float,-9)CH(Module,102)if(PyArray_CheckScalar(o))TY(-30);if(PyArray_Check(o)){TY(30)TY(npyt(PyArray_TYPE((A)o)))}CH(Bytes,4)CH(Number,-22)
                               if(Py_None==o)TY(-3);if(PyC_Check(o))TY(10);if(PyObject_CheckBuffer(o))TY(24);
-                              CH(Tuple,41)CH(List,42)CH(Callable,100)CH(Sequence,40)CH(Dict,99)CH(Mapping,101)CH(Iter,45)CH(Set,46)R r;}//for a foreign, x, return a list of shorts indicating the foreign's type
+                              CH(Tuple,41)CH(List,42)CH(Callable,100)CH(Sequence,40)CH(Dict,99)CH(Mapping,101)CH(Type,21)CH(Iter,45)CH(Set,46)TY(50)Py_DECREF(o);R r?:PE;}//for a foreign, x, return a list of shorts indicating the foreign's type
 Z K1(q2py){R ko(ok(x));}//take a q value and return an equivalent value as a foreign
 Z K1(key){Oo;Co(Mapping)Ro(PyMapping_Keys(o))}//return the keys of a dictionary, x
 Z K1(value){Oo;Co(Mapping)Ro(PyMapping_Values(o))}//return the values of a dictionary, x
