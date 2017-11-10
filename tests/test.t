@@ -1,7 +1,3 @@
--1"## Loading p.q";
-\l p.q
--1"## Loaded";
-
 -1"## Basic tests start";
 (::)~.p.set[`x;3]
 -7h in .p.type .p.get`x
@@ -39,10 +35,10 @@ p)x=(__import__("ctypes").pythonapi.Py_DecRef)
 /-1"## Curve fit end";
 
 -1"## Loading additional tests";
-\l bs4.t
-\l pandas.t
-\l matplotlib.t
-\l pyfunc.t
-\l memory.t
-\l qfunc.t
-\l tensorflow.t
+\l tests/bs4.t
+\l tests/pandas.t
+\l tests/matplotlib.t
+\l tests/pyfunc.t
+\l tests/memory.t
+\l tests/qfunc.t
+\l tests/tensorflow.t
