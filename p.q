@@ -22,6 +22,7 @@ pyeval:.p.eval                    / eval and return foreign
 pycallable:{if[not 112=type x;'`type];ce .[.p.call x],`.p.q2pargs}
 callable:{c`.p.py2q,pycallable x}
 
+
 imp:{pyattr[import x;y]}             / import name x and give me x.y as foreign
 /pyattr                              / if x is a foreign then pyattr[x;y] gives x.y as foreign
 callable_imp:c callable,imp          / import name y from name x and make it callable returning q
@@ -62,7 +63,7 @@ q2pargs:{
  / we check order as we're messing with it before passing to python and it won't be able to
  if[any 1_prev[u]and not u:`..pykw~'first each neg[hd]_x;'"positional argument follows keyword argument"];
  cn:{$[()~x;x;11h<>type x;'`type;x~distinct x;x;'`dupnames]};
- :(x[where not[al]&not u],a 1;cn[named[;1],key k 1]!(named:(x,(::))where u)[;2],value k 1)
+ :(.p.u each x[where not[al]&not u],a 1;cn[named[;1],key k 1]!(.p.u each named:(x,(::))where u)[;2],value k 1)
  }
 
 / identify named params for python call, without it you have to do .p.pykw[`argname]argvalue which is a tad ugly
@@ -243,5 +244,14 @@ qgenfuncinf:{pycallable[i.partial[i.gli;`clsr pykw i.qclosure$[104=type x;get x;
 / 4037913
 / q)sum {prd 1+til x}each 1+til 10
 
-\
+/ wrapper for foreigns
+wrapped:{[x;cf;y]$[`~a:first y;x;-11=type a;cf .z.s[x pyattr/` vs a;::;1_y];()~y;x;cf .[pycallable x;y]]}
+wf:{wrapped[x;o;y]}
+o:{ce`.p.wf x}
+u:{$[105=type x;x`;x]} / unwrapper (when passed as args)
+impo:{o import x} / new import
+oval:{o pyeval x} / new eval
+geto:{o .p.get x} / new get
+o2q:{py2q x`}     / new conversion (py2q)
 
+\
