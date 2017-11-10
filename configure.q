@@ -2,7 +2,6 @@
 e:{-2 string x;exit 1}
 w:where{"B"$first@[system;string[x]," -c 'print(1)'";"0"]}@'pp:`python3`python                                                                      /python3 first
 py:{system string[$[count w;pp first w;e`python]]," -c \"",x,"\""}
-$["1"~first first py"import sysconfig as c;print(c.get_config_var('Py_ENABLE_SHARED'))";;'"shared not enabled"]
 s :"import sysconfig as c,os,sys;v=c.get_config_var;first=lambda x:len(x) and x[0];d=v('LDLIBRARY');P,p=sys.exec_prefix,sys.prefix;"           /find dylib
 s,:"w=lambda x:first([a[0] for a in os.walk(x) if d in a[2]]);L=w(P+'/lib')or w(v('LIBDIR'));I=c.get_path('include');print('\\n'.join([L,d,P,p,I]))"
 `L`d`P`p`I set'0N!py s;l:$[a=`l;-3_3_d;a=`w;-4_d;-6_3_d]
