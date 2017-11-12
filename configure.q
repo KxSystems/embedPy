@@ -6,7 +6,7 @@ s :"import sysconfig as c,os,sys;v=c.get_config_var;first=lambda x:len(x) and x[
 s,:"w=lambda x:first([a[0] for a in os.walk(x) if d in a[2]]);L=w(P+'/lib')or w(v('LIBDIR'));I=c.get_path('include');print('\\n'.join([L,d,P,p,I]))"
 `L`d`P`p`I set'0N!py s;l:$[a=`l;-3_3_d;a=`w;-4_d;-6_3_d]
 I:"-I",I," -I",first py"import numpy as n;print(n.get_include())"                                                                                   /numpy dir
-`r`D set\:"";if[rpath:1;r:raze " -Xlinker ",/:("-rpath";L," ");d:L,"/",d;D:"-DPH='L\"",P,":",p,"\"' ";]
+`r`D set\:"";if[rpath:1;r:raze " -Xlinker ",/:("-rpath";L," ");D:"-DPH='L\"",P,":",p,"\"' ";]
 C:$[a in`l`m;"gcc -g3 -Os -DKXVER=3 ";""] 
 L:" -L",L," -l",l,r,$[a=`l;"-fPIC -shared";"-bundle -undefined dynamic_lookup"]
 D,:"-DRP=","01"[rpath]," -DDY='\"",d,"\"'"
