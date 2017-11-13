@@ -84,6 +84,43 @@ Note the difference in the two results here:
 -   `.p.eval` will attempt to convert the Python result of the statement to a q result; 
 -   `.p.pyeval` will return the result as a Python (`foreign`) object, without any attempt at conversion. The result can be stored in a variable for use later, passed back to Python, examined using another `.p` function, or converted to q data.
 
+### Evaluation versus execution ###
+You may come across an error like this when using  `.p.eval/.p.pyeval`. 
+
+```q
+q).p.eval"a=42"
+  File "<string>", line 1
+    a=42
+     ^
+SyntaxError: invalid syntax
+'p.c:69 runs pyerr
+  [0]  .p.eval"a=42"
+```
+
+The reason for this is that `.p.eval/pyeval` and `.p.e` (which is used when prefixing code with `p)`) both run the `PyRun_String` C API function internally.  The difference is that when *executing* a code string `.p.e` is used and runs this function with `Py_file_input` allowing multiple expressions or statements with side effects but not returning any value whilst `.p.eval` uses `Py_eval_input` which returns a value but is not allowed to have side effects. 
+
+
+The error we see above is very similar to what we get in Python when trying to `eval` a string which is a statement rather than an expression. e.g.
+
+```python
+>>> eval('x=2')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "<string>", line 1
+    x=2
+     ^
+SyntaxError: invalid syntax
+>>> y=exec('z=10')
+>>> print(y,z) # y has no value
+None 10
+```
+- .p.e` is analogous to Python's exec
+- .p.eval/pyeval` are analogous to Python's eval
+
+If you have a string you want to execute which does variable assignment or defines a Python function or class you will need to use `.p.e`, if you just need to return a value from a string evaluated as Python code then you should use `.p.eval.
+
+
+There is a more detailed explanation of the difference between `eval` and `exec` in Python [here](https://stackoverflow.com/questions/2220699/whats-the-difference-between-eval-exec-and-compile-in-python)
 
 ### Getting and setting Python variables
 
