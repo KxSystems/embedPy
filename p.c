@@ -36,7 +36,7 @@ typedef PyObject*O;typedef PyArrayObject*A;O d,M;K m;
 Z K ko(O);Z O nk(K);Z O ok(K);
 Z K pget(O x){K r=PyCapsule_GetPointer(x,0);R r;}Z V destr(O o){r0(pget(o));}Z O pwrap(K x){R PyCapsule_New(r1(x),0,destr);}
 Z V p0(K x){Py_DECREF(kK(x)[1]);}Z K ko(O o){P(!o,0);K r=knk(2,p0,o);R r->t=112,r;}ZI pq(K x){R xt==112&&xn==2&&*kK(x)==(K)p0;}Z O kget(K x){P(!pq(x),0)O o=(O)kK(x)[1];Py_INCREF(o);R o;}
-Z O ck(O x,O y){K r=K(".",r1(pget(x)),K(".p.py2q",ko(y)));O o=ok(r);R r0(r),o;}
+Z O ck(O x,O y){K a=ko(y);Py_INCREF(y);K r=K(".",r1(pget(x)),K(".p.py2q",a));O o=ok(r);R r0(r),o;}
 Z PyMethodDef D={"q)",ck,METH_VARARGS,""};Z O ocall(K x){O o=pwrap(x),f=PyCFunction_New(&D,o);Py_DECREF(o);R f;}
 
 Z K at(K x,J i){R !xt?r1(kK(x)[i]):K("@",r1(x),kj(i));}Z J cn(K x){J n;K r=K("#:",r1(x));n=r->j;R r0(r),n;}
@@ -67,7 +67,7 @@ Z O nk(K x){O r;npy_intp n=xn/*q<3?*/;R r=PyArray_SimpleNewFromData(1,&n,pynt[xt
 #define X0(a) {typeof(a)r=a;r0(x);R r;}
 #define O0(a) {typeof(a)r=a;Py_DECREF(o);R r?:PE;}
 Z K2(runs){P(xt!=-KJ||y->t!=KC,E(type))J j=x->j;x=y;x=K(",[;10h$0]",r1(x));PyErr_Clear();O o=PyRun_String(xG,j?Py_eval_input:Py_file_input,d,d);r0(x);R ko(o)?:PE;} //evaluate a string, x, returning a foreign.  $[y;evaluate;runasfile]   TODO check return
-Z K2(set){P(xt!=-KS,E(type))PyDict_SetItemString(d,xs,ok(y));R 0;}//set a python variable x (symbol) with value y in the __main__ module TODO - check SIS return
+Z K2(set){P(xt!=-KS,E(type))O o=ok(y);PyDict_SetItemString(d,xs,o);Py_DECREF(o);R 0;}//set a python variable x (symbol) with value y in the __main__ module TODO - check SIS return
 Z K1(import){P(xt!=-KS,E(type))O m=PyImport_ImportModule(xs);P(!m,F(xs))R ko(m);}//import x (symbol) returns a foreign with the contents of module named by x
 Z K2(getattr){P(y->t!=-KS,E(type))Oo;O f=PyObject_GetAttrString(o,TX(S,y));P(!f,F(TX(S,y)))Py_DECREF(o);R ko(f);}//for a foreign, x, get the attribute named by y (symbol)
 Z K3(call){P(y->t<0,E(type))O f=kget(x),o,s,t;P(!PyCallable_Check(f),E(type))o=PyObject_Call(f,t=pq(y)?kget(y):atup(y),s=pq(z)?kget(z):odict(z));Py_DECREF(t);Py_DECREF(s);Py_DECREF(f);P(!o,PE)R ko(o);}//call a foreign, x, with positional args y and keyword args z
