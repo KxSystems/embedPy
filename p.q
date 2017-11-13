@@ -226,22 +226,22 @@ i.gli:.p.eval"lambda genarg,clsr:[(yield clsr(x)) for x in count()]"
 i.partial:pycallable_imp[`functools]`partial;
 / should be in it's own module
 i.qclosure:pycallable .p.get`qclosure; 
+i.qprojection:pycallable .p.get`qprojection; 
 / returns a python generator function from q 'closure' x and argument y where y is the
 / number of times the generator will be called
-qgenfunc:{pycallable[partial[i.gl;`clsr pykw i.qclosure$[104=type x;get x;'`shouldbeprojection]]]y}
-qgenfuncinf:{pycallable[partial[i.gli;`clsr pykw i.qclosure$[104=type x;get x;'`shouldbeprojection]]]0}
+qgenfunc:{pycallable[i.partial[i.gl;`clsr pykw i.qclosure$[104=type x;get x;'`shouldbeprojection]]]y}
+qgenfuncinf:{pycallable[i.partial[i.gli;`clsr pykw i.qclosure$[104=type x;get x;'`shouldbeprojection]]]0}
 / examples
 / q)pysum:.p.callable_imp[`builtins;`sum]
 / / sum of first N ints using python generators
-/ q)pysum .p.qgenf[.p.gftil;10]
+/ q)pysum .p.qgenfunc[.p.i.gftil;10]
 / 55
 / q)sum 1+til 10
 / 55
 / / sum of factorials of first N numbers
-/ q)pysum .p.qgenfunc[.p.gffact;10]
+/ q)pysum .p.qgenfunc[.p.i.gffact;10]
 / 4037913
 / q)sum {prd 1+til x}each 1+til 10
-/ see keras_udacity_example.q (the bg generator passed to fit_generator) for an example of this
 
 \
 
