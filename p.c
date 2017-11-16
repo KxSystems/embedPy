@@ -69,7 +69,7 @@ Z K1(j2py){Xt(-KJ)R ko(PyLong_FromLong(xj));} Z K1(f2py){Xt(-KF)R ko(PyFloat_Fro
 Z K1(G2py){Xt(KG) R ko(PyBytes_FromStringAndSize((S)kG(x),xn));} /* create bytes, not unicode.  while we have issue 18, (decode bad unicode),   call[bytes.decode;(G2py 4h$x;'utf-8');()!()] :  */
 Z K1(lambda2py){Xt(100)R ko(ocall(x));}
 Z K1(rr2py){Xt(-128)R ko(PyErr_Format(PyExc_RuntimeError,"%s",xs));}
-Z K1(fs2py){Xt(0);DO(xn,pq(kK(x)[i])||E(type));O o=PyTuple_New(xn);DO(xn,PyTuple_SET_ITEM(o,i,oref(kK(x)[i])));R ko(o);} //for a list of foreigns, create a new tuple
+Z K1(fs2py){Xt(0);DO(xn,P(!pq(kK(x)[i]),E(type)));O o=PyTuple_New(xn);DO(xn,PyTuple_SET_ITEM(o,i,oref(kK(x)[i])));R ko(o);} //for a list of foreigns, create a new tuple
 
 #define Oo O o;P(!(o=kget(x)),E(type))
 #define Ro(o) {PyErr_Clear();R ko(o)?:PE;}
