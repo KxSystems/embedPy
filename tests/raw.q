@@ -20,6 +20,9 @@
 /array handling
 2 3~getarray[;1;2] a2py 1 2 3
 
+/tuple
+getseq fs2py j2py each 1 2
+
 /foreigns
 1 2~getj each getseq fs2py j2py each 1 2
 
