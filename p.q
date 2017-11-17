@@ -9,11 +9,9 @@ k)c:{'[y;x]}/|:
 k)ce:{'[y;x]}/enlist,|:
 py2q:{$[112=type x;conv[first .p.type x];]x}     / convert to q using best guess of type
 / aliases
-{x set y}'[`.p.attr`arraydims;getattr,getarraydims];
-pyattr:.p.attr;
-.p.attr:c `.p.py2q,pyattr;
-pyeval:.p.eval                    / eval and return foreign
-.p.eval:c `.p.py2q,pyeval         / eval and convert to q
+{x set y}'[`pyeval`pyattr`arraydims;.p.eval,getattr,getarraydims];
+.p.attr:c`.p.py2q,pyattr;
+.p.eval:c`.p.py2q,pyeval;
 / calling functions and instantiation of classes with default and named parameters
 / in q can only have variadic functions with the composition with enlist trick
 / we want to be able to call python function like this func[posarg1;posarg2;...;namedargs]
@@ -22,13 +20,14 @@ pyeval:.p.eval                    / eval and return foreign
 pycallable:{if[not 112=type x;'`type];ce .[.p.call x],`.p.q2pargs}
 callable:{c`.p.py2q,pycallable x}
 
-
 imp:{pyattr[import x;y]}             / import name x and give me x.y as foreign
 /pyattr                              / if x is a foreign then pyattr[x;y] gives x.y as foreign
 callable_imp:c callable,imp          / import name y from name x and make it callable returning q
 callable_attr:c callable,pyattr      / x.y from foreign x, name y and make it callable returning q
 pycallable_imp:c pycallable,imp      / import name y from name x and make it callable returning foreign
 pycallable_attr:c pycallable,pyattr  / x.y from foreign x, name y and make it callable returning foreign
+
+setattr:pycallable_imp[`builtins;`setattr]; / maybe should be in c? TODO maybe available in Jacks now 
 
 dict:{({$[all 10=type@'x;`$;]x}py2q .p.key x)!py2q .p.value x}
 scalar:callable .p.pyeval"lambda x:x.tolist()"
@@ -75,6 +74,21 @@ i.gpykwargs:{dd:(0#`)!();
  $[not any u:`..pyks~'first each x;(0;dd);not last u;'"pykwargs may only be last";
   1<sum u;'"only one pykwargs allowed";(1;dd,x[where u;1]0)]}
 i.gpyargs:{$[not any u:`..pyas~'first each x;(u;());1<sum u;'"only one pyargs allowed";(u;(),x[where u;1]0)]}
+
+/ wrapper for foreigns
+/ r vals (0 wrapped, 1 q, 2 foreign)
+wf:{[c;r;x;a]
+  if[c;:(wrap;py2q;::)[r].[pycallable x]a];
+  $[`.~a0:a 0;:x;`~a0;:py2q x;-11=type a0;x:x pyattr/` vs a0;
+  (:)~a0;[setattr . x,1_a;:(::)];
+  [c:1;r:$[(*)~a0;0;(<)~a0;1;(>)~a0;2;'`NYI]]];
+  $[count a:1_a;.[;a];::]wrapX[c;r]x}
+wrap:(wrapX:{[c;r;x]ce wf[c;r;x]})[0;0]
+unwrap:{$[105=type x;x`.;x]}
+impo:{wrap import x}
+oval:{wrap pyeval x}
+geto:{wrap .p.get x}
+w2q:{py2q x`.}
 
 / dict from an object (TODO name suggestions, currently obj2dict)
 / produce a dictionary structure with callable methods and accessors for properties and data members
@@ -124,8 +138,7 @@ obj2dict:{[x]
 i.ccattrs:pycallable_imp[`inspect]`classify_class_attrs
 i.anames:{[f;x;y]`${x where not x like"_*"}f[x;y]}callable .p.pyeval"lambda xlist,y: [xi.name for xi in xlist if xi.kind in y]"
 i.pparams:{`.property_access;2#x}
-i.setattr:pycallable_imp[`builtins;`setattr]; / maybe should be in c? TODO maybe available in Jacks now 
-i.paccess:{[ob;n;op;v]$[op~(:);i.setattr[ob;n;v];:pyattr[ob]n];}
+i.paccess:{[ob;n;op;v]$[op~(:);setattr[ob;n;v];:pyattr[ob]n];}
 
 / used internally by help and print functions
 help4py:{pycallable_imp[`builtins;`help]x;}
@@ -244,17 +257,4 @@ qgenfuncinf:{pycallable[i.partial[i.gli;`clsr pykw i.qclosure$[104=type x;get x;
 / 4037913
 / q)sum {prd 1+til x}each 1+til 10
 
-/ wrapper for foreigns
-/ r vals (0 wrapped, 1 q, 2 foreign)
-wf:{[c;r;x;a]
-  if[c;:(wrap;py2q;::)[r].[pycallable x]a];
-  $[`.~a0:a 0;:x;`~a0;:py2q x;-11=type a0;x:x pyattr/` vs a0;
-  (:)~a0;[.p.i.setattr . x,1_a;:(::)];
-  [c:1;r:$[(*)~a0;0;(<)~a0;1;(>)~a0;2;'`NYI]]];
-  $[count a:1_a;.[;a];::]wrapX[c;r]x}
-wrap:(wrapX:{[c;r;x]ce wf[c;r;x]})[0;0]
-unwrap:{$[105=type x;x`.;x]}
-impo:{wrap import x}
-oval:{wrap pyeval x}
-geto:{wrap .p.get x}
-w2q:{py2q x`.}
+
