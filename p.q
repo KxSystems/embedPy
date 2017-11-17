@@ -2,33 +2,22 @@
 \d .p
 e:{x[0;y];}runs /"run" a string, x, as though it were the contents of a file.
 .p.eval:runs[1;]
-/ in general if 2 functions pyXXX and XXX, XXX will attempt to convert through py2q, in the case of callables this applies to the functions they return
-/ compose list of functions
-k)c:{'[y;x]}/|:
-/ compose with enlist (for composition trick used for 'variadic functions')
-k)ce:{'[y;x]}/enlist,|:
-py2q:{$[112=type x;conv[first .p.type x];]x}     / convert to q using best guess of type
+
+k)c:{'[y;x]}/|:         / compose list of functions
+k)ce:{'[y;x]}/enlist,|: / compose with enlist (for variadic functions)
+
 / aliases
 {x set y}'[`pyeval`pyattr`arraydims;.p.eval,getattr,getarraydims];
 .p.attr:c`.p.py2q,pyattr;
 .p.eval:c`.p.py2q,pyeval;
-/ calling functions and instantiation of classes with default and named parameters
-/ in q can only have variadic functions with the composition with enlist trick
-/ we want to be able to call python function like this func[posarg1;posarg2;...;namedargs]
-/ use .p.pycallable[python function as foreign] to get such a function 
-/ use .p.callable[python function as foreign] to get a function which converts the result to q
+
 pycallable:{if[not 112=type x;'`type];ce .[.p.call x],`.p.q2pargs}
 callable:{c`.p.py2q,pycallable x}
 
-imp:{pyattr[import x;y]}             / import name x and give me x.y as foreign
-/pyattr                              / if x is a foreign then pyattr[x;y] gives x.y as foreign
-callable_imp:c callable,imp          / import name y from name x and make it callable returning q
-callable_attr:c callable,pyattr      / x.y from foreign x, name y and make it callable returning q
-pycallable_imp:c pycallable,imp      / import name y from name x and make it callable returning foreign
-pycallable_attr:c pycallable,pyattr  / x.y from foreign x, name y and make it callable returning foreign
+setattr:pycallable pyattr[import`builtins;`setattr]
+pylist: pycallable pyattr[import`builtins;`list]
 
-setattr:pycallable_imp[`builtins;`setattr]; / maybe should be in c? TODO maybe available in Jacks now 
-
+py2q:{$[112=type x;conv[first .p.type x];]x} / convert to q using best guess of type
 dict:{({$[all 10=type@'x;`$;]x}py2q .p.key x)!py2q .p.value x}
 scalar:callable .p.pyeval"lambda x:x.tolist()"
 / conv is dict from type to conversion function
@@ -40,7 +29,6 @@ conv[4 10 30 41 42 99h]:getG,getC,{d#x[z;0]1*/d:y z}[getarray;getarraydims],(2#(
 {![`.p;();0b;x]}`getseq`getb`getnone`getj`getf`getG`getC`getarraydims`getattr`getarray`getbuffer`dict`scalar`ntolist`runs;
 / now pyutils stuff
 / python list (q2py gives tuple by default on vectors
-pylist:pycallable_imp[`builtins;`list]
 
 / passed a variable length list of args, find identified key word args, positional arg lists and key word arg dicts and produce arg list and kew word arg list
 / the rules ... 
@@ -127,7 +115,7 @@ obj2dict:{[x]
  / override with .p.c .p.py2q,x.methodname if you expect q convertible returns
  / keep a reference to the python object somewhere easy to access
  res:``_pyobj!((::);x);
- res,:mn!pycallable_attr[x]each mn; / {pycallable attr[x]y}[x]each mn;
+ res,:mn!{pycallable pyattr[x]y}[x]each mn;
  / properties and data have to be accessed with [] (in case updated, TODO maybe not for data)
  bf:{[x;y]ce .[i.paccess[x;y]],`.p.i.pparams};
  /:res,dpn!{{[o;n;d]$[d~(::);atr[o]n}[x;y]}[x]each dpn;
@@ -135,15 +123,15 @@ obj2dict:{[x]
  }
 
 / class content info helpers
-i.ccattrs:pycallable_imp[`inspect]`classify_class_attrs
+i.ccattrs:pycallable pyattr[import`inspect;`classify_class_attrs]
 i.anames:{[f;x;y]`${x where not x like"_*"}f[x;y]}callable .p.pyeval"lambda xlist,y: [xi.name for xi in xlist if xi.kind in y]"
 i.pparams:{`.property_access;2#x}
 i.paccess:{[ob;n;op;v]$[op~(:);setattr[ob;n;v];:pyattr[ob]n];}
 
 / used internally by help and print functions
-help4py:{pycallable_imp[`builtins;`help]x;}
-helpstr4py:{callable_imp[`inspect;`getdoc]x} / cleaned docstring
-printpy:{x y;}pycallable_imp[`builtins;`print]
+help4py:pycallable pyattr[import`builtins;`help]
+help4py4py:callable pyattr[import`inspect;`getdoc]
+printpy:pycallable pyattr[import`builtins;`print]
 
 / help function
 / help displays python help on any of these
@@ -237,7 +225,7 @@ i.gffact:{[state;d]((.z.s;u);last u:prds 1 0+state)}0 1 / factorial
 i.gl:.p.eval"lambda genarg,clsr:[(yield clsr(x)) for x in range(genarg)]"
 / generator lambda, yields for as long as it's called
 i.gli:.p.eval"lambda genarg,clsr:[(yield clsr(x)) for x in count()]"
-i.partial:pycallable_imp[`functools]`partial;
+i.partial:pycallable pyattr[import`functools;`partial]
 / should be in it's own module
 i.qclosure:pycallable .p.get`qclosure; 
 i.qprojection:pycallable .p.get`qprojection; 
