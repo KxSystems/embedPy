@@ -111,25 +111,10 @@ i.anames:{[f;x;y]`${x where not x like"_*"}f[x;y]}callable .p.pyeval"lambda xlis
 i.pparams:{`.property_access;2#x}
 i.paccess:{[ob;n;op;v]$[op~(:);setattr[ob;n;v];:pyattr[ob]n];}
 
-/ used internally by help and print functions
+/ Help & Print
 help4py:pycallable pyattr[import`builtins;`help]
-help4py4py:callable pyattr[import`inspect;`getdoc]
+helpstr4py:callable pyattr[import`inspect;`getdoc]
 printpy:pycallable pyattr[import`builtins;`print]
-
-/ help function
-/ help displays python help on any of these
-/ q)Sequential:.p.pycallable_imp[`keras.models]`Sequential
-/ / foreign objects e.g.
-/ q)help Sequential[]
-/ / a pycallable e.g.
-/ q)help Sequential
-/ wrapped python class instances returned from .p.pycallable_* e.g.
-/ q)model:.p.obj2dict Sequential[]
-/ q)help model
-/ properties accessors e.g.
-/ q)help model.trainable
-/ methods in wrapped classes e.g.
-/ q)help model.add
 
 help:{
  $[112=type x;
@@ -160,7 +145,6 @@ helpstr:{
   99=type x; / might be wrapped class
    if[11h=type key x;:.z.s x`$"_pyobj"]; / doesn't matter if not there 
    ];""}
-
 /comment if you do not want print or help defined in your top level directory
 @[`.;`help;:;help];
 @[`.;`print;:;printpy];
