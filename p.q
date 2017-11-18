@@ -112,40 +112,11 @@ i.pparams:{`.property_access;2#x}
 i.paccess:{[ob;n;op;v]$[op~(:);setattr[ob;n;v];:pyattr[ob]n];}
 
 / Help & Print
-help4py:pycallable pyattr[import`builtins;`help]
-helpstr4py:callable pyattr[import`inspect;`getdoc]
-printpy:pycallable pyattr[import`builtins;`print]
-
-help:{
- $[112=type x;
-   :help4py x;
-  105=type x; /might be a pycallable
-   $[last[u:get x]~ce 1#`.p.q2pargs;
-     :.z.s last get last get first u;
-    any u[0]~/:`.p.py2q,py2q; / callable or some other composition with .p.py2q or `.p.py2q as final function
-     :.z.s last u;
-    105=type last u; / might be property setter
-     if[last[u]~ce 1#`.p.i.pparams;:.z.s x[]];
-    ];
-  99=type x; / might be wrapped class
-   if[11h=type key x;:.z.s x`$"_pyobj"]; / doesn't matter if not there
-   ];"no help available"}
-/ this version *returns* the help string for display on remote clients
-helpstr:{
- $[112=type x;
-   :helpstr4py x;
-  105=type x; /might be a pycallable 
-   $[last[u:get x]~ce 1#`.p.q2pargs;
-     :.z.s last get last get first u;
-    any u[0]~/:`.p.py2q,py2q; / callable or some other composition with .p.py2q or `.p.py2q as final function
-     :.z.s last u; 
-    105=type last u; / might be property setter
-     if[last[u]~ce 1#`.p.i.pparams;:.z.s x[]]; 
-    ]; 
-  99=type x; / might be wrapped class
-   if[11h=type key x;:.z.s x`$"_pyobj"]; / doesn't matter if not there 
-   ];""}
-/comment if you do not want print or help defined in your top level directory
+gethelp:{[h;x]h$[112=0N!t:type x;x;105=t;x`.;99=t;x`$"_pyobj";:"no help available"]}
+help:{[h;x]gethelp[h]x;}impo[`builtins][`help;*]
+helpstr:gethelp impo[`inspect][`getdoc;<]
+printpy:impo[`builtins][`print;*]
+/ Comment to remove names from top level dir
 @[`.;`help;:;help];
 @[`.;`print;:;printpy];
 
