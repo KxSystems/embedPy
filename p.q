@@ -23,25 +23,9 @@ scalar:callable .p.pyeval"lambda x:x.tolist()"
 / conv is dict from type to conversion function
 conv:neg[1 3 7 9 21 30h]!getb,getnone,getj,getf,repr,scalar
 conv[4 10 30 41 42 99h]:getG,getC,{d#x[z;0]1*/d:y z}[getarray;getarraydims],(2#(py2q each getseq@)),dict
-/ not using
-/`isb`isnone`isj`isf`isG`isC`isarray`isseq`isdict set'{any x in .p.type y}@/:"h"$(-1;-3;-7;-9;4;10;30;41 42;99);
-/ clean up all the gets... unless we really want to keep them
+/ Cleanup
 {![`.p;();0b;x]}`getseq`getb`getnone`getj`getf`getG`getC`getarraydims`getattr`getarray`getbuffer`dict`scalar`ntolist`runs;
-/ now pyutils stuff
-/ python list (q2py gives tuple by default on vectors
 
-/ passed a variable length list of args, find identified key word args, positional arg lists and key word arg dicts and produce arg list and kew word arg list
-/ the rules ... 
-/ all positionals (including pyarglist) before any key words (including pykwargs)
-/ (kwargs always last if it exists)
-/ e.g.
-/ p)def foo(a,b,c=None,d=3):print(a,b,c,d);return(a,b,c,d)
-/ q)foo:.p.callable .p.get`foo
-/ q)foo[1;2;3;4]                             / foo called with defaults all positional args
-/ q)foo[]                                    / foo called with defaults for a,b,c,d (error as python foo doesn't have defaults)
-/ q)foo[1;2]                                 / foo called with defaults for c,d
-/ q)foo[1;`b pykw 1;`d pykw 2;`c pykw 3]     / foo called with a=1,b=1,c=3,d=3
-/ q)foo[1;pyarglist 3 2;pykwargs (1#`d)!1#1] / foo called with a=1,b=3,c=2,d=1
 q2pargs:{
  / for zero arg callables
  if[x~enlist(::);:(();()!())];
