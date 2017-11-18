@@ -57,9 +57,9 @@ wf:{[c;r;x;a]
   $[count a:1_a;.[;a];::]wrapX[c;r]x}
 wrap:(wrapX:{[c;r;x]ce wf[c;r;x]})[0;0]
 unwrap:{$[105=type x;x`.;x]}
-impo:{wrap import x}
+impo:ce{r:wrap import a:x 0;$[count x:1_x;.[;x];]r}
+geto:ce{r:wrap .p.get a:x 0;$[count x:1_x;.[;x];]r}
 oval:{wrap pyeval x}
-geto:{wrap .p.get x}
 
 / obj2dict
 / Produce dict with callable methods and accessors for attributes/properties
