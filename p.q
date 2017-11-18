@@ -48,7 +48,7 @@ i.gpykwargs:{dd:(0#`)!();
 i.gpyargs:{$[not any u:`..pyas~'first each x;(u;());1<sum u;'"only one pyargs allowed";(u;(),x[where u;1]0)]}
 
 / Wrapper for foreigns
-/ n.b. r (0 wrapped, 1 q, 2 foreign)
+/ r (0 wrapped, 1 q, 2 foreign)
 wf:{[c;r;x;a]
   if[c;:(wrap;py2q;::)[r].[pycallable x]a];
   $[`.~a0:a 0;:x;`~a0;:py2q x;-11=type a0;x:x pyattr/` vs a0;
@@ -61,32 +61,8 @@ impo:{wrap import x}
 oval:{wrap pyeval x}
 geto:{wrap .p.get x}
 
-/ dict from an object (TODO name suggestions, currently obj2dict)
-/ produce a dictionary structure with callable methods and accessors for properties and data members
-/ a problem is we cannot directly inspect an instance (using python inspect module) if it
-/ has properties as the property getter may not succeed, an example from keras is the regularizers
-/ property of a model can't be accessed before the model is built. In any case we need to go through the property
-/ getter in python each time in order to be consistent with python behaviour.
-/ This solution finds all methods,data and properties of the *class* of an instance using inspect module
-/ and creates pycallables for each taking 0 or 2 args for data and properties and the usual variadic behaviour for methods or functions
-/ Can get and set properties
-/ e.g. for properties
-/ q)Sequential:.p.pycallable_imp[`keras.models]`Sequential 
-/ q)model:.p.obj2dict Sequential[]
-/ / property params
-/ / syntax for property and data params is a bit odd but we can at least do
-/ / instance.propertyname[] / get the value
-/ / instance.propertyname[:;newval] / set the value to newval
-/ q)model.trainable[]        / returns foreign
-/ / since we know model.trainable returns something convertible to q it's handier to overwrite the default behaviour to return q data
-/ q)model.trainable:.p.c .p.py2q,model.trainable
-/ q)model.trainable[]
-/ 1b
-/ q)model.trainable[:;0b]    / set it to false
-/ q)model.trainable[]        / see the result
-/ 0b
-
-/ make a q dict from a class instance
+/ obj2dict
+/ Produce dict with callable methods and accessors for attributes/properties
 obj2dict:{[x]
  if[not 112=type x;'"can only use inspection on python objects"];
  / filter class content by type (methods, data, properties)
@@ -104,7 +80,6 @@ obj2dict:{[x]
  /:res,dpn!{{[o;n;d]$[d~(::);atr[o]n}[x;y]}[x]each dpn;
  :res,dpn!{[o;n]ce .[`.p.i.paccess[o;n]],`.p.i.pparams}[x]each dpn;
  }
-
 / class content info helpers
 i.ccattrs:pycallable pyattr[import`inspect;`classify_class_attrs]
 i.anames:{[f;x;y]`${x where not x like"_*"}f[x;y]}callable .p.pyeval"lambda xlist,y: [xi.name for xi in xlist if xi.kind in y]"
