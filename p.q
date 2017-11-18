@@ -54,7 +54,7 @@ wf:{[c;r;x;a]
   $[`.~a0:a 0;:x;`~a0;:py2q x;-11=type a0;x:x pyattr/` vs a0;
   (:)~a0;[setattr . x,1_a;:(::)];
   [c:1;r:$[(*)~a0;0;(<)~a0;1;(>)~a0;2;'`NYI]]];
-  $[count a:1_a;.[;a];::]wrapX[c;r]x}
+  $[count a:1_a;.[;a];]wrapX[c;r]x}
 wrap:(wrapX:{[c;r;x]ce wf[c;r;x]})[0;0]
 unwrap:{$[105=type x;x`.;x]}
 impo:ce{r:wrap import a:x 0;$[count x:1_x;.[;x];]r}
@@ -147,7 +147,7 @@ i.qprojection:pycallable .p.get`qprojection;
 qgenfunc:{pycallable[i.partial[i.gl;`clsr pykw i.qclosure$[104=type x;get x;'`shouldbeprojection]]]y}
 qgenfuncinf:{pycallable[i.partial[i.gli;`clsr pykw i.qclosure$[104=type x;get x;'`shouldbeprojection]]]0}
 / examples
-/ q)pysum:.p.callable_imp[`builtins;`sum]
+/ q)pysum:.p.impo[`builtins;`sum;<]
 / / sum of first N ints using python generators
 / q)pysum .p.qgenfunc[.p.i.gftil;10]
 / 55
