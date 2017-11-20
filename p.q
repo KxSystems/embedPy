@@ -54,51 +54,23 @@ wf:{[c;r;x;a]
   $[`.~a0:a 0;:x;`~a0;:py2q x;-11=type a0;x:x pyattr/` vs a0;
   (:)~a0;[setattr . x,1_a;:(::)];
   [c:1;r:$[(*)~a0;0;(<)~a0;1;(>)~a0;2;'`NYI]]];
-  $[count a:1_a;.[;a];]wrapX[c;r]x}
-wrap:(wrapX:{[c;r;x]ce wf[c;r;x]})[0;0]
+  $[count a:1_a;.[;a];]w[c;r]x}
+wrap:(w:{[c;r;x]ce wf[c;r;x]})[0;0]
 unwrap:{$[105=type x;x`.;x]}
 impo:ce{r:wrap import a:x 0;$[count x:1_x;.[;x];]r}
 geto:ce{r:wrap .p.get a:x 0;$[count x:1_x;.[;x];]r}
 oval:{wrap pyeval x}
 
-/ obj2dict
-/ Produce dict with callable methods and accessors for attributes/properties
-obj2dict:{[x]
- if[not 112=type x;'"can only use inspection on python objects"];
- / filter class content by type (methods, data, properties)
- f:i.anames i.ccattrs pyattr[x]`$"__class__";
- mn:f("method";"class method";"static method");
- / data and classes handled identically at the moment
- dpn:f `data`property;
- / build callable method functions, these will return python objects not q ones
- / override with .p.c .p.py2q,x.methodname if you expect q convertible returns
- / keep a reference to the python object somewhere easy to access
- res:``_pyobj!((::);x);
- res,:mn!{pycallable pyattr[x]y}[x]each mn;
- / properties and data have to be accessed with [] (in case updated, TODO maybe not for data)
- bf:{[x;y]ce .[i.paccess[x;y]],`.p.i.pparams};
- /:res,dpn!{{[o;n;d]$[d~(::);atr[o]n}[x;y]}[x]each dpn;
- :res,dpn!{[o;n]ce .[`.p.i.paccess[o;n]],`.p.i.pparams}[x]each dpn;
- }
-/ class content info helpers
-i.ccattrs:pycallable pyattr[import`inspect;`classify_class_attrs]
-i.anames:{[f;x;y]`${x where not x like"_*"}f[x;y]}callable .p.pyeval"lambda xlist,y: [xi.name for xi in xlist if xi.kind in y]"
-i.pparams:{`.property_access;2#x}
-i.paccess:{[ob;n;op;v]$[op~(:);setattr[ob;n;v];:pyattr[ob]n];}
-
 / Help & Print
-gethelp:{[h;x]h$[112=0N!t:type x;x;105=t;x`.;99=t;x`$"_pyobj";:"no help available"]}
+gethelp:{[h;x]h$[112=0N!t:type x;x;105=t;x`.;:"no help available"]}
 help:{[h;x]gethelp[h]x;}impo[`builtins][`help;*]
 helpstr:gethelp impo[`inspect][`getdoc;<]
-printpy:impo[`builtins][`print;*]
+print:{x y;}impo[`builtins][`print;*]
 / Comment to remove names from top level dir
-@[`.;`help;:;help];
-@[`.;`print;:;printpy];
+{@[`.;x;:;get x]}each`help`print;
 
-/ callable class wrappers for q projections and 'closures' (see below)
-/ q projections should be passed as (func;args...) to python
-p)from itertools import count
-/ when called in python will call the internal q projection and update the projection based on what's returned from q
+/ Generators
+/ Implemented via q 'closures' 
 p)class qclosure(object):
  def __init__(self,qfunc=None):
   self.qlist=qfunc
@@ -112,25 +84,12 @@ p)class qclosure(object):
   pass
  def __delitem__(self,ind):
   pass
+i.qclosure:.p.geto[`qclosure;>]
 
-p)class qprojection(object):
- def __init__(self,qfunc=None):
-  self.qlist=qfunc
- def __call__(self,*args):
-  return self.qlist[0](*self.qlist[1:]+args)
- def __getitem__(self,ind):
-  return self.qlist[ind]
- def __setitem__(self,ind):
-  pass
- def __delitem__(self,ind):
-  pass
-
-/ closures don't exist really in q, however they're useful for implementing
-/ python generators. we model a closure as a projection like this
-// 
+/ q 'closures' implemented as projections 
 / f:{[state;dummy]...;((.z.s;modified state);func result)}[initialstate]
-//
-/ example generator functions gftil and gffact, they should be passed to qgenf or qgenfi 
+/ Should be passed as (f;initstate)
+/ examples
 i.gftil:{[state;d](.z.s,u;u:state+1)}0 / 0,1,...,N-1
 i.gffact:{[state;d]((.z.s;u);last u:prds 1 0+state)}0 1 / factorial
 
@@ -140,12 +99,18 @@ i.gl:.p.eval"lambda genarg,clsr:[(yield clsr(x)) for x in range(genarg)]"
 i.gli:.p.eval"lambda genarg,clsr:[(yield clsr(x)) for x in count()]"
 i.partial:pycallable pyattr[import`functools;`partial]
 / should be in it's own module
-i.qclosure:pycallable .p.get`qclosure; 
-i.qprojection:pycallable .p.get`qprojection; 
-/ returns a python generator function from q 'closure' x and argument y where y is the
-/ number of times the generator will be called
-qgenfunc:{pycallable[i.partial[i.gl;`clsr pykw i.qclosure$[104=type x;get x;'`shouldbeprojection]]]y}
+
+/ Generator lambda (applied n times)
+i.gl:.p.oval["lambda f,n:(f(x)for x in range(n))"][>]
+
+/ Generator lambda (applied indefinitely)
+p)import itertools
+i.gli:.p.oval["lambda f,n:(f(x)for x in itertools.count())"][>]
+
+/ Returns python generator
+qgenfunc:{[x;n]i.gl[i.qclosure get x;n]}
 qgenfuncinf:{pycallable[i.partial[i.gli;`clsr pykw i.qclosure$[104=type x;get x;'`shouldbeprojection]]]0}
+
 / examples
 / q)pysum:.p.impo[`builtins;`sum;<]
 / / sum of first N ints using python generators
