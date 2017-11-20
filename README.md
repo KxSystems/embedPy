@@ -1,15 +1,15 @@
 # embedPy
 
-Allows the kdb+ interpreter to call Python functions.
+Allows the kdb+ interpreter to manipulate Python objects and call Python functions.
 
 
 ## Status
 
-This library is still in development.  
+The embedPy library is still in development.  
 If you would like to participate in the beta tests, please write to ai@kx.com. 
 
 
-## Requirements ##
+## Requirements
 
 - KDB+ >=3.5 64-bit
 - Python 3.x
@@ -41,7 +41,7 @@ q)\l p.q
 ```
 
 
-### Executing Python code ###
+### Executing Python code
 
 The interface allows execution of Python code directly in a q console or from a script. In both the console and scripts, Python code should be prefixed with `p)`  
 ```q
@@ -63,13 +63,147 @@ q)p)print(add1(12))
 ```
 
 
-### The foreign datatype
+### foreign objects
 
-Python objects that have not been explicitly converted to q data, are stored as `foreign` datatype objects. These contain pointers to objects in the Python memory space, and will display `foreign` when inspected in the q console or using the `string` (or `.Q.s`) representation.
+At the lowest level, Python objects are represented in q as `foreign` objects, which contain pointers to objects in the Python memory space.
 
-Foreign objects can be stored in variables just like any other q datatype, or as part of lists, dictionaries or tables.
+Foreign objects can be stored in variables just like any other q datatype, or as part of lists, dictionaries or tables. They will display `foreign` when inspected in the q console or using the `string` (or `.Q.s`) representation. 
 
 **NB** Foreign object types cannot be serialized by kdb+ and sent over IPC: they live in the embedded Python memory space. If you need to pass these objects to other processes over IPC, then you must first convert them to q.
+
+
+### embedPy objects
+
+In practice, Python objects should be represented in q as `embedPy` objects, which wrap the underlying `foreign` objects, and provide users with the ability to
+- Get attributes/properties
+- Set attributes/properties
+- Call functions/methods
+- Convert data to q/foreign
+
+By default, calling functions/methods will return another embedPy object, allowing users to chain together sequences of functions. Alternatively, users can specify the return type as q or foreign.
+
+embedPy objects are returned by one of the following calls
+- ``.p.import[`somePythonModule]``
+- ``.p.get[`somePythonObject]``
+- ``.p.eval["somePythonStatement"]``
+
+### embedPy API
+
+Given `obj`, an embedPy object, we can carry out the following operations
+```q
+obj`                  / get data (as q)
+obj`.                 / get data (as foreign)
+obj`attr              / get attribute/property (as embedPy)
+obj`attr1.attr2       / get attribute/property at depth (as embedPy)
+obj[:;`attr;val]      / set attribute/property
+
+obj[`method][*]       / define obj.method callable (returning embedPy)
+obj[`method;*]        / equivalent
+obj[`method][*]arg    / call obj.method (returning embedPy)
+obj[`method;*]arg     / equivalent
+obj[`method;*;arg]    / equivalent
+
+
+obj[`method][<]       / define obj.method callable (returning q)
+obj[`method;<]        / equivalent
+obj[`method][<]arg    / call obj.method (returning q)
+obj[`method;<]arg     / equivalent
+obj[`method;<;arg]    / equivalent
+
+
+obj[`method][>]       / define obj.method callable (returning foreign)
+obj[`method;>]        / equivalent
+obj[`method][>]arg    / call obj.method (returning foreign)
+obj[`method;>]arg     / equivalent
+obj[`method;>;arg]    / equivalent
+```
+We can also chain calls together and combine them with `.p.import`, `.p.get` and `.p.eval`.
+
+### embedPy examples
+
+Some examples
+```q
+$ cat test.p # used for tests
+class obj:
+    def __init__(self,x=0,y=0):
+        self.x = x # attribute
+        self.y = y # property (incrementing on get)
+    @property
+    def y(self):
+        a=self.__y
+        self.__y+=1
+        return a
+    @y.setter
+    def y(self, y):
+        self.__y = y
+    def total(self):
+        return self.x + self.y
+
+q)\l test.p
+q)obj:.p.get[`obj;*][]
+q)obj[`x]`
+0
+q)obj[;`]each 5#`x
+0 0 0 0 0
+q)obj[:;`x;10]
+q)obj[`x]`
+10
+q)obj[`y]`
+0
+q)obj[;`]each 5#`y
+1 2 3 4 5
+q)obj[:;`y;10]
+q)obj[;`]each 5#`y
+10 11 12 13 14
+q)tot:obj[`total;<]
+q)tot[]
+25
+q)tot[]
+26
+q)
+q)np:.p.import`numpy
+q)v:np[`arange;*;12]
+q)v`
+0 1 2 3 4 5 6 7 8 9 10 11
+q)v[`mean;<][]
+5.5
+q)rs:v[`reshape;<]
+q)rs[3;4]
+0 1 2  3 
+4 5 6  7 
+8 9 10 11
+q)rs[2;6]
+0 1 2 3 4  5 
+6 7 8 9 10 11
+q)np[`arange;*;12][`reshape;*;3;4]`
+0 1 2  3 
+4 5 6  7 
+8 9 10 11
+q)np[`arange;*;12][`reshape;*;3;4][`T]`
+0 1  2 
+3 4  5 
+6 7  8 
+9 10 11
+q)
+q)stdout:.p.import[`sys;`stdout.write;*]
+q)stdout"hello\n";
+hello
+q)stdout"goodbye\n";
+goodbye
+q)
+q)oarg:.p.eval"10"
+q)oarg`
+10
+q)ofunc:.p.eval["lambda x:2+x";<]
+q)ofunc 1
+3
+q)ofunc oarg
+12
+q)p)def add2(x,y):return x+y
+q)add2:.p.get[`add2;<]
+q)add2[1;oarg]
+11
+```
 
 
 ### Evaluating code
@@ -84,7 +218,7 @@ Note the difference in the two results here:
 -   `.p.eval` will attempt to convert the Python result of the statement to a q result; 
 -   `.p.pyeval` will return the result as a Python (`foreign`) object, without any attempt at conversion. The result can be stored in a variable for use later, passed back to Python, examined using another `.p` function, or converted to q data.
 
-### Evaluation versus execution ###
+### Evaluation versus execution
 You may come across an error like this when using  `.p.eval/.p.pyeval`. 
 
 ```q
@@ -98,7 +232,6 @@ SyntaxError: invalid syntax
 ```
 
 The reason for this is that `.p.eval/pyeval` and `.p.e` (which is used when prefixing code with `p)`) both run the `PyRun_String` C API function internally.  The difference is that when *executing* a code string `.p.e` is used and runs this function with `Py_file_input` allowing multiple expressions or statements with side effects but not returning any value whilst `.p.eval` uses `Py_eval_input` which returns a value but is not allowed to have side effects. 
-
 
 The error we see above is very similar to what we get in Python when trying to `eval` a string which is a statement rather than an expression. e.g.
 
@@ -121,6 +254,7 @@ If you have a string you want to execute which does variable assignment or defin
 
 
 There is a more detailed explanation of the difference between `eval` and `exec` in Python [here](https://stackoverflow.com/questions/2220699/whats-the-difference-between-eval-exec-and-compile-in-python)
+
 
 ### Getting and setting Python variables
 
@@ -338,7 +472,7 @@ None
 ```
 
 
-#### Raw function calls ####
+#### Raw function calls
 
 All of the above functions use the `.p.call` function internally. This function can be used directly if you do not need the variadic or keyword argument behavior.  
 `.p.call`, when run on a Python callable object, will return a q function taking exactly 2 arguments.
