@@ -53,9 +53,9 @@ wf:{[c;r;x;a]
   $[count a:1_a;.[;a];]w[c;r]x}
 wrap:(w:{[c;r;x]ce wf[c;r;x]})[0;0]
 unwrap:{$[105=type x;x`.;x]}
-import:ce{r:wrap pyimport a:x 0;$[count x:1_x;.[;x];]r}
-.p.get:ce{r:wrap pyget a:x 0;$[count x:1_x;.[;x];]r}
-.p.eval:{wrap pyeval x}
+import: ce{r:wrap pyimport a:x 0;$[count x:1_x;.[;x];]r}
+.p.get: ce{r:wrap pyget    a:x 0;$[count x:1_x;.[;x];]r}
+.p.eval:ce{r:wrap pyeval   a:x 0;$[count x:1_x;.[;x];]r}
 
 / Help & Print
 gethelp:{[h;x]h$[112=0N!t:type x;x;105=t;x`.;:"no help available"]}

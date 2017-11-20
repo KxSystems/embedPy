@@ -14,7 +14,7 @@ p)def fit(x_data,y_data): #adapted from https://www.tensorflow.org/get_started
  for step in range(201):
   sess.run(train)
  return [sess.run(W),sess.run(b)]
-fit:.p.callable .p.get`fit
+fit:.p.get[`fit;<]
 x:100?1f
 y:.3+.1*x
 t)8 8h~type each fit[x;y]
