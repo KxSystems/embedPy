@@ -91,10 +91,19 @@ In practice, Python objects should be represented in q as `embedPy` objects, whi
 
 By default, calling an embedPy function/method, will return another embedPy object. This allows users to chain together sequences of functions. Alternatively, users can specify the return type as q or foreign.
 
-embedPy objects are returned by one of the following calls
-- ``.p.import[`somePythonModule]``
-- ``.p.get[`somePythonObject]``
-- ``.p.eval["somePythonStatement"]``
+embedPy objects are retrieved from Python WITH one of the following calls
+
+#### .p.import
+Symbol arg- the name of a Python module or package to import  
+e.g. ``.p.import`numpy``
+#### .p.get
+Symbol arg- the name of a Python variable 
+- ``.p.get`varName``
+#### .p.eval
+String arg- the Python code to evaluate
+- ``.p.eval"1+1"``  
+**NB** As with .p.qeval, .p.eval does not allow side-effects
+
 
 ### embedPy API
 
