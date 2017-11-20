@@ -61,7 +61,7 @@ q)\l test.q
 q)p)print(add1(12))
 13
 ```
-
+**Put something about .p scripts here**
 
 ### Evaluating Python code
 To evaluate Python code (as a string) and return results to q, use `.p.qeval`.  
@@ -262,6 +262,7 @@ Specifically
 
 n.b. We can combine positional arguments, lists of positional arguments, keyword arguments and a dictionary of keyword arguments, but note that _all_ keyword arguments must always follow any positional arguments and that the dictionary of keyword arguments must always be specified last if it is given at all.
 
+
 ### Example function calls
 ```q
 q)p)def func(a=1,b=2,c=3,d=4):return a*b*c*d
@@ -296,7 +297,7 @@ q)qfunc[4;pyarglist enlist 3;`d pykw 2;pykwargs (1#`c)!(),2]
 48
 ```
 
-#### Calling functions with zero arguments or `None` 
+### Zero argument calls
 
 In q, every function takes at least one argument. Even a niladic function, called with `func[]`, is the identity function `::` as an argument. In embedPy, if a function is called with `::` as the only argument, the underlying Python function will be called with _no_ arguments. As we noted above `::` in q maps to `None` in Python, however in Python these two calls are not equivalent:
 ```
@@ -366,77 +367,6 @@ The result of calling this function, will be a `foreign`.
 q)p)def f4(a,b,c,d):return (a*b,c*d)
 q).p.py2q .p.call[.p.get`f4;1 2;`d`c!4 3]
 2 12
-```
-
-### Wrapping Python objects as q dictionaries 
-
-It can be useful to extract the contents of a Python object into a q dictionary.  
-This allows members of the object to be accessed using dot notation, rather than using `.p.attr/.p.pyattr` each time.
-
-The `.p.obj2dict` function will achieve this. 
-
-**NB** Currently this is not supported for module objects, only for instances of classes in Python.
-```q
-/ create a numpy mulidimensional array
-q)p)import numpy as np
-q)array:.p.pyeval"np.reshape(np.arange(24),[2,3,4])"
-q)arraywrap:.p.obj2dict array
-q)arraywrap
-            | ::
-_pyobj      | foreign
-all         | .[code[foreign]]`.p.q2pargsenlist
-any         | .[code[foreign]]`.p.q2pargsenlist
-argmax      | .[code[foreign]]`.p.q2pargsenlist
-argmin      | .[code[foreign]]`.p.q2pargsenlist
-argpartition| .[code[foreign]]`.p.q2pargsenlist
-argsort     | .[code[foreign]]`.p.q2pargsenlist
-astype      | .[code[foreign]]`.p.q2pargsenlist
-byteswap    | .[code[foreign]]`.p.q2pargsenlist
-choose      | .[code[foreign]]`.p.q2pargsenlist
-clip        | .[code[foreign]]`.p.q2pargsenlist
-compress    | .[code[foreign]]`.p.q2pargsenlist
-conj        | .[code[foreign]]`.p.q2pargsenlist
-conjugate   | .[code[foreign]]`.p.q2pargsenlist
-copy        | .[code[foreign]]`.p.q2pargsenlist
-cumprod     | .[code[foreign]]`.p.q2pargsenlist
-cumsum      | .[code[foreign]]`.p.q2pargsenlist
-diagonal    | .[code[foreign]]`.p.q2pargsenlist
-dot         | .[code[foreign]]`.p.q2pargsenlist
-dump        | .[code[foreign]]`.p.q2pargsenlist
-dumps       | .[code[foreign]]`.p.q2pargsenlist
-..
-```
-In this dictionary, the original Python object is stored under the key `_pyobj`, and each method or function and data attribute or property has an entry in the dictionary.
-
-**NB** Attributes preceded by `_` or `__` are not wrapped into the dictionary.
-
-
-#### Calling functions
-
-Any method or function of a wrapped object has an entry which is a callable q function, with variadic and keyword argument support. Each function will return a `foreign`
-```q
-q)arraywrap.diagonal[]
-foreign
-q).p.py2q arraywrap.diagonal[]
-0 1
-2 3
-4 5
-6 7
-```
-
-
-#### Getting and setting attributes
-
-For data attributes and properties of wrapped objects, we don’t take a snapshot of the value of the attribute at a point in time, but provide a function to access or set the value of a property from the underlying Python object.
-```q
-q)qarray:.p.py2q arraywrap._pyobj
-q).p.py2q arraywrap.real[]        / get the value of the real attribute
-0 1 2  3    4 5 6  7    8 9 10 11  
-12 13 14 15 16 17 18 19 20 21 22 23
-q)arraywrap.real[:;2*qarray]      / set the value from some q data
-q).p.py2q arraywrap.real[]        / get the new value
-0  2  4  6  8  10 12 14 16 18 20 22
-24 26 28 30 32 34 36 38 40 42 44 46
 ```
 
 
