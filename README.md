@@ -63,6 +63,15 @@ q)p)print(add1(12))
 ```
 
 
+### Evaluating Python code
+To evaluate Python code (as a string) and return results to q, use `.p.qeval`.  
+```q
+q).p.qeval"1+2"
+3
+```
+**NB** Python evaluation (unlike Python execution) does not allow side-effects. Thus, any attempt at variable assignment or class definition, will result in an error. To execute a string that performs variable assignment or class definition,  you can use `.p.e`. A more detailed explanation of the difference between `eval` and `exec` in Python can be found [here](https://stackoverflow.com/questions/2220699/whats-the-difference-between-eval-exec-and-compile-in-python)
+
+
 ### foreign objects
 
 At the lowest level, Python objects are represented in q as `foreign` objects, which contain pointers to objects in the Python memory space.
@@ -80,7 +89,7 @@ In practice, Python objects should be represented in q as `embedPy` objects, whi
 - Call functions/methods
 - Convert data to q/foreign
 
-By default, calling functions/methods will return another embedPy object, allowing users to chain together sequences of functions. Alternatively, users can specify the return type as q or foreign.
+By default, calling an embedPy function/method, will return another embedPy object. This allows users to chain together sequences of functions. Alternatively, users can specify the return type as q or foreign.
 
 embedPy objects are returned by one of the following calls
 - ``.p.import[`somePythonModule]``
@@ -138,7 +147,8 @@ class obj:
         self.__y = y
     def total(self):
         return self.x + self.y
-
+```
+```
 q)\l test.p
 q)obj:.p.get[`obj;*][]
 q)obj[`x]`
@@ -206,86 +216,14 @@ q)add2[1;oarg]
 ```
 
 
-### Evaluating code
-To execute Python code (as a string) and return results to q, use either `.p.eval` or `.p.pyeval`. 
+### Setting Python variables
+
+Variables can be set in Python `__main__` using `.p.set`
 ```q
-q).p.eval"1+2"
-3
-q).p.pyeval"1+2"
-foreign
+q).p.set[`var1;42]
+q).p.qeval"var1"
+42
 ```
-Note the difference in the two results here: 
--   `.p.eval` will attempt to convert the Python result of the statement to a q result; 
--   `.p.pyeval` will return the result as a Python (`foreign`) object, without any attempt at conversion. The result can be stored in a variable for use later, passed back to Python, examined using another `.p` function, or converted to q data.
-
-### Evaluation versus execution
-You may come across an error like this when using  `.p.eval/.p.pyeval`. 
-
-```q
-q).p.eval"a=42"
-  File "<string>", line 1
-    a=42
-     ^
-SyntaxError: invalid syntax
-'p.c:69 runs pyerr
-  [0]  .p.eval"a=42"
-```
-
-The reason for this is that `.p.eval/pyeval` and `.p.e` (which is used when prefixing code with `p)`) both run the `PyRun_String` C API function internally.  The difference is that when *executing* a code string `.p.e` is used and runs this function with `Py_file_input` allowing multiple expressions or statements with side effects but not returning any value whilst `.p.eval` uses `Py_eval_input` which returns a value but is not allowed to have side effects. 
-
-The error we see above is very similar to what we get in Python when trying to `eval` a string which is a statement rather than an expression. e.g.
-
-```python
->>> eval('x=2')
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-  File "<string>", line 1
-    x=2
-     ^
-SyntaxError: invalid syntax
->>> y=exec('z=10')
->>> print(y,z) # y has no value
-None 10
-```
-- .p.e` is analogous to Python's exec
-- .p.eval/pyeval` are analogous to Python's eval
-
-If you have a string you want to execute which does variable assignment or defines a Python function or class you will need to use `.p.e`, if you just need to return a value from a string evaluated as Python code then you should use `.p.eval.
-
-
-There is a more detailed explanation of the difference between `eval` and `exec` in Python [here](https://stackoverflow.com/questions/2220699/whats-the-difference-between-eval-exec-and-compile-in-python)
-
-
-### Getting and setting Python variables
-
-Variables in Python `__main__` can be set using `.p.set` and retrieved using `.p.get`
-```q
-q).p.set[`var1;til 100]
-q).p.eval"len(var1)"
-100
-q)qvar:.p.get[`var1]
-q)qvar
-foreign
-```
-**NB** Like `.p.eval`, `.p.get` will not automatically convert Python objects to q data.
-
-
-### Converting data 
-
-Function `.p.py2q` will attempt to convert Python (`foreign`) data to q
-```q
-q)qvar:.p.get[`var1]
-q).p.py2q qvar
-0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 ..
-```
-Corresponding function `.p.q2py` converts q objects to Python objects  
-```q
-q).p.q2py 1 2 3
-foreign
-```
-This will rarely be used in practice, as conversion of q data to Python objects is performed automatically whenever q data is passed to Python.
-
-It is safe to call `.p.py2q` on q data and `.p.q2py` on Python data: they will return the argument unchanged in these cases.
 
 
 #### `None` and identity `::` 
@@ -295,65 +233,7 @@ Python `None` maps to the q identity function `::` when converting from Python t
 There is one exception to this. When calling Python functions, methods or classes with a single q data argument, passing `::` will result in the Python object being called with _no_ arguments, rather than a single argument of `None`. See the section below on callables for how to explicitly call a Python callable with a single `None` argument. 
 
 
-### Imports 
-
-Python modules (or objects from modules) can be imported using `.p.import` or `.p.imp`
-
-- `.p.import` imports a Python module
-- `.p.imp`    imports an object from a Python module or package 
-
-Each of these functions returns the imported object as `foreign`.
-```q
-q)np:.p.import`numpy
-q).p.attr[np;`BUFSIZE]
-8192
-q)npversion:.p.imp[`numpy;`version]
-q).p.attr[npversion;`full_version]
-"1.13.3"
-```
-
-
-### Attributes 
-
-Attributes of Python objects can be retrieved using `.p.attr` or `.p.pyattr`. 
--   `.p.attr` will attempt to convert to a q result
--   `.p.pyattr` will return the result as a Python (`foreign`) object, without any attempt at conversion
-
-```q
-p)class AnObject(object):pass     # These lines define a simple object with two attributes
-p)anobject=AnObject()
-p)anobject.attr1=10
-p)anobject.attr2=20
-q)qobject:.p.get`anobject         / retrieve the object created 
-q).p.attr[qobject;`attr1]         / retrieve the value of attribute attr1 of the object
-10
-q).p.pyattr[qobject;`attr2]
-foreign
-```
-
-
-### Dictionary keys and values
-
-Python dictionaries can be retrieved and converted to q dictionaries.  
-Additionally, functions are provided to directly retrieve the keys and values of a `foreign` Python dictionary, without performing the conversion to a q dictionary. 
-
-- `.p.key` will return the keys of a Python dictionary
-- `.p.value` will return the values of a Python dictionary
-
-In each case, the result will be a Python (`foreign`) object.
-
-```q
-p)dict={'key1':12,'key2':42}
-q)qdict:.p.get`dict
-q).p.py2q .p.key qdict 
-"key1"
-"key2"
-q).p.py2q .p.value qdict
-12 42
-```
-
-
-### Python functions 
+### Calling Python functions 
 
 Python allows for calling functions with a mixture of positional and keyword arguments. It also supports default arguments, so functions may be called with fewer arguments than are specified in the signature.  
 The same behaviour is available for class instantiation through the `__init__` method of classes. 
@@ -361,60 +241,6 @@ The same behaviour is available for class instantiation through the `__init__` m
 Both variadic and keyword arguments are available through the function interface.
 
 There are three ways of creating variadic q functions from Python callables, and for each of these a function returning either q data or Python data can be specified 
-
-||returning q|returning Python|
-|:---|:---|:---|
-|from Python callable|`.p.callable`|`.p.pycallable`|
-|from attribute `y` of Python object `x`|`.p.callable_attr`|`.p.pycallable_attr`|
-|from content item `y` of Python module name `x`|`.p.callable_imp`|`.p.pycallable_imp`|
-
-In each of the examples below, we create two q functions to call the Python `numpy.eye` function.  
-One returns the result as q data and the other returns a Python (`foreign`) object.
-
-
-#### Getting `numpy.eye` as a `foreign` and creating q functions from it 
-
-```q
-q)p)import numpy as np
-q)eye:.p.pyeval"np.eye"
-q)qeye:.p.callable eye
-q)peye:.p.pycallable eye
-q)qeye 3
-1 0 0
-0 1 0
-0 0 1
-q)peye 3
-foreign
-```
-
-
-#### Getting the `numpy` module as a `foreign` and creating q functions from the `eye` function 
-
-```q
-q)np:.p.import`numpy
-q)qeye:.p.callable_attr[np;`eye]
-q)peye:.p.pycallable_attr[np;`eye]
-q)qeye 3
-1 0 0
-0 1 0
-0 0 1
-q)peye 3
-foreign
-```
-
-
-#### Importing the `numpy.eye` function directly and creating q functions 
-
-```q
-q)qeye:.p.callable_imp[`numpy;`eye]
-q)peye:.p.pycallable_imp[`numpy;`eye]
-q)qeye 3
-1 0 0
-0 1 0
-0 0 1
-q)peye 3
-foreign
-```
 
 
 #### Variable number of arguments 
@@ -469,6 +295,45 @@ q)pynone:.p.pyeval"None"
 q)printfunc[]
 q)printfunc pynone
 None
+```
+
+
+### Converting data 
+
+Function `.p.py2q` will attempt to convert Python (`foreign`) data to q
+```q
+q)qvar:.p.get[`var1]
+q).p.py2q qvar
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 ..
+```
+Corresponding function `.p.q2py` converts q objects to Python objects  
+```q
+q).p.q2py 1 2 3
+foreign
+```
+This will rarely be used in practice, as conversion of q data to Python objects is performed automatically whenever q data is passed to Python.
+
+It is safe to call `.p.py2q` on q data and `.p.q2py` on Python data: they will return the argument unchanged in these cases.
+
+
+### Dictionary keys and values
+
+Python dictionaries can be retrieved and converted to q dictionaries.  
+Additionally, functions are provided to directly retrieve the keys and values of a `foreign` Python dictionary, without performing the conversion to a q dictionary. 
+
+- `.p.key` will return the keys of a Python dictionary
+- `.p.value` will return the values of a Python dictionary
+
+In each case, the result will be a Python (`foreign`) object.
+
+```q
+p)dict={'key1':12,'key2':42}
+q)qdict:.p.get`dict
+q).p.py2q .p.key qdict 
+"key1"
+"key2"
+q).p.py2q .p.value qdict
+12 42
 ```
 
 
