@@ -7,13 +7,13 @@ k)c:{'[y;x]}/|:         / compose list of functions
 k)ce:{'[y;x]}/enlist,|: / compose with enlist (for variadic functions)
 
 / Aliases
-set'[`pyeval`pyattr`arraydims;.p.eval,getattr,getarraydims];
+set'[`pyget`pyeval`pyimport`pyattr`arraydims;.p.get,.p.eval,import,getattr,getarraydims];
 .p.attr:c`.p.py2q,pyattr;
-.p.eval:c`.p.py2q,pyeval;
+qeval:c`.p.py2q,pyeval;
 
 pycallable:{if[not 112=type x;'`type];ce .[.p.call x],`.p.q2pargs}
 callable:{c`.p.py2q,pycallable x}
-setattr:pycallable pyattr[import`builtins]`setattr
+setattr:pycallable pyattr[pyimport`builtins]`setattr
 
 / Converting python to q
 py2q:{$[112=type x;conv .p.type[x]0;]x} / convert to q using best guess of type
@@ -53,15 +53,15 @@ wf:{[c;r;x;a]
   $[count a:1_a;.[;a];]w[c;r]x}
 wrap:(w:{[c;r;x]ce wf[c;r;x]})[0;0]
 unwrap:{$[105=type x;x`.;x]}
-impo:ce{r:wrap import a:x 0;$[count x:1_x;.[;x];]r}
-geto:ce{r:wrap .p.get a:x 0;$[count x:1_x;.[;x];]r}
-oval:{wrap pyeval x}
+import:ce{r:wrap pyimport a:x 0;$[count x:1_x;.[;x];]r}
+.p.get:ce{r:wrap pyget a:x 0;$[count x:1_x;.[;x];]r}
+.p.eval:{wrap pyeval x}
 
 / Help & Print
 gethelp:{[h;x]h$[112=0N!t:type x;x;105=t;x`.;:"no help available"]}
-help:{[h;x]gethelp[h]x;}impo[`builtins;`help;*]
-helpstr:gethelp impo[`inspect;`getdoc;<]
-print:{x y;}impo[`builtins;`print;*]
+help:{[h;x]gethelp[h]x;}import[`builtins;`help;*]
+helpstr:gethelp import[`inspect;`getdoc;<]
+print:{x y;}import[`builtins;`print;*]
 {@[`.;x;:;get x]}each`help`print; / comment to remove from global namespace
 
 / Closures
@@ -72,10 +72,10 @@ p)def qclosure(func,*state):
     state=(res[0],)
     return res[1]
   return cfunc
-qclosure:.p.geto[`qclosure;*]
+qclosure:.p.get[`qclosure;*]
 / implement 'closure' as: qclosure[{[state;dummy] ...;(newState;result)};initState]
 
 / Generators
 p)import itertools
-gl:.p.oval["lambda f,n:(f(x)for x in(itertools.count()if n==None else range(n)))"][>]
+gl:.p.eval["lambda f,n:(f(x)for x in(itertools.count()if n==None else range(n)))"][>]
 genfunc:{[f;i;n]gl[qclosure[f;i]`.;n]}
