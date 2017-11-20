@@ -91,13 +91,13 @@ In practice, Python objects should be represented in q as `embedPy` objects, whi
 
 By default, calling an embedPy function/method, will return another embedPy object. This allows users to chain together sequences of functions. Alternatively, users can specify the return type as q or foreign.
 
-embedPy objects are retrieved from Python WITH one of the following calls
+embedPy objects are retrieved from Python with one of the following calls
 
 #### .p.import
 Symbol arg- the name of a Python module or package to import  
 e.g. ``.p.import`numpy``
 #### .p.get
-Symbol arg- the name of a Python variable 
+Symbol arg- the name of a Python variable in `__main__`
 - ``.p.get`varName``
 #### .p.eval
 String arg- the Python code to evaluate
@@ -179,7 +179,8 @@ q)tot[]
 25
 q)tot[]
 26
-q)
+```
+```
 q)np:.p.import`numpy
 q)v:np[`arange;*;12]
 q)v`
@@ -203,13 +204,15 @@ q)np[`arange;*;12][`reshape;*;3;4][`T]`
 3 4  5 
 6 7  8 
 9 10 11
-q)
+```
+```
 q)stdout:.p.import[`sys;`stdout.write;*]
 q)stdout"hello\n";
 hello
 q)stdout"goodbye\n";
 goodbye
-q)
+```
+```
 q)oarg:.p.eval"10"
 q)oarg`
 10
@@ -242,19 +245,24 @@ Python `None` maps to the q identity function `::` when converting from Python t
 There is one exception to this. When calling Python functions, methods or classes with a single q data argument, passing `::` will result in the Python object being called with _no_ arguments, rather than a single argument of `None`. See the section below on callables for how to explicitly call a Python callable with a single `None` argument. 
 
 
-### Calling Python functions 
+### Function calls
 
-Python allows for calling functions with a mixture of positional and keyword arguments. It also supports default arguments, so functions may be called with fewer arguments than are specified in the signature.  
-The same behaviour is available for class instantiation through the `__init__` method of classes. 
+Python allows for calling functions with 
+- A variable number of argumemnts
+- A mixture of positional and keyword arguments
+- Implicit (default) arguments
 
-Both variadic and keyword arguments are available through the function interface.
+All of these features are available through the embedPy function-call interface.  
+Specifically
+- Callable embedPy objects are variadic
+- Default arguments are appplied where no explicit arguments are given
+- Individual keyword arguments are specified using the (infix) `pykw` operator
+- A list of positional arguments can be passed using `pyarglist` (like Python *args)
+- A dictionary of keyword arguments can be passed using `pykwargs` (like Python *kwargs)
 
-There are three ways of creating variadic q functions from Python callables, and for each of these a function returning either q data or Python data can be specified 
+n.b. We can combine positional arguments, lists of positional arguments, keyword arguments and a dictionary of keyword arguments, but note that _all_ keyword arguments must always follow any positional arguments and that the dictionary of keyword arguments must always be specified last if it is given at all.
 
-
-#### Variable number of arguments 
-
-Python callables with default arguments or a variable number of arguments can be called from q.
+### Example function calls
 ```q
 q)p)def func(a=1,b=2,c=3,d=4):return a*b*c*d
 q)qfunc:.p.callable .p.get`func
@@ -283,16 +291,14 @@ q)qfunc[pyarglist 1 1 1]
 q)qfunc[pyarglist 2 2;pykwargs `d`c!3 3]
 36
 ```
-You can combine positional arguments, lists of positional arguments, keyword arguments and a dictionary of keyword arguments, but note that _all_ keyword arguments must always follow any positional arguments and that the dictionary of keyword arguments must always be specified last if it is given at all.
 ```q
 q)qfunc[4;pyarglist enlist 3;`d pykw 2;pykwargs (1#`c)!(),2]
 48
 ```
 
-
 #### Calling functions with zero arguments or `None` 
 
-In q, every function takes at least one argument. Whenever a function is called with `func[]`, the argument passed is the identity function `::`. In embedPy, if a function is called with `::` as the only argument, the underlying Python function will be called with _no_ arguments. As we noted above `::` in q maps to `None` in Python, however in Python these two calls are not equivalent:
+In q, every function takes at least one argument. Even a niladic function, called with `func[]`, is the identity function `::` as an argument. In embedPy, if a function is called with `::` as the only argument, the underlying Python function will be called with _no_ arguments. As we noted above `::` in q maps to `None` in Python, however in Python these two calls are not equivalent:
 ```
 func()
 func(None)
