@@ -63,62 +63,23 @@ oval:{wrap pyeval x}
 
 / Help & Print
 gethelp:{[h;x]h$[112=0N!t:type x;x;105=t;x`.;:"no help available"]}
-help:{[h;x]gethelp[h]x;}impo[`builtins][`help;*]
-helpstr:gethelp impo[`inspect][`getdoc;<]
-print:{x y;}impo[`builtins][`print;*]
-/ Comment to remove names from top level dir
-{@[`.;x;:;get x]}each`help`print;
+help:{[h;x]gethelp[h]x;}impo[`builtins;`help;*]
+helpstr:gethelp impo[`inspect;`getdoc;<]
+print:{x y;}impo[`builtins;`print;*]
+{@[`.;x;:;get x]}each`help`print; / comment to remove from global namespace
+
+/ Closures
+p)def qclosure(func,*state):
+  def cfunc(*args):
+    nonlocal state
+    res=func(*state+args)
+    state=(res[0],)
+    return res[1]
+  return cfunc
+qclosure:.p.geto[`qclosure;>]
+/ implement 'closure' as:  qclosure[{[state;dummy] ...;(newState;result)};initState]
 
 / Generators
-/ Implemented via q 'closures' 
-p)class qclosure(object):
- def __init__(self,qfunc=None):
-  self.qlist=qfunc
- def __call__(self,*args):
-  res=self.qlist[0](*self.qlist[1:]+args)
-  self.qlist=res[0] #update the projection
-  return res[-1]
- def __getitem__(self,ind):
-  return self.qlist[ind]
- def __setitem__(self,ind):
-  pass
- def __delitem__(self,ind):
-  pass
-i.qclosure:.p.geto[`qclosure;>]
-
-/ q 'closures' implemented as projections 
-/ f:{[state;dummy]...;((.z.s;modified state);func result)}[initialstate]
-/ Should be passed as (f;initstate)
-/ examples
-i.gftil:{[state;d](.z.s,u;u:state+1)}0 / 0,1,...,N-1
-i.gffact:{[state;d]((.z.s;u);last u:prds 1 0+state)}0 1 / factorial
-
-/ generator lambda, to be partially applied with a qclosure in python this should then be applied to an int N to give a generator which yields N times
-i.gl:.p.eval"lambda genarg,clsr:[(yield clsr(x)) for x in range(genarg)]"
-/ generator lambda, yields for as long as it's called
-i.gli:.p.eval"lambda genarg,clsr:[(yield clsr(x)) for x in count()]"
-i.partial:pycallable pyattr[import`functools;`partial]
-/ should be in it's own module
-
-/ Generator lambda (applied n times)
-i.gl:.p.oval["lambda f,n:(f(x)for x in range(n))"][>]
-
-/ Generator lambda (applied indefinitely)
 p)import itertools
-i.gli:.p.oval["lambda f,n:(f(x)for x in itertools.count())"][>]
-
-/ Returns python generator
-qgenfunc:{[x;n]i.gl[i.qclosure get x;n]}
-qgenfuncinf:{pycallable[i.partial[i.gli;`clsr pykw i.qclosure$[104=type x;get x;'`shouldbeprojection]]]0}
-
-/ examples
-/ q)pysum:.p.impo[`builtins;`sum;<]
-/ / sum of first N ints using python generators
-/ q)pysum .p.qgenfunc[.p.i.gftil;10]
-/ 55
-/ q)sum 1+til 10
-/ 55
-/ / sum of factorials of first N numbers
-/ q)pysum .p.qgenfunc[.p.i.gffact;10]
-/ 4037913
-/ q)sum {prd 1+til x}each 1+til 10
+gl:.p.oval["lambda f,n:(f(x)for x in(itertools.count()if n==None else range(n)))"][>]
+genfunc:{[f;i;n]gl[qclosure[f;i];n]}
