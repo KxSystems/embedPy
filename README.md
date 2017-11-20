@@ -239,7 +239,7 @@ q).p.qeval"var1"
 ```
 
 
-#### `None` and identity `::` 
+### `None` and identity `::` 
 
 Python `None` maps to the q identity function `::` when converting from Python to q and vice versa.
 
