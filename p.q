@@ -13,14 +13,13 @@ set'[`pyeval`pyattr`arraydims;.p.eval,getattr,getarraydims];
 
 pycallable:{if[not 112=type x;'`type];ce .[.p.call x],`.p.q2pargs}
 callable:{c`.p.py2q,pycallable x}
-
-setattr:pycallable pyattr[import`builtins;`setattr]
+setattr:pycallable pyattr[import`builtins]`setattr
 
 / Converting python to q
 py2q:{$[112=type x;conv .p.type[x]0;]x} / convert to q using best guess of type
 dict:{({$[all 10=type@'x;`$;]x}py2q .p.key x)!py2q .p.value x}
 scalar:callable .p.pyeval"lambda x:x.tolist()"
-/ conv is dict from type to conversion function
+/ conv: type -> convfunction
 conv:neg[1 3 7 9 21 30h]!getb,getnone,getj,getf,repr,scalar
 conv[4 10 30 41 42 99h]:getG,getC,{d#x[z;0]1*/d:y z}[getarray;getarraydims],(2#(py2q each getseq@)),dict
 
@@ -29,21 +28,18 @@ conv[4 10 30 41 42 99h]:getG,getC,{d#x[z;0]1*/d:y z}[getarray;getarraydims],(2#(
 
 / Calling python functions
 q2pargs:{
- / for zero arg callables
- if[x~enlist(::);:(();()!())];
+ if[x~enlist(::);:(();()!())]; / zero args
  hd:(k:i.gpykwargs x)0; 
  al:neg[hd]_(a:i.gpyargs x)0;
- / we check order as we're messing with it before passing to python and it won't be able to
- if[any 1_prev[u]and not u:`..pykw~'first each neg[hd]_x;'"positional argument follows keyword argument"];
- cn:{$[()~x;x;11h<>type x;'`type;x~distinct x;x;'`dupnames]};
+ if[any 1_prev[u]and not u:`..pykw~'first each neg[hd]_x;'"keywords last"]; / check arg order
+ cn:{$[()~x;x;11<>type x;'`type;x~distinct x;x;'`dupnames]};
  :(unwrap each x[where not[al]&not u],a 1;cn[named[;1],key k 1]!(unwrap each named:(x,(::))where u)[;2],value k 1)
  }
-/ identify named params for python call, without it you have to do .p.pykw[`argname]argvalue which is a tad ugly
-if[not`pykw in key`.q;.p.pykw:(`..pykw;;);.q.pykw:.p.pykw];                    / identify keyword args with `name pykw value
-if[not`pyarglist in key`.q;.p.pyarglist:(`..pyas;);.q.pyarglist:.p.pyarglist]; / identify positional arg list (*args in python)
-if[not`pykwargs in key`.q;.p.pykwargs:(`..pyks;);.q.pykwargs:.p.pykwargs];     / identify keyword dict **kwargs in python
+if[not`pykw      in key`.q;.p.pykw:     (`..pykw;;);.q.pykw:.p.pykw];           / identify keyword args with `name pykw value
+if[not`pyarglist in key`.q;.p.pyarglist:(`..pyas;) ;.q.pyarglist:.p.pyarglist]; / identify pos arg list (*args in python)
+if[not`pykwargs  in key`.q;.p.pykwargs: (`..pyks;) ;.q.pykwargs:.p.pykwargs];   / identify keyword dict (**kwargs in python)
 i.gpykwargs:{dd:(0#`)!();
- $[not any u:`..pyks~'first each x;(0;dd);not last u;'"pykwargs may only be last";
+ $[not any u:`..pyks~'first each x;(0;dd);not last u;'"pykwargs last";
   1<sum u;'"only one pykwargs allowed";(1;dd,x[where u;1]0)]}
 i.gpyargs:{$[not any u:`..pyas~'first each x;(u;());1<sum u;'"only one pyargs allowed";(u;(),x[where u;1]0)]}
 
