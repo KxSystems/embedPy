@@ -406,12 +406,12 @@ You’ll find further examples in the [examples](examples) directory. This inclu
 
 name                 | description                                                                                                                             
 ---------------------|-----------------------------------------------------------------------------------------------------------------------------------------
-`.p.eval`            | evaluate string as Python code and convert returned result to q via `py2q`
+`.p.eval`            | evaluate string as Python code and return result as embedPy
+`.p.qeval`           | evaluate string as Python code and return result as q
 `.p.pyeval`          | evaluate string as Python code and return result as foreign
 `.p.e`               | evaluate string as Python code, used for the p language, returns `::`
 `.p.set`             | set a variable in Python `__main__` , `x - symbol`, `y - any q object`
 `.p.import`          | import a module `x - symbol`
-`.p.imp`             | import `y - symbol` from module `x - symbol` and return a foreign object, like `from x import y` 
 `.p.py2q`            | convert Python object `foreign` to q, conversion is based on the function in `conv` for the first `.p.type` of a Python object
 `.p.q2py`            | convert a q object to a Python object `foreign`
 `.p.get`             | get value of `x - symbol` from Python `__main__`
@@ -420,17 +420,12 @@ name                 | description
 `.p.key`             | keys of a Python dictionary
 `.p.value`           | values of a Python dictionary
 `.p.type`            | type of a Python object
-`.p.obj2dict`        | extract the methods, properties and data attributes of a Python object `x - foreign` into a dictionary, keys are `symbols`, values are `pycallables`
 `.p.printpy`         | print a Python object's string representation
 `.p.help`            | display help on Python objects as `foreign` and the underlying Python object for `callables`, `pycallables` and dictionaries created using `.p.obj2dict`
 `.p.helpstr`         | give the docstring for Python objects and the underlying Python object for `callables`, `pycallables` and dictionaries created using `.p.obj2dict`
 `.p.arraydims`       | give the shape of `x - foreign` a numpy multi-dimensional array.
 `.p.callable`        | create a callable q function from a Python callable object `x - foreign` the function will convert results to q when subsequently called
 `.p.pycallable`      | create a callable q function from a Python callable object `x - foreign` the function will return `foreign` when subsequently called
-`.p.callable_imp`    | import `y - symbol` from module `x - symbol` and create a callable function from this, the function will convert results to q when subsequently called
-`.p.pycallable_imp`  | import `y - symbol` from module `x - symbol`  and create a callable function from this, the function will return results as `foreign` when subsequently called
-`.p.callable_attr`   | create a callable function from the `y - symbol` attribute of `x - foreign`, the function will convert results to q when subsequently called
-`.p.pycallable_attr` | create a callable function from the `y - symbol` attribute of `x - foreign`, the function will return results as a `foreign` when subsequently called
 `.p.qgenfunc`        | produce a Python generator from `x - q projection` which will yield `y - integer` times
 `.p.qgenfuncinf`     | produce a Python generator from `x - q projection` which will yield indefinitely 
 `.p.q2pargs`         | internal, used to interpret parameters passed to callables
