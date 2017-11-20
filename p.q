@@ -70,16 +70,16 @@ print:{x y;}impo[`builtins;`print;*]
 
 / Closures
 p)def qclosure(func,*state):
-  def cfunc(*args):
+  def cfunc(a0=None,*args):
     nonlocal state
-    res=func(*state+args)
+    res=func(*state+(a0,)+args)
     state=(res[0],)
     return res[1]
   return cfunc
-qclosure:.p.geto[`qclosure;>]
-/ implement 'closure' as:  qclosure[{[state;dummy] ...;(newState;result)};initState]
+qclosure:.p.geto[`qclosure;*]
+/ implement 'closure' as: qclosure[{[state;dummy] ...;(newState;result)};initState]
 
 / Generators
 p)import itertools
 gl:.p.oval["lambda f,n:(f(x)for x in(itertools.count()if n==None else range(n)))"][>]
-genfunc:{[f;i;n]gl[qclosure[f;i];n]}
+genfunc:{[f;i;n]gl[qclosure[f;i]`.;n]}
