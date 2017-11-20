@@ -102,7 +102,8 @@ Symbol arg- the name of a Python variable in `__main__`
 #### .p.eval
 String arg- the Python code to evaluate
 - ``.p.eval"1+1"``  
-**NB** As with .p.qeval, .p.eval does not allow side-effects
+
+**NB** As with other Python evaluation functions, .p.eval does not allow side-effects
 
 
 ### embedPy API
