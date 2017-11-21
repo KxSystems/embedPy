@@ -61,7 +61,17 @@ q)\l test.q
 q)p)print(add1(12))
 13
 ```
-**Put something about .p scripts here**
+Full scripts of Python code can be executed in q, using the `.p` file extension (not `.py`).  
+The script is loaded as usual.
+```
+$ cat hq.p 
+print("Hello q!")
+```
+```q
+q)\l hq.p
+Hello q!
+```
+
 
 ### Evaluating Python code
 To evaluate Python code (as a string) and return results to q, use `.p.qeval`.  
