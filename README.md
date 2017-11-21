@@ -1,15 +1,15 @@
 # embedPy
 
-Allows the kdb+ interpreter to call Python functions.
+Allows the kdb+ interpreter to manipulate Python objects and call Python functions.
 
 
 ## Status
 
-This library is still in development.  
+The embedPy library is still in development.  
 If you would like to participate in the beta tests, please write to ai@kx.com. 
 
 
-## Requirements ##
+## Requirements
 
 - KDB+ >=3.5 64-bit
 - Python 3.x
@@ -41,7 +41,7 @@ q)\l p.q
 ```
 
 
-### Executing Python code ###
+### Executing Python code
 
 The interface allows execution of Python code directly in a q console or from a script. In both the console and scripts, Python code should be prefixed with `p)`  
 ```q
@@ -61,103 +61,300 @@ q)\l test.q
 q)p)print(add1(12))
 13
 ```
+Full scripts of Python code can be executed in q, using the `.p` file extension (not `.py`).  
+The script is loaded as usual.
+```
+$ cat hq.p 
+print("Hello q!")
+```
+```q
+q)\l hq.p
+Hello q!
+```
 
 
-### The foreign datatype
+### Evaluating Python code
+To evaluate Python code (as a string) and return results to q, use `.p.qeval`.  
+```q
+q).p.qeval"1+2"
+3
+```
+**NB** Python evaluation (unlike Python execution) does not allow side-effects. Thus, any attempt at variable assignment or class definition, will result in an error. To execute a string that performs variable assignment or class definition,  you can use `.p.e`. A more detailed explanation of the difference between `eval` and `exec` in Python can be found [here](https://stackoverflow.com/questions/2220699/whats-the-difference-between-eval-exec-and-compile-in-python)
 
-Python objects that have not been explicitly converted to q data, are stored as `foreign` datatype objects. These contain pointers to objects in the Python memory space, and will display `foreign` when inspected in the q console or using the `string` (or `.Q.s`) representation.
 
-Foreign objects can be stored in variables just like any other q datatype, or as part of lists, dictionaries or tables.
+### foreign objects
+
+At the lowest level, Python objects are represented in q as `foreign` objects, which contain pointers to objects in the Python memory space.
+
+Foreign objects can be stored in variables just like any other q datatype, or as part of lists, dictionaries or tables. They will display `foreign` when inspected in the q console or using the `string` (or `.Q.s`) representation. 
 
 **NB** Foreign object types cannot be serialized by kdb+ and sent over IPC: they live in the embedded Python memory space. If you need to pass these objects to other processes over IPC, then you must first convert them to q.
 
 
-### Evaluating code
-To execute Python code (as a string) and return results to q, use either `.p.eval` or `.p.pyeval`. 
+### embedPy objects
+
+In practice, Python objects should be represented in q as `embedPy` objects, which wrap the underlying `foreign` objects, and provide users with the ability to
+- Get attributes/properties
+- Set attributes/properties
+- Call functions/methods
+- Convert data to q/foreign
+
+By default, calling an embedPy function/method, will return another embedPy object. This allows users to chain together sequences of functions. Alternatively, users can specify the return type as q or foreign.
+
+embedPy objects are retrieved from Python with one of the following calls
+
+#### .p.import
+Symbol arg- the name of a Python module or package to import  
+e.g. ``.p.import`numpy``
+#### .p.get
+Symbol arg- the name of a Python variable in `__main__`
+- ``.p.get`varName``
+#### .p.eval
+String arg- the Python code to evaluate
+- ``.p.eval"1+1"``  
+
+**NB** As with other Python evaluation functions, .p.eval does not allow side-effects
+
+
+### embedPy API
+
+Given `obj`, an embedPy object, we can carry out the following operations
 ```q
-q).p.eval"1+2"
+obj`                  / get data (as q)
+obj`.                 / get data (as foreign)
+obj`attr              / get attribute/property (as embedPy)
+obj`attr1.attr2       / get attribute/property at depth (as embedPy)
+obj[:;`attr;val]      / set attribute/property
+
+obj[`method][*]       / define obj.method callable (returning embedPy)
+obj[`method;*]        / equivalent
+obj[`method][*]arg    / call obj.method (returning embedPy)
+obj[`method;*]arg     / equivalent
+obj[`method;*;arg]    / equivalent
+
+
+obj[`method][<]       / define obj.method callable (returning q)
+obj[`method;<]        / equivalent
+obj[`method][<]arg    / call obj.method (returning q)
+obj[`method;<]arg     / equivalent
+obj[`method;<;arg]    / equivalent
+
+
+obj[`method][>]       / define obj.method callable (returning foreign)
+obj[`method;>]        / equivalent
+obj[`method][>]arg    / call obj.method (returning foreign)
+obj[`method;>]arg     / equivalent
+obj[`method;>;arg]    / equivalent
+```
+We can also chain calls together and combine them with `.p.import`, `.p.get` and `.p.eval`.
+
+### embedPy examples
+
+Some examples
+```q
+$ cat test.p # used for tests
+class obj:
+    def __init__(self,x=0,y=0):
+        self.x = x # attribute
+        self.y = y # property (incrementing on get)
+    @property
+    def y(self):
+        a=self.__y
+        self.__y+=1
+        return a
+    @y.setter
+    def y(self, y):
+        self.__y = y
+    def total(self):
+        return self.x + self.y
+```
+```
+q)\l test.p
+q)obj:.p.get[`obj;*][]
+q)obj[`x]`
+0
+q)obj[;`]each 5#`x
+0 0 0 0 0
+q)obj[:;`x;10]
+q)obj[`x]`
+10
+q)obj[`y]`
+0
+q)obj[;`]each 5#`y
+1 2 3 4 5
+q)obj[:;`y;10]
+q)obj[;`]each 5#`y
+10 11 12 13 14
+q)tot:obj[`total;<]
+q)tot[]
+25
+q)tot[]
+26
+```
+```
+q)np:.p.import`numpy
+q)v:np[`arange;*;12]
+q)v`
+0 1 2 3 4 5 6 7 8 9 10 11
+q)v[`mean;<][]
+5.5
+q)rs:v[`reshape;<]
+q)rs[3;4]
+0 1 2  3 
+4 5 6  7 
+8 9 10 11
+q)rs[2;6]
+0 1 2 3 4  5 
+6 7 8 9 10 11
+q)np[`arange;*;12][`reshape;*;3;4]`
+0 1 2  3 
+4 5 6  7 
+8 9 10 11
+q)np[`arange;*;12][`reshape;*;3;4][`T]`
+0 1  2 
+3 4  5 
+6 7  8 
+9 10 11
+```
+```
+q)stdout:.p.import[`sys;`stdout.write;*]
+q)stdout"hello\n";
+hello
+q)stdout"goodbye\n";
+goodbye
+```
+```
+q)oarg:.p.eval"10"
+q)oarg`
+10
+q)ofunc:.p.eval["lambda x:2+x";<]
+q)ofunc 1
 3
-q).p.pyeval"1+2"
-foreign
+q)ofunc oarg
+12
+q)p)def add2(x,y):return x+y
+q)add2:.p.get[`add2;<]
+q)add2[1;oarg]
+11
 ```
-Note the difference in the two results here: 
--   `.p.eval` will attempt to convert the Python result of the statement to a q result; 
--   `.p.pyeval` will return the result as a Python (`foreign`) object, without any attempt at conversion. The result can be stored in a variable for use later, passed back to Python, examined using another `.p` function, or converted to q data.
 
 
-### Getting and setting Python variables
+### Setting Python variables
 
-Variables in Python `__main__` can be set using `.p.set` and retrieved using `.p.get`
+Variables can be set in Python `__main__` using `.p.set`
 ```q
-q).p.set[`var1;til 100]
-q).p.eval"len(var1)"
-100
-q)qvar:.p.get[`var1]
-q)qvar
-foreign
+q).p.set[`var1;42]
+q).p.qeval"var1"
+42
 ```
-**NB** Like `.p.eval`, `.p.get` will not automatically convert Python objects to q data.
 
 
-### Converting data 
-
-Function `.p.py2q` will attempt to convert Python (`foreign`) data to q
-```q
-q)qvar:.p.get[`var1]
-q).p.py2q qvar
-0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 ..
-```
-Corresponding function `.p.q2py` converts q objects to Python objects  
-```q
-q).p.q2py 1 2 3
-foreign
-```
-This will rarely be used in practice, as conversion of q data to Python objects is performed automatically whenever q data is passed to Python.
-
-It is safe to call `.p.py2q` on q data and `.p.q2py` on Python data: they will return the argument unchanged in these cases.
-
-
-#### `None` and identity `::` 
+### None and identity
 
 Python `None` maps to the q identity function `::` when converting from Python to q and vice versa.
 
 There is one exception to this. When calling Python functions, methods or classes with a single q data argument, passing `::` will result in the Python object being called with _no_ arguments, rather than a single argument of `None`. See the section below on callables for how to explicitly call a Python callable with a single `None` argument. 
 
 
-### Imports 
+### Function calls
 
-Python modules (or objects from modules) can be imported using `.p.import` or `.p.imp`
+Python allows for calling functions with 
+- A variable number of arguments
+- A mixture of positional and keyword arguments
+- Implicit (default) arguments
 
-- `.p.import` imports a Python module
-- `.p.imp`    imports an object from a Python module or package 
+All of these features are available through the embedPy function-call interface.  
+Specifically
+- Callable embedPy objects are variadic
+- Default arguments are applied where no explicit arguments are given
+- Individual keyword arguments are specified using the (infix) `pykw` operator
+- A list of positional arguments can be passed using `pyarglist` (like Python *args)
+- A dictionary of keyword arguments can be passed using `pykwargs` (like Python *kwargs)
 
-Each of these functions returns the imported object as `foreign`.
+n.b. We can combine positional arguments, lists of positional arguments, keyword arguments and a dictionary of keyword arguments, but note that _all_ keyword arguments must always follow any positional arguments and that the dictionary of keyword arguments must always be specified last if it is given at all.
+
+
+### Example function calls
 ```q
-q)np:.p.import`numpy
-q).p.attr[np;`BUFSIZE]
-8192
-q)npversion:.p.imp[`numpy;`version]
-q).p.attr[npversion;`full_version]
-"1.13.3"
+q)p)def func(a=1,b=2,c=3,d=4):return (a,b,c,d,a*b*c*d)
+q)qfunc:.p.get[`func;<] / callable, returning q
+```
+Positional arguments are entered directly.  
+Function calling is variadic, so later arguments can be excluded.
+```q
+q)qfunc[2;2;2;2]   / all positional args specified
+2 2 2 2 16
+q)qfunc[2;2]       / first 2 positional args specified
+2 2 3 4 48
+q)qfunc[]          / no args specified
+1 2 3 4 24
+q)qfunc[2;2;2;2;2] / error if too many args specified
+TypeError: func() takes from 0 to 4 positional arguments but 5 were given
+'p.c:73 call pyerr
+```
+Individual keyword arguments can be specified using the `pykw` operator (with infix notation).  
+Keyword arguments must follow positional arguments but, otherwise, the order of keyword arguments does not matter.
+```q
+q)qfunc[`d pykw 1;`c pykw 2;`b pykw 3;`a pykw 4] / all keyword args specified
+4 3 2 1 24
+q)qfunc[1;2;`d pykw 3;`c pykw 4]   / mix of positional and keyword args
+1 2 4 3 24
+q)qfunc[`a pykw 2;`b pykw 2;2;2]   / error if positional args after keyword args
+'keywords last
+q)qfunc[`a pykw 2;`a pykw 2]       / error if duplicate keyword args
+'dupnames
+```
+A list of positional arguments can be specified using `pyarglist` (similar to Python's *args).  
+Again, keyword arguments must follow positional arguments.
+```q
+q)qfunc[pyarglist 1 1 1 1]          / full positional list specified
+1 1 1 1 1
+q)qfunc[pyarglist 1 1]              / partial positional list specified
+1 1 3 4 12
+q)qfunc[1;1;pyarglist 2 2]          / mix of positional args and positional list
+1 1 2 2 4
+q)qfunc[pyarglist 1 1;`d pykw 5]    / mix of positional list and keyword args
+1 1 3 5 15
+q)qfunc[pyarglist til 10]           / error if too many args specified
+TypeError: func() takes from 0 to 4 positional arguments but 10 were given
+'p.c:73 call pyerr
+q)qfunc[`a pykw 1;pyarglist 2 2 2]  / error if positional list after keyword args
+'keywords last
+```
+A dictionary of keyword arguments can be specified using `pykwargs` (similar to Python's **kwargs).  
+If present, this argument must be the _last_ argument specified.
+```q
+q)qfunc[pykwargs`d`c`b`a!1 2 3 4]             / full keyword dict specified
+4 3 2 1 24
+q)qfunc[2;2;pykwargs`d`c!3 3]                 / mix of positional args and keyword dict
+2 2 3 3 36
+q)qfunc[`d pykw 1;`c pykw 2;pykwargs`a`b!3 4] / mix of keyword args and keyword dict
+3 4 2 1 24
+q)qfunc[pykwargs`d`c!3 3;2;2]                 / error if keyword dict not last   
+'pykwargs last
+q)qfunc[pykwargs`a`a!1 2]                     / error if duplicate keyword names
+'dupnames
+```
+All 4 methods can be combined in a single function call, as long as the order follows the above rules.  
+In practice, this makes for messy code.
+```q
+q)qfunc[4;pyarglist enlist 3;`c pykw 2;pykwargs enlist[`d]!enlist 1]    
+4 3 2 1 24
 ```
 
+### Zero argument calls
 
-### Attributes 
-
-Attributes of Python objects can be retrieved using `.p.attr` or `.p.pyattr`. 
--   `.p.attr` will attempt to convert to a q result
--   `.p.pyattr` will return the result as a Python (`foreign`) object, without any attempt at conversion
-
+In q, every function takes at least one argument. Even a niladic function, called with `func[]`, is passed the identity function `::` as an argument. In embedPy, if a function is called with `::` as the only argument, the underlying Python function will be called with _no_ arguments.  
+As we noted above `::` in q maps to `None` in Python, however in Python these two calls are not equivalent:
+```
+func()
+func(None)
+```
+If you need to call a Python function with `None` as the sole argument, you can retrieve `None` as a foreign object and pass that as the argument to a q function. e.g.
 ```q
-p)class AnObject(object):pass     # These lines define a simple object with two attributes
-p)anobject=AnObject()
-p)anobject.attr1=10
-p)anobject.attr2=20
-q)qobject:.p.get`anobject         / retrieve the object created 
-q).p.attr[qobject;`attr1]         / retrieve the value of attribute attr1 of the object
-10
-q).p.pyattr[qobject;`attr2]
-foreign
+q)pynone:.p.eval"None"
+q).p.eval["print";*;pynone];
+None
 ```
 
 
@@ -181,215 +378,7 @@ q).p.py2q .p.value qdict
 12 42
 ```
 
-
-### Python functions 
-
-Python allows for calling functions with a mixture of positional and keyword arguments. It also supports default arguments, so functions may be called with fewer arguments than are specified in the signature.  
-The same behaviour is available for class instantiation through the `__init__` method of classes. 
-
-Both variadic and keyword arguments are available through the function interface.
-
-There are three ways of creating variadic q functions from Python callables, and for each of these a function returning either q data or Python data can be specified 
-
-||returning q|returning Python|
-|:---|:---|:---|
-|from Python callable|`.p.callable`|`.p.pycallable`|
-|from attribute `y` of Python object `x`|`.p.callable_attr`|`.p.pycallable_attr`|
-|from content item `y` of Python module name `x`|`.p.callable_imp`|`.p.pycallable_imp`|
-
-In each of the examples below, we create two q functions to call the Python `numpy.eye` function.  
-One returns the result as q data and the other returns a Python (`foreign`) object.
-
-
-#### Getting `numpy.eye` as a `foreign` and creating q functions from it 
-
-```q
-q)p)import numpy as np
-q)eye:.p.pyeval"np.eye"
-q)qeye:.p.callable eye
-q)peye:.p.pycallable eye
-q)qeye 3
-1 0 0
-0 1 0
-0 0 1
-q)peye 3
-foreign
-```
-
-
-#### Getting the `numpy` module as a `foreign` and creating q functions from the `eye` function 
-
-```q
-q)np:.p.import`numpy
-q)qeye:.p.callable_attr[np;`eye]
-q)peye:.p.pycallable_attr[np;`eye]
-q)qeye 3
-1 0 0
-0 1 0
-0 0 1
-q)peye 3
-foreign
-```
-
-
-#### Importing the `numpy.eye` function directly and creating q functions 
-
-```q
-q)qeye:.p.callable_imp[`numpy;`eye]
-q)peye:.p.pycallable_imp[`numpy;`eye]
-q)qeye 3
-1 0 0
-0 1 0
-0 0 1
-q)peye 3
-foreign
-```
-
-
-#### Variable number of arguments 
-
-Python callables with default arguments or a variable number of arguments can be called from q.
-```q
-q)p)def func(a=1,b=2,c=3,d=4):return a*b*c*d
-q)qfunc:.p.callable .p.get`func
-q)qfunc[2;2;2;2]             / qfunc called with all arguments specified
-16
-q)qfunc[2;2]                 / qfunc called with just the first 2 positional arguments specified
-48
-q)qfunc[2;2;2;2;2]           / error because too many arguments were specified
-TypeError: func() takes from 0 to 4 positional arguments but 5 were given
-'p.c:72 call pyerr
-  [0]  qfunc[2;2;2;2;2]
-```
-Keyword arguments can be specified using the `pykw` operator.  
-Keyword arguments must follow positional arguments, but the order of keyword arguments does not matter.
-```q
-q)qfunc[1;2;`d pykw 3;`c pykw 4]
-24
-```
-You can also specify
-- a list of positional arguments using `pyarglist`
-- a dictionary of keyword arguments using `pykwargs`
-If a dictionary of keyword arguments is given, it must be the _last_ argument specified.
-```q
-q)qfunc[pyarglist 1 1 1]
-4
-q)qfunc[pyarglist 2 2;pykwargs `d`c!3 3]
-36
-```
-You can combine positional arguments, lists of positional arguments, keyword arguments and a dictionary of keyword arguments, but note that _all_ keyword arguments must always follow any positional arguments and that the dictionary of keyword arguments must always be specified last if it is given at all.
-```q
-q)qfunc[4;pyarglist enlist 3;`d pykw 2;pykwargs (1#`c)!(),2]
-48
-```
-
-
-#### Calling functions with zero arguments or `None` 
-
-In q, every function takes at least one argument. Whenever a function is called with `func[]`, the argument passed is the identity function `::`. In embedPy, if a function is called with `::` as the only argument, the underlying Python function will be called with _no_ arguments. As we noted above `::` in q maps to `None` in Python, however in Python these two calls are not equivalent:
-```
-func()
-func(None)
-```
-If you need to call a Python function with `None` as the sole argument, you can retrieve `None` as a foreign object and pass that as the argument to a q function. e.g.
-```q
-q)printfunc:.p.callable .p.pyeval"print"
-q)pynone:.p.pyeval"None"
-q)printfunc[]
-q)printfunc pynone
-None
-```
-
-
-#### Raw function calls ####
-
-All of the above functions use the `.p.call` function internally. This function can be used directly if you do not need the variadic or keyword argument behavior.  
-`.p.call`, when run on a Python callable object, will return a q function taking exactly 2 arguments.
-- a list of positional arguments
-- a dictionary of keyword argument names to values
-
-Either of these arguments can be empty.
-
-The result of calling this function, will be a `foreign`.
-```q
-q)p)def f4(a,b,c,d):return (a*b,c*d)
-q).p.py2q .p.call[.p.get`f4;1 2;`d`c!4 3]
-2 12
-```
-
-### Wrapping Python objects as q dictionaries 
-
-It can be useful to extract the contents of a Python object into a q dictionary.  
-This allows members of the object to be accessed using dot notation, rather than using `.p.attr/.p.pyattr` each time.
-
-The `.p.obj2dict` function will achieve this. 
-
-**NB** Currently this is not supported for module objects, only for instances of classes in Python.
-```q
-/ create a numpy mulidimensional array
-q)p)import numpy as np
-q)array:.p.pyeval"np.reshape(np.arange(24),[2,3,4])"
-q)arraywrap:.p.obj2dict array
-q)arraywrap
-            | ::
-_pyobj      | foreign
-all         | .[code[foreign]]`.p.q2pargsenlist
-any         | .[code[foreign]]`.p.q2pargsenlist
-argmax      | .[code[foreign]]`.p.q2pargsenlist
-argmin      | .[code[foreign]]`.p.q2pargsenlist
-argpartition| .[code[foreign]]`.p.q2pargsenlist
-argsort     | .[code[foreign]]`.p.q2pargsenlist
-astype      | .[code[foreign]]`.p.q2pargsenlist
-byteswap    | .[code[foreign]]`.p.q2pargsenlist
-choose      | .[code[foreign]]`.p.q2pargsenlist
-clip        | .[code[foreign]]`.p.q2pargsenlist
-compress    | .[code[foreign]]`.p.q2pargsenlist
-conj        | .[code[foreign]]`.p.q2pargsenlist
-conjugate   | .[code[foreign]]`.p.q2pargsenlist
-copy        | .[code[foreign]]`.p.q2pargsenlist
-cumprod     | .[code[foreign]]`.p.q2pargsenlist
-cumsum      | .[code[foreign]]`.p.q2pargsenlist
-diagonal    | .[code[foreign]]`.p.q2pargsenlist
-dot         | .[code[foreign]]`.p.q2pargsenlist
-dump        | .[code[foreign]]`.p.q2pargsenlist
-dumps       | .[code[foreign]]`.p.q2pargsenlist
-..
-```
-In this dictionary, the original Python object is stored under the key `_pyobj`, and each method or function and data attribute or property has an entry in the dictionary.
-
-**NB** Attributes preceded by `_` or `__` are not wrapped into the dictionary.
-
-
-#### Calling functions
-
-Any method or function of a wrapped object has an entry which is a callable q function, with variadic and keyword argument support. Each function will return a `foreign`
-```q
-q)arraywrap.diagonal[]
-foreign
-q).p.py2q arraywrap.diagonal[]
-0 1
-2 3
-4 5
-6 7
-```
-
-
-#### Getting and setting attributes
-
-For data attributes and properties of wrapped objects, we don’t take a snapshot of the value of the attribute at a point in time, but provide a function to access or set the value of a property from the underlying Python object.
-```q
-q)qarray:.p.py2q arraywrap._pyobj
-q).p.py2q arraywrap.real[]        / get the value of the real attribute
-0 1 2  3    4 5 6  7    8 9 10 11  
-12 13 14 15 16 17 18 19 20 21 22 23
-q)arraywrap.real[:;2*qarray]      / set the value from some q data
-q).p.py2q arraywrap.real[]        / get the new value
-0  2  4  6  8  10 12 14 16 18 20 22
-24 26 28 30 32 34 36 38 40 42 44 46
-```
-
-
-### Printing and help 
+### Printing and help
 
 The string representation of Python objects (as would be returned from Python’s `repr`) can be accessed using `.p.repr`, and printed to stdout using `.p.printpy`. 
 
@@ -415,6 +404,48 @@ For convenience `p.q` defines `print` and `help` in the top-level namespace of a
 ```
 
 
+### Raw (foreign) API
+
+**Details of manipulating foreigns here
+
+#### Converting data 
+
+Function `.p.py2q` will attempt to convert Python (`foreign`) data to q
+```q
+q)qvar:.p.get[`var1]
+q).p.py2q qvar
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 ..
+```
+Corresponding function `.p.q2py` converts q objects to Python objects  
+```q
+q).p.q2py 1 2 3
+foreign
+```
+This will rarely be used in practice, as conversion of q data to Python objects is performed automatically whenever q data is passed to Python.
+
+It is safe to call `.p.py2q` on q data and `.p.q2py` on Python data: they will return the argument unchanged in these cases.
+
+
+#### Raw function calls
+
+All of the above functions use the `.p.call` function internally. This function can be used directly if you do not need the variadic or keyword argument behavior.  
+`.p.call`, when run on a Python callable object, will return a q function taking exactly 2 arguments.
+- a list of positional arguments
+- a dictionary of keyword argument names to values
+
+Either of these arguments can be empty.
+
+The result of calling this function, will be a `foreign`.
+```q
+q)p)def f4(a,b,c,d):return (a*b,c*d)
+q).p.py2q .p.call[.p.get`f4;1 2;`d`c!4 3]
+2 12
+```
+
+
+
+
+
 ### Further examples 
 
 You’ll find further examples in the [examples](examples) directory. This includes an example of creating simple charts in Matplotlib either by running Python code in a kdb+ process, or importing the `matplotlib.pyplot` module into kdb+ and using functions from it in q code.
@@ -424,12 +455,12 @@ You’ll find further examples in the [examples](examples) directory. This inclu
 
 name                 | description                                                                                                                             
 ---------------------|-----------------------------------------------------------------------------------------------------------------------------------------
-`.p.eval`            | evaluate string as Python code and convert returned result to q via `py2q`
+`.p.eval`            | evaluate string as Python code and return result as embedPy
+`.p.qeval`           | evaluate string as Python code and return result as q
 `.p.pyeval`          | evaluate string as Python code and return result as foreign
 `.p.e`               | evaluate string as Python code, used for the p language, returns `::`
 `.p.set`             | set a variable in Python `__main__` , `x - symbol`, `y - any q object`
 `.p.import`          | import a module `x - symbol`
-`.p.imp`             | import `y - symbol` from module `x - symbol` and return a foreign object, like `from x import y` 
 `.p.py2q`            | convert Python object `foreign` to q, conversion is based on the function in `conv` for the first `.p.type` of a Python object
 `.p.q2py`            | convert a q object to a Python object `foreign`
 `.p.get`             | get value of `x - symbol` from Python `__main__`
@@ -438,17 +469,12 @@ name                 | description
 `.p.key`             | keys of a Python dictionary
 `.p.value`           | values of a Python dictionary
 `.p.type`            | type of a Python object
-`.p.obj2dict`        | extract the methods, properties and data attributes of a Python object `x - foreign` into a dictionary, keys are `symbols`, values are `pycallables`
 `.p.printpy`         | print a Python object's string representation
 `.p.help`            | display help on Python objects as `foreign` and the underlying Python object for `callables`, `pycallables` and dictionaries created using `.p.obj2dict`
 `.p.helpstr`         | give the docstring for Python objects and the underlying Python object for `callables`, `pycallables` and dictionaries created using `.p.obj2dict`
 `.p.arraydims`       | give the shape of `x - foreign` a numpy multi-dimensional array.
 `.p.callable`        | create a callable q function from a Python callable object `x - foreign` the function will convert results to q when subsequently called
 `.p.pycallable`      | create a callable q function from a Python callable object `x - foreign` the function will return `foreign` when subsequently called
-`.p.callable_imp`    | import `y - symbol` from module `x - symbol` and create a callable function from this, the function will convert results to q when subsequently called
-`.p.pycallable_imp`  | import `y - symbol` from module `x - symbol`  and create a callable function from this, the function will return results as `foreign` when subsequently called
-`.p.callable_attr`   | create a callable function from the `y - symbol` attribute of `x - foreign`, the function will convert results to q when subsequently called
-`.p.pycallable_attr` | create a callable function from the `y - symbol` attribute of `x - foreign`, the function will return results as a `foreign` when subsequently called
 `.p.qgenfunc`        | produce a Python generator from `x - q projection` which will yield `y - integer` times
 `.p.qgenfuncinf`     | produce a Python generator from `x - q projection` which will yield indefinitely 
 `.p.q2pargs`         | internal, used to interpret parameters passed to callables
