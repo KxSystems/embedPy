@@ -61,8 +61,7 @@ q)\l test.q
 q)p)print(add1(12))
 13
 ```
-Full scripts of Python code can be executed in q, using the `.p` file extension (not `.py`).  
-The script is loaded as usual.
+Full scripts of Python code can be executed in q, using the `.p` file extension (not `.py`). The script is loaded as usual.
 ```
 $ cat hq.p 
 print("Hello q!")
@@ -79,7 +78,7 @@ To evaluate Python code (as a string) and return results to q, use `.p.qeval`.
 q).p.qeval"1+2"
 3
 ```
-**NB** Python evaluation (unlike Python execution) does not allow side-effects. Thus, any attempt at variable assignment or class definition, will result in an error. To execute a string that performs variable assignment or class definition,  you can use `.p.e`. A more detailed explanation of the difference between `eval` and `exec` in Python can be found [here](https://stackoverflow.com/questions/2220699/whats-the-difference-between-eval-exec-and-compile-in-python)
+**NB** Python evaluation (unlike Python _execution_) does not allow side-effects. Thus, any attempt at variable assignment or class definition, will result in an error. To execute a string performing variable assignment or class definition,  you can use `.p.e`. A more detailed explanation of the difference between `eval` and `exec` in Python can be found [here](https://stackoverflow.com/questions/2220699/whats-the-difference-between-eval-exec-and-compile-in-python)
 
 
 ### foreign objects
@@ -93,7 +92,7 @@ Foreign objects can be stored in variables just like any other q datatype, or as
 
 ### embedPy objects
 
-In practice, Python objects should be represented in q as `embedPy` objects, which wrap the underlying `foreign` objects, and provide users with the ability to
+Foreign objects cannot be operated on directly in q. Instead, Python objects should be represented as `embedPy` objects, which wrap the underlying `foreign` objects, and provide users with the ability to
 - Get attributes/properties
 - Set attributes/properties
 - Call functions/methods
@@ -360,8 +359,8 @@ None
 
 ### Dictionary keys and values
 
-Python dictionaries can be retrieved and converted to q dictionaries.  
-Additionally, functions are provided to directly retrieve the keys and values of a `foreign` Python dictionary, without performing the conversion to a q dictionary. 
+Python dictionaries, when converted to q, will yield q dictionaries (and vice versa).
+Additionally, functions are provided to directly retrieve the keys and values of a Python dictionary, without performing the conversion to a q dictionary. 
 
 - `.p.key` will return the keys of a Python dictionary
 - `.p.value` will return the values of a Python dictionary
@@ -406,7 +405,19 @@ For convenience `p.q` defines `print` and `help` in the top-level namespace of a
 
 ### Raw (foreign) API
 
-**Details of manipulating foreigns here
+`foreign` objects can be retrieved directly from Python using
+
+#### .p.pyimport
+Symbol arg- the name of a Python module or package to import  
+e.g. ``.p.import`numpy``
+#### .p.pyget
+Symbol arg- the name of a Python variable in `__main__`
+- ``.p.get`varName``
+#### .p.pyeval
+String arg- the Python code to evaluate
+- ``.p.eval"1+1"`` 
+
+Low level functions are provided (in the .p namespace) to act directly on `foreign` objects.
 
 #### Converting data 
 
@@ -423,10 +434,18 @@ foreign
 ```
 This will rarely be used in practice, as conversion of q data to Python objects is performed automatically whenever q data is passed to Python.
 
-It is safe to call `.p.py2q` on q data and `.p.q2py` on Python data: they will return the argument unchanged in these cases.
+
+#### Getting attributes
+
+Function `.p.pyattr ` will get an attribute/property from a Python (`foreign`) 
+```q
+q)np:.p.pyimport`numpy
+q)ar:.p.pyattr[np]`arange
+```
+The result of calling this function, will be another `foreign`.
 
 
-#### Raw function calls
+#### Function calls
 
 All of the above functions use the `.p.call` function internally. This function can be used directly if you do not need the variadic or keyword argument behavior.  
 `.p.call`, when run on a Python callable object, will return a q function taking exactly 2 arguments.
@@ -435,15 +454,12 @@ All of the above functions use the `.p.call` function internally. This function 
 
 Either of these arguments can be empty.
 
-The result of calling this function, will be a `foreign`.
+The result of calling this function, will be another `foreign`.
 ```q
 q)p)def f4(a,b,c,d):return (a*b,c*d)
 q).p.py2q .p.call[.p.get`f4;1 2;`d`c!4 3]
 2 12
 ```
-
-
-
 
 
 ### Further examples 
@@ -455,16 +471,15 @@ You’ll find further examples in the [examples](examples) directory. This inclu
 
 name                 | description                                                                                                                             
 ---------------------|-----------------------------------------------------------------------------------------------------------------------------------------
+`.p.e`               | evaluate string as Python code, used for the p language, returns `::`
 `.p.eval`            | evaluate string as Python code and return result as embedPy
 `.p.qeval`           | evaluate string as Python code and return result as q
 `.p.pyeval`          | evaluate string as Python code and return result as foreign
-`.p.e`               | evaluate string as Python code, used for the p language, returns `::`
 `.p.set`             | set a variable in Python `__main__` , `x - symbol`, `y - any q object`
 `.p.import`          | import a module `x - symbol`
+`.p.get`             | get value of `x - symbol` from Python `__main__`
 `.p.py2q`            | convert Python object `foreign` to q, conversion is based on the function in `conv` for the first `.p.type` of a Python object
 `.p.q2py`            | convert a q object to a Python object `foreign`
-`.p.get`             | get value of `x - symbol` from Python `__main__`
-`.p.attr`            | get attribute `y - symbol` from Python object `x - foreign`, i.e. `x.y`, and convert result to q
 `.p.pyattr`          | get attribute `y - symbol` from Python object `x - foreign`, i.e. `x.y`, returns as a `foreign`
 `.p.key`             | keys of a Python dictionary
 `.p.value`           | values of a Python dictionary
@@ -482,8 +497,6 @@ name                 | description
 `.p.pykw`            | identify a parameter as a keyword parameter for callables, see examples, also present in `.q` namespace to allow infix notation and prevent assignment in top level namespace
 `.p.pyarglist`       | identify a parameter as a list of positional parameters for callables, see examples, also present in `.q` namespace to prevent assignment in top level namespace
 `.p.pykwargs`        | identify a parameter as a dictionary of keyword argument names to values, see examples, also present in `.q` namespace to prevent assignment in top level namespace
-`.p.help4py`         | internal, used by help to display help on a Python object
-`.p.helpstr4py`      | internal, used by `helpstr` to retrieve the (cleaned) docstring of a Python object
 `.p.call`            | used internally by `.p.callable` and `.p.pycallable`
 `.p.conv`            | dictionary of Python type identifier `short` to the conversion function used by `py2q`
 `.p.c`               | compose a list of functions
