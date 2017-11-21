@@ -249,14 +249,14 @@ There is one exception to this. When calling Python functions, methods or classe
 ### Function calls
 
 Python allows for calling functions with 
-- A variable number of argumemnts
+- A variable number of arguments
 - A mixture of positional and keyword arguments
 - Implicit (default) arguments
 
 All of these features are available through the embedPy function-call interface.  
 Specifically
 - Callable embedPy objects are variadic
-- Default arguments are appplied where no explicit arguments are given
+- Default arguments are applied where no explicit arguments are given
 - Individual keyword arguments are specified using the (infix) `pykw` operator
 - A list of positional arguments can be passed using `pyarglist` (like Python *args)
 - A dictionary of keyword arguments can be passed using `pykwargs` (like Python *kwargs)
@@ -266,36 +266,70 @@ n.b. We can combine positional arguments, lists of positional arguments, keyword
 
 ### Example function calls
 ```q
-q)p)def func(a=1,b=2,c=3,d=4):return a*b*c*d
-q)qfunc:.p.callable .p.get`func
-q)qfunc[2;2;2;2]             / qfunc called with all arguments specified
-16
-q)qfunc[2;2]                 / qfunc called with just the first 2 positional arguments specified
-48
-q)qfunc[2;2;2;2;2]           / error because too many arguments were specified
+q)p)def func(a=1,b=2,c=3,d=4):return (a,b,c,d,a*b*c*d)
+q)qfunc:.p.get[`func;<]
+```
+Positional arguments are entered directly.  
+Function calling is variadic, so later arguments can be excluded.
+```q
+q)qfunc[2;2;2;2]   / all positional args specified
+2 2 2 2 16
+q)qfunc[2;2]       / first 2 positional args specified
+2 2 3 4 48
+q)qfunc[]          / no args specified
+1 2 3 4 24
+q)qfunc[2;2;2;2;2] / error if too many args specified
 TypeError: func() takes from 0 to 4 positional arguments but 5 were given
-'p.c:72 call pyerr
-  [0]  qfunc[2;2;2;2;2]
+'p.c:73 call pyerr
 ```
-Keyword arguments can be specified using the `pykw` operator.  
-Keyword arguments must follow positional arguments, but the order of keyword arguments does not matter.
+Individual keyword arguments can be specified using the `pykw` operator (with infix notation).  
+Keyword arguments must follow positional arguments but, otherwise, the order of keyword arguments does not matter.
 ```q
-q)qfunc[1;2;`d pykw 3;`c pykw 4]
-24
+q)qfunc[`d pykw 1;`c pykw 2;`b pykw 3;`a pykw 4] / all keyword args specified
+4 3 2 1 24
+q)qfunc[1;2;`d pykw 3;`c pykw 4]   / mix of positional and keyword args
+1 2 4 3 24
+q)qfunc[`a pykw 2;`b pykw 2;2;2]   / error if positional args after keyword args
+'keywords last
+q)qfunc[`a pykw 2;`a pykw 2]       / error if duplicate keyword args
+'dupnames
 ```
-You can also specify
-- a list of positional arguments using `pyarglist`
-- a dictionary of keyword arguments using `pykwargs`
-If a dictionary of keyword arguments is given, it must be the _last_ argument specified.
+A list of positional arguments can be specified using `pyarglist` (similar to Python's *args).  
+Again, keyword arguments must follow positional arguments.
 ```q
-q)qfunc[pyarglist 1 1 1]
-4
-q)qfunc[pyarglist 2 2;pykwargs `d`c!3 3]
-36
+q)qfunc[pyarglist 1 1 1 1]          / full positional list specified
+1 1 1 1 1
+q)qfunc[pyarglist 1 1]              / partial positional list specified
+1 1 3 4 12
+q)qfunc[1;1;pyarglist 2 2]          / mix of positional args and positional list
+1 1 2 2 4
+q)qfunc[pyarglist 1 1;`d pykw 5]    / mix of positional list and keyword args
+1 1 3 5 15
+q)qfunc[pyarglist til 10]           / error if too many args specified
+TypeError: func() takes from 0 to 4 positional arguments but 10 were given
+'p.c:73 call pyerr
+q)qfunc[`a pykw 1;pyarglist 2 2 2]  / error if positional list after keyword args
+'keywords last
 ```
+A dictionary of keyword arguments can be specified using `pykwargs` (similar to Python's **kwargs).  
+If present, this argument must be the _last_ argument specified.
 ```q
-q)qfunc[4;pyarglist enlist 3;`d pykw 2;pykwargs (1#`c)!(),2]
-48
+q)qfunc[pykwargs`d`c`b`a!1 2 3 4]             / full keyword dict specified
+4 3 2 1 24
+q)qfunc[2;2;pykwargs`d`c!3 3]                 / mix of positional args and keyword dict
+2 2 3 3 36
+q)qfunc[`d pykw 1;`c pykw 2;pykwargs`a`b!3 4] / mix of keyword args and keyword dict
+3 4 2 1 24
+q)qfunc[pykwargs`d`c!3 3;2;2]                 / error if keyword dict not last   
+'pykwargs last
+q)qfunc[pykwargs`a`a!1 2]                     / error if duplicate keyword names
+'dupnames
+```
+All 4 methods of calling can be used together, provided the order follows the above rules.  
+In practice, this is unlikely to be used.
+```q
+q)qfunc[4;pyarglist enlist 3;`c pykw 2;pykwargs enlist[`d]!enlist 1]    
+4 3 2 1 24
 ```
 
 ### Zero argument calls
