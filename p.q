@@ -8,7 +8,6 @@ k)ce:{'[y;x]}/enlist,|: / compose with enlist (for variadic functions)
 
 / Aliases
 set'[`pyget`pyeval`pyimport`pyattr`arraydims;.p.get,.p.eval,import,getattr,getarraydims];
-.p.attr:c`.p.py2q,pyattr;
 qeval:c`.p.py2q,pyeval;
 
 pycallable:{if[not 112=type x;'`type];ce .[.p.call x],`.p.q2pargs}
@@ -54,8 +53,9 @@ wf:{[c;r;x;a]
 wrap:(w:{[c;r;x]ce wf[c;r;x]})[0;0]
 unwrap:{$[105=type x;x`.;x]}
 import: ce{r:wrap pyimport a:x 0;$[count x:1_x;.[;x];]r}
-.p.get: ce{r:wrap pyget    a:x 0;$[count x:1_x;.[;x];]r}
 .p.eval:ce{r:wrap pyeval   a:x 0;$[count x:1_x;.[;x];]r}
+.p.get: ce{r:wrap pyget    a:x 0;$[count x:1_x;.[;x];]r}
+.p.set:{[f;x;y]f[x]unwrap y;}.p.set
 
 / Help & Print
 gethelp:{[h;x]h$[112=0N!t:type x;x;105=t;x`.;:"no help available"]}
