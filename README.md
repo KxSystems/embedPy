@@ -239,7 +239,7 @@ q).p.qeval"var1"
 ```
 
 
-### `None` and identity `::` 
+### None and identity
 
 Python `None` maps to the q identity function `::` when converting from Python to q and vice versa.
 
@@ -267,7 +267,7 @@ n.b. We can combine positional arguments, lists of positional arguments, keyword
 ### Example function calls
 ```q
 q)p)def func(a=1,b=2,c=3,d=4):return (a,b,c,d,a*b*c*d)
-q)qfunc:.p.get[`func;<]
+q)qfunc:.p.get[`func;<] / callable, returning q
 ```
 Positional arguments are entered directly.  
 Function calling is variadic, so later arguments can be excluded.
@@ -325,8 +325,8 @@ q)qfunc[pykwargs`d`c!3 3;2;2]                 / error if keyword dict not last
 q)qfunc[pykwargs`a`a!1 2]                     / error if duplicate keyword names
 'dupnames
 ```
-All 4 methods of calling can be used together, provided the order follows the above rules.  
-In practice, this is unlikely to be used.
+All 4 methods can be combined in a single function call, as long as the order follows the above rules.  
+In practice, this makes for messy code.
 ```q
 q)qfunc[4;pyarglist enlist 3;`c pykw 2;pykwargs enlist[`d]!enlist 1]    
 4 3 2 1 24
@@ -334,37 +334,18 @@ q)qfunc[4;pyarglist enlist 3;`c pykw 2;pykwargs enlist[`d]!enlist 1]
 
 ### Zero argument calls
 
-In q, every function takes at least one argument. Even a niladic function, called with `func[]`, is the identity function `::` as an argument. In embedPy, if a function is called with `::` as the only argument, the underlying Python function will be called with _no_ arguments. As we noted above `::` in q maps to `None` in Python, however in Python these two calls are not equivalent:
+In q, every function takes at least one argument. Even a niladic function, called with `func[]`, is passed the identity function `::` as an argument. In embedPy, if a function is called with `::` as the only argument, the underlying Python function will be called with _no_ arguments.  
+As we noted above `::` in q maps to `None` in Python, however in Python these two calls are not equivalent:
 ```
 func()
 func(None)
 ```
 If you need to call a Python function with `None` as the sole argument, you can retrieve `None` as a foreign object and pass that as the argument to a q function. e.g.
 ```q
-q)printfunc:.p.callable .p.pyeval"print"
-q)pynone:.p.pyeval"None"
-q)printfunc[]
-q)printfunc pynone
+q)pynone:.p.eval"None"
+q).p.eval["print";*;pynone];
 None
 ```
-
-
-### Converting data 
-
-Function `.p.py2q` will attempt to convert Python (`foreign`) data to q
-```q
-q)qvar:.p.get[`var1]
-q).p.py2q qvar
-0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 ..
-```
-Corresponding function `.p.q2py` converts q objects to Python objects  
-```q
-q).p.q2py 1 2 3
-foreign
-```
-This will rarely be used in practice, as conversion of q data to Python objects is performed automatically whenever q data is passed to Python.
-
-It is safe to call `.p.py2q` on q data and `.p.q2py` on Python data: they will return the argument unchanged in these cases.
 
 
 ### Dictionary keys and values
@@ -387,25 +368,7 @@ q).p.py2q .p.value qdict
 12 42
 ```
 
-
-#### Raw function calls
-
-All of the above functions use the `.p.call` function internally. This function can be used directly if you do not need the variadic or keyword argument behavior.  
-`.p.call`, when run on a Python callable object, will return a q function taking exactly 2 arguments.
-- a list of positional arguments
-- a dictionary of keyword argument names to values
-
-Either of these arguments can be empty.
-
-The result of calling this function, will be a `foreign`.
-```q
-q)p)def f4(a,b,c,d):return (a*b,c*d)
-q).p.py2q .p.call[.p.get`f4;1 2;`d`c!4 3]
-2 12
-```
-
-
-### Printing and help 
+### Printing and help
 
 The string representation of Python objects (as would be returned from Python’s `repr`) can be accessed using `.p.repr`, and printed to stdout using `.p.printpy`. 
 
@@ -429,6 +392,48 @@ For convenience `p.q` defines `print` and `help` in the top-level namespace of a
 @[`.;`help;:;help];
 @[`.;`print;:;printpy];
 ```
+
+
+### Raw (foreign) API
+
+**Details of manipulating foreigns here
+
+#### Converting data 
+
+Function `.p.py2q` will attempt to convert Python (`foreign`) data to q
+```q
+q)qvar:.p.get[`var1]
+q).p.py2q qvar
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 ..
+```
+Corresponding function `.p.q2py` converts q objects to Python objects  
+```q
+q).p.q2py 1 2 3
+foreign
+```
+This will rarely be used in practice, as conversion of q data to Python objects is performed automatically whenever q data is passed to Python.
+
+It is safe to call `.p.py2q` on q data and `.p.q2py` on Python data: they will return the argument unchanged in these cases.
+
+
+#### Raw function calls
+
+All of the above functions use the `.p.call` function internally. This function can be used directly if you do not need the variadic or keyword argument behavior.  
+`.p.call`, when run on a Python callable object, will return a q function taking exactly 2 arguments.
+- a list of positional arguments
+- a dictionary of keyword argument names to values
+
+Either of these arguments can be empty.
+
+The result of calling this function, will be a `foreign`.
+```q
+q)p)def f4(a,b,c,d):return (a*b,c*d)
+q).p.py2q .p.call[.p.get`f4;1 2;`d`c!4 3]
+2 12
+```
+
+
+
 
 
 ### Further examples 
