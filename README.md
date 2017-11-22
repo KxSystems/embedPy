@@ -400,8 +400,7 @@ q).p.helpstr n
 "int(x=0) -> integer\nint(x, base=10) -> integer\n\nConvert a number or strin..
 q).p.help n / interactive help
 ```
-**NB** For convenience, p.q defines `print` and `help` in the top-level namespace of q (as aliases for `.p.print` and `.p.help` respectively).  
-To prevent this, comment out the relevant code in p.q before loading
+**NB** For convenience, p.q defines `print` and `help` in the top-level namespace of q (as aliases for `.p.print` and `.p.help` respectively). To prevent this, comment out the relevant code in p.q before loading
 ```q
 {@[`.;x;:;get x]}each`help`print; / comment to remove from global namespace
 ```
@@ -413,15 +412,16 @@ To prevent this, comment out the relevant code in p.q before loading
 
 #### .p.pyimport
 Symbol arg- the name of a Python module or package to import  
-e.g. ``.p.import`numpy``
+e.g. ``.p.pyimport`numpy``
 #### .p.pyget
 Symbol arg- the name of a Python variable in `__main__`
-- ``.p.get`varName``
+- ``.p.pyget`varName``
 #### .p.pyeval
 String arg- the Python code to evaluate
-- ``.p.eval"1+1"`` 
+- ``.p.pyeval"1+1"`` 
 
-Low level functions are provided to act directly on `foreign` objects.
+  
+A number of low level functions are provided to act directly on `foreign` objects.
 
 #### Converting data 
 
