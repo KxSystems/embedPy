@@ -22,14 +22,13 @@ Build the interface and run sanity checks with
 ```bash
 ./configure && make test
 ```
-If running in an environment without Internet access, you will need to download the kdb+ [C API header file](https://raw.githubusercontent.com/KxSystems/kdb/master/c/c/k.h) manually and place it in the directory that you are building from.
+If running in an environment without Internet access, you will need to download the kdb+ [C API header file](https://raw.githubusercontent.com/KxSystems/kdb/master/c/c/k.h) manually and place in the build directory.
 
 Install by placing `p.q` in `$QHOME` and `p.so` in `$QHOME/{l64|m64}`.  
 
-**NB** If you are currently using PyQ, it also has a file called p.so, which it places in `$QHOME/{l64|m64}`. In this case, you may want to initially run from the local build directory without installing.
-
 `p.q` defines the `.p` directory, which includes a `.p.e` function. This allows Python statements to be run from a `p)` prompt.
 
+**NB** If you are currently using PyQ, it also has a file called p.so, which it places in `$QHOME/{l64|m64}`. In this case, you may want to initially run from the local build directory without installing.
 
 ## Example usage
 
@@ -98,9 +97,9 @@ Foreign objects cannot be directly operated on in q. Instead, Python objects sho
 - Call functions/methods
 - Convert data to q/foreign
 
-By default, calling an embedPy function/method, will return another embedPy object. This allows users to chain together sequences of operations. Alternatively, users can explicitly specify the return type as q or foreign.
+By default, calling an `embedPy` function/method, will return another `embedPy` object. This allows users to chain together sequences of operations. Alternatively, users can explicitly specify the return type as q or foreign.
 
-embedPy objects are retrieved from Python with one of the following calls
+`embedPy` objects are retrieved from Python using one of the following calls
 
 #### .p.import
 Symbol arg- the name of a Python module or package to import  
@@ -250,7 +249,7 @@ q).p.qeval"var1"
 
 ### None and identity
 
-Python `None` maps to the q identity function `::` when converting from Python to q and vice versa.
+Python `None` maps to the q identity function `::` when converting from Python to q (and vice versa).
 
 There is one exception to this. When calling Python functions, methods or classes with a single q data argument, passing `::` will result in the Python object being called with _no_ arguments, rather than a single argument of `None`. See the section below on callables for how to explicitly call a Python callable with a single `None` argument. 
 
@@ -264,13 +263,13 @@ Python allows for calling functions with
 
 All of these features are available through the embedPy function-call interface.  
 Specifically
-- Callable embedPy objects are variadic
+- Callable `embedPy` objects are variadic
 - Default arguments are applied where no explicit arguments are given
 - Individual keyword arguments are specified using the (infix) `pykw` operator
 - A list of positional arguments can be passed using `pyarglist` (like Python *args)
 - A dictionary of keyword arguments can be passed using `pykwargs` (like Python *kwargs)
 
-n.b. We can combine positional arguments, lists of positional arguments, keyword arguments and a dictionary of keyword arguments, but note that _all_ keyword arguments must always follow any positional arguments and that the dictionary of keyword arguments must always be specified last if it is given at all.
+n.b. We can combine positional arguments, lists of positional arguments, keyword arguments and a dictionary of keyword arguments. However, _all_ keyword arguments must always follow _any_ positional arguments and the dictionary of keyword arguments (if given) must be specified last.
 
 
 ### Example function calls
@@ -405,7 +404,7 @@ For convenience `p.q` defines `print` and `help` in the top-level namespace of a
 
 ### Raw (foreign) API
 
-`foreign` objects can be retrieved directly from Python using
+`foreign` objects are retrieved from Python using one of the following calls
 
 #### .p.pyimport
 Symbol arg- the name of a Python module or package to import  
@@ -417,7 +416,7 @@ Symbol arg- the name of a Python variable in `__main__`
 String arg- the Python code to evaluate
 - ``.p.eval"1+1"`` 
 
-Low level functions are provided (in the .p namespace) to act directly on `foreign` objects.
+Low level functions are provided to act directly on `foreign` objects.
 
 #### Converting data 
 
@@ -437,7 +436,7 @@ This will rarely be used in practice, as conversion of q data to Python objects 
 
 #### Getting attributes
 
-Function `.p.pyattr ` will get an attribute/property from a Python (`foreign`) 
+Function `.p.pyattr ` will retrieve an attribute/property from a `foreign` object 
 ```q
 q)np:.p.pyimport`numpy
 q)ar:.p.pyattr[np]`arange
@@ -447,14 +446,15 @@ The result of calling this function, will be another `foreign`.
 
 #### Function calls
 
-All of the above functions use the `.p.call` function internally. This function can be used directly if you do not need the variadic or keyword argument behavior.  
-`.p.call`, when run on a Python callable object, will return a q function taking exactly 2 arguments.
+`foreign` objects can be called directly  using `.p.call`.  
+When run on a callable `foreign` object, `.p.call` will return a q function taking exactly 2 arguments.
 - a list of positional arguments
-- a dictionary of keyword argument names to values
+- a dictionary of keyword arguments
 
 Either of these arguments can be empty.
 
-The result of calling this function, will be another `foreign`.
+The result of calling this function, will be another `foreign`.  
+e..
 ```q
 q)p)def f4(a,b,c,d):return (a*b,c*d)
 q).p.py2q .p.call[.p.get`f4;1 2;`d`c!4 3]
