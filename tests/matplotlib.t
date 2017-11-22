@@ -1,5 +1,5 @@
 -1"## Matplotlib start";
-trap:@[.t.e;;-2@]
+trap:@[.p.e;;-2@]
 trap"import matplotlib.pyplot as plt"
 .p.set[`x]x:til[50]%50
 .p.set[`y]sin[4*x*4*atan 1]*exp -5*x
