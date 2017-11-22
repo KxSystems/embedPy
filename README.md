@@ -26,8 +26,6 @@ If running in an environment without Internet access, you will need to download 
 
 Install by placing `p.q` in `$QHOME` and `p.so` in `$QHOME/{l64|m64}`.  
 
-`p.q` defines the `.p` directory, which includes a `.p.e` function. This allows Python statements to be run from a `p)` prompt.
-
 **NB** If you are currently using PyQ, it also has a file called p.so, which it places in `$QHOME/{l64|m64}`. In this case, you may want to initially run from the local build directory without installing.
 
 ## Example usage
@@ -42,7 +40,7 @@ q)\l p.q
 
 ### Executing Python code
 
-The interface allows execution of Python code directly in a q console or from a script. In both the console and scripts, Python code should be prefixed with `p)`  
+The interface allows execution of Python code directly in a q console or from a script. In both the console and scripts, Python code should be prefixed with a `p)` prompt
 ```q
 q)p)print(1+2)
 3
