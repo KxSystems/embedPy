@@ -21,6 +21,7 @@ foo:(.p.callable_imp[`$"__main__";`foo])42;
 ver:.p.py2q .p.imp[`sys;`version]
 p)import sys
 ver~.p.py2q .p.eval"sys.version"
+`pyerr~@[.p.get;`somethingthatdoesntexist;{`pyerr}]
 -1"## Basic tests end";
 
 
