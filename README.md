@@ -5,8 +5,7 @@ Allows the kdb+ interpreter to manipulate Python objects and call Python functio
 
 ## Status
 
-The embedPy library is still in development.  
-If you would like to participate in the beta tests, please write to ai@kx.com. 
+The embedPy library is still in development. If you would like to participate in the beta tests, please write to ai@kx.com. 
 
 
 ## Requirements
@@ -14,6 +13,7 @@ If you would like to participate in the beta tests, please write to ai@kx.com.
 - KDB+ >=3.5 64-bit
 - Python 3.x
 - Mac/Linux 
+
 
 ## Build and installation
 
@@ -84,7 +84,7 @@ At the lowest level, Python objects are represented in q as `foreign` objects, w
 
 Foreign objects can be stored in variables just like any other q datatype, or as part of lists, dictionaries or tables. They will display `foreign` when inspected in the q console or using the `string` (or `.Q.s`) representation. 
 
-**NB** Foreign object types cannot be serialized by kdb+ and sent over IPC: they live in the embedded Python memory space. If you need to pass these objects to other processes over IPC, then you must first convert them to q.
+**NB** Foreign object types cannot be serialized by kdb+ or sent over IPC: they live in the embedded Python memory space. To pass these objects over IPC, we must first convert them to q.
 
 
 ### embedPy objects
@@ -95,7 +95,8 @@ Foreign objects cannot be directly operated on in q. Instead, Python objects sho
 - Call functions/methods
 - Convert data to q/foreign
 
-By default, calling an `embedPy` function/method, will return another `embedPy` object. This allows users to chain together sequences of operations. Alternatively, users can explicitly specify the return type as q or foreign.
+By default, calling an `embedPy` function/method, will return another `embedPy` object. This allows users to chain together sequences of operations.  
+Alternatively, users can explicitly specify the return type as q or foreign.
 
 `embedPy` objects are retrieved from Python using one of the following calls
 
@@ -128,13 +129,11 @@ obj[`method][*]arg    / call obj.method (returning embedPy)
 obj[`method;*]arg     / equivalent
 obj[`method;*;arg]    / equivalent
 
-
 obj[`method][<]       / define obj.method callable (returning q)
 obj[`method;<]        / equivalent
 obj[`method][<]arg    / call obj.method (returning q)
 obj[`method;<]arg     / equivalent
 obj[`method;<;arg]    / equivalent
-
 
 obj[`method][>]       / define obj.method callable (returning foreign)
 obj[`method;>]        / equivalent
@@ -142,7 +141,7 @@ obj[`method][>]arg    / call obj.method (returning foreign)
 obj[`method;>]arg     / equivalent
 obj[`method;>;arg]    / equivalent
 ```
-We can also chain calls together and combine them with `.p.import`, `.p.get` and `.p.eval`.
+We can chain operations together and combine them with `.p.import`, `.p.get` and `.p.eval`.
 
 ### embedPy examples
 
@@ -249,7 +248,7 @@ q).p.qeval"var1"
 
 Python `None` maps to the q identity function `::` when converting from Python to q (and vice versa).
 
-There is one exception to this. When calling Python functions, methods or classes with a single q data argument, passing `::` will result in the Python object being called with _no_ arguments, rather than a single argument of `None`. See the section below on callables for how to explicitly call a Python callable with a single `None` argument. 
+There is one important exception to this. When calling Python functions, methods or classes with a single q data argument, passing `::` will result in the Python object being called with _no_ arguments, rather than a single argument of `None`. See the section below on callables for how to explicitly call a Python callable with a single `None` argument. 
 
 
 ### Function calls
