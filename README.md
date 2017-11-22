@@ -356,21 +356,29 @@ None
 ### Dictionary keys and values
 
 Python dictionaries, when converted to q, will yield q dictionaries (and vice versa).
-Additionally, functions are provided to directly retrieve the keys and values of a Python dictionary, without performing the conversion to a q dictionary. 
-
-- `.p.key` will return the keys of a Python dictionary
-- `.p.value` will return the values of a Python dictionary
-
-In each case, the result will be a Python (`foreign`) object.
-
 ```q
-p)dict={'key1':12,'key2':42}
-q)qdict:.p.get`dict
-q).p.py2q .p.key qdict 
-"key1"
-"key2"
-q).p.py2q .p.value qdict
-12 42
+q)p)pyd={'one':1,'two':2,'three':3}
+q)qd:.p.get`pyd
+q)qd`
+one  | 1
+two  | 2
+three| 3
+q).p.eval["print";<]qd
+{'one': 1, 'two': 2, 'three': 3}
+```
+Functions are also provided to retrieve the keys and values directly from an `embedPy` dictionary, without performing the conversion to a q dictionary. 
+
+- `.p.key` will return the keys
+- `.p.value` will return the values
+
+In each case, the result will be an `embedPy` object.
+```q
+q).p.key[qd]`
+"one"
+"two"
+"three"
+q).p.value[qd]`
+1 2 3
 ```
 
 ### Printing and help
@@ -433,29 +441,57 @@ This will rarely be used in practice, as conversion of q data to Python objects 
 
 #### Getting attributes
 
-Function `.p.pyattr ` will retrieve an attribute/property from a `foreign` object 
+Function `.p.pyattr ` will retrieve an attribute/property from a `foreign` object.  The result will be another `foreign`.
 ```q
-q)np:.p.pyimport`numpy
-q)ar:.p.pyattr[np]`arange
+q)p)import numpy as np
+q)m:.p.pyeval"np.arange(8).reshape(2,4)"
+q).p.py2q m
+0 1 2 3
+4 5 6 7
+q).p.py2q .p.pyattr[m]`T
+0 1
+2 3
+4 5
+6 7
 ```
-The result of calling this function, will be another `foreign`.
 
 
 #### Function calls
 
-`foreign` objects can be called directly  using `.p.call`.  
-When run on a callable `foreign` object, `.p.call` will return a q function taking exactly 2 arguments.
+A `foreign` object (representing a callable Python object) can be made callable in q with `.p.call`.  
+`.p.call` will return a q function, taking 2 arguments.
 - a list of positional arguments
 - a dictionary of keyword arguments
 
 Either of these arguments can be empty.
 
 The result of calling this function, will be another `foreign`.  
-e..
+e.g.
 ```q
 q)p)def f4(a,b,c,d):return (a*b,c*d)
 q).p.py2q .p.call[.p.get`f4;1 2;`d`c!4 3]
 2 12
+```
+
+
+#### Dictionary keys and values
+
+Functions are provided to retrieve the keys and values directly from a `foreign` dictionary, without performing the conversion to a q dictionary. 
+
+- `.p.pykey` will return the keys
+- `.p.pyvalue` will return the values
+
+In each case, the result will be a `foreign` object.
+```q
+q)d:.p.pyeval"{'key1':1,'key2':2}"
+q).p.py2q d
+key1| 1
+key2| 2
+q).p.py2q .p.pykey d
+"key1"
+"key2"
+q).p.py2q .p.pyvalue d
+1 2
 ```
 
 
