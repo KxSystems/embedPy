@@ -383,27 +383,27 @@ q).p.value[qd]`
 
 ### Printing and help
 
-The string representation of Python objects (as would be returned from Python’s `repr`) can be accessed using `.p.repr`, and printed to stdout using `.p.printpy`. 
-
-Interactive help on Python objects in the q console is available through `.p.help` and the docstring for a Python object can be retrieved as a string using `.p.helpstr`. (This uses Python's `inspect.getdoc`.)
-
-Both `.p.help` and `.p.helpstr` will also work on q functions created from Python callables using `.p.callable` and objects wrapped using `.p.obj2dict`, in these two cases the help displayed or retrieved will be the Python docstring help on the underlying Python object.
-
+The string representation of a Python (`embedPy` or `foreign`) object, can be accessed using `.p.repr`.  
+This representation can be printed to stdout using `.p.print`.
 ```q
-q)pyarray:.p.pyeval"np.array(np.arange(10))"
-q)pyarray
-foreign
-q)print pyarray
-[0 1 2 3 4 5 6 7 8 9]
-q)help pyarray / interactive help on object
+q)x:.p.eval"{'a':1,'b':2}"
+q).p.repr x
+"{'a': 1, 'b': 2}"
+q).p.print x
+{'a': 1, 'b': 2}
 ```
-
-For convenience `p.q` defines `print` and `help` in the top-level namespace of a q workspace it is loaded into. These are aliases for `.p.printpy` and `.p.help` respectively. If you do not want this behavior, comment out these lines in `p.q` before loading it.
-
+The string representation of Python's _help_ for a Python (`embedPy` or `foreign`) object can be accessed using `.p.helpstr`.
+This help can be accessed interactively using `.p.help`.
 ```q
-/comment out if you do not want print or help defined in your top level directory
-@[`.;`help;:;help];
-@[`.;`print;:;printpy];
+q)n:.p.eval"42"
+q).p.helpstr n
+"int(x=0) -> integer\nint(x, base=10) -> integer\n\nConvert a number or strin..
+q).p.help n / interactive help
+```
+**NB** For convenience, p.q defines `print` and `help` in the top-level namespace of q (as aliases for `.p.print` and `.p.help` respectively).  
+To prevent this, comment out the relevant code in p.q before loading
+```q
+{@[`.;x;:;get x]}each`help`print; / comment to remove from global namespace
 ```
 
 
