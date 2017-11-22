@@ -406,7 +406,7 @@ q).p.help n / interactive help
 ```
 
 
-### Raw (foreign) API
+### Raw (foreign) data
 
 `foreign` objects are retrieved from Python using one of the following calls
 
@@ -420,7 +420,9 @@ Symbol arg- the name of a Python variable in `__main__`
 String arg- the Python code to evaluate
 - ``.p.pyeval"1+1"`` 
 
-  
+
+### Raw (foreign) API
+
 A number of low level functions are provided to act directly on `foreign` objects.
 
 #### Converting data 
