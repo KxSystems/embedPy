@@ -406,6 +406,80 @@ q).p.help n / interactive help
 ```
 
 
+### Closures
+
+Closures allow us to define functions that retain state between calls.  
+We first define a function in q with
+* 2+ arguments - the current state and at least one other (possibly dummy) argument
+* 2 return values - the new state and the return value
+
+e.g.
+```q
+q)xtil:{[x;dummy]x,x+:1} / initial state 0; returns 1, 2, 3, 4, ...
+q)xrunsum:{x,x+:y} / initial state 0; returns running sum so far
+```
+We then wrap the function using `.p.qclosure`, which takes 2 arguments
+- The q function
+- The initial state value
+e.g.
+```q
+q)ftil:.p.qclosure[xtil;0]
+q).p.set[`ftil]ftil
+q)ftil@:(<) / make callable
+q)ftil[]
+1
+q)p)print(ftil())
+2
+q)ftil[]
+3
+q)p)print(ftil())
+4
+```
+```q
+q)runsum:.p.qclosure[xrunsum;0]
+q).p.set[`runsum]runsum
+q)runsum@:(<) / make callable
+q)runsum[2]
+2
+q)p)print(runsum(4))
+6
+q)runsum[-3]
+3
+q)p)print(runsum(7))
+10
+```
+
+
+### Generators
+
+Generators allow us to iterate to produce sequences of values. 
+We first define a function in q, as per closures (with a single _dummy_ argument following the state argument).
+
+e.g.
+```q
+q)xfact:{[x;dummy](x;last x:prds x+1 0)} / initial state 0 1; returns 1!, 2!, 3!, 4!, ...
+```
+We then wrap the function using `.p.genfunc`, which takes 3 arguments
+- The q function
+- The initial state value
+- The max number of iterations (or `::` to run indefinitely)
+
+e.g.
+```q
+q)fact_3:.p.genfunc[xfact;0 1;3]     / generates first 3 factorial values
+q)fact_inf:.p.genfunc[xfact;0 1;::]  / generates factorial values indefinitely
+```
+The resulting generators can be used as iterators in Python.
+
+e.g.
+```q
+.p.set[`fact_3]fact_3
+.p.e"for x in fact_3:\n if x>5:break\n print(x)"
+.p.set[`fact_inf]fact_inf
+.p.e"for x in fact_inf:\n if x>5:break\n print(x)"
+```
+
+
 ### Raw (foreign) data
 
 `foreign` objects are retrieved from Python using one of the following calls
