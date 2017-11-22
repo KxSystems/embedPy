@@ -22,7 +22,7 @@ Build the interface and run sanity checks with
 ```bash
 ./configure && make test
 ```
-If you are running in an environment without Internet access, you will need to download the kdb+ [C API header file](https://raw.githubusercontent.com/KxSystems/kdb/master/c/c/k.h) manually and place it in the directory that you are building from.
+If running in an environment without Internet access, you will need to download the kdb+ [C API header file](https://raw.githubusercontent.com/KxSystems/kdb/master/c/c/k.h) manually and place it in the directory that you are building from.
 
 Install by placing `p.q` in `$QHOME` and `p.so` in `$QHOME/{l64|m64}`.  
 
@@ -78,7 +78,7 @@ To evaluate Python code (as a string) and return results to q, use `.p.qeval`.
 q).p.qeval"1+2"
 3
 ```
-**NB** Python evaluation (unlike Python _execution_) does not allow side-effects. Thus, any attempt at variable assignment or class definition, will result in an error. To execute a string performing variable assignment or class definition,  you can use `.p.e`. A more detailed explanation of the difference between `eval` and `exec` in Python can be found [here](https://stackoverflow.com/questions/2220699/whats-the-difference-between-eval-exec-and-compile-in-python)
+**NB** Python evaluation (unlike Python _execution_) does not allow side effects. Thus, any attempt at variable assignment or class definition, will result in an error. To execute a string performing side effects,  you should use `.p.e`. A more detailed explanation of the difference between `eval` and `exec` in Python can be found [here](https://stackoverflow.com/questions/2220699/whats-the-difference-between-eval-exec-and-compile-in-python)
 
 
 ### foreign objects
@@ -92,13 +92,13 @@ Foreign objects can be stored in variables just like any other q datatype, or as
 
 ### embedPy objects
 
-Foreign objects cannot be operated on directly in q. Instead, Python objects should be represented as `embedPy` objects, which wrap the underlying `foreign` objects, and provide users with the ability to
+Foreign objects cannot be directly operated on in q. Instead, Python objects should be represented as `embedPy` objects, which wrap the underlying `foreign` objects, and provide users with the ability to
 - Get attributes/properties
 - Set attributes/properties
 - Call functions/methods
 - Convert data to q/foreign
 
-By default, calling an embedPy function/method, will return another embedPy object. This allows users to chain together sequences of functions. Alternatively, users can specify the return type as q or foreign.
+By default, calling an embedPy function/method, will return another embedPy object. This allows users to chain together sequences of operations. Alternatively, users can explicitly specify the return type as q or foreign.
 
 embedPy objects are retrieved from Python with one of the following calls
 
@@ -112,7 +112,7 @@ Symbol arg- the name of a Python variable in `__main__`
 String arg- the Python code to evaluate
 - ``.p.eval"1+1"``  
 
-**NB** As with other Python evaluation functions, .p.eval does not allow side-effects
+**NB** As with other Python evaluation functions, .p.eval does not permit side effects
 
 
 ### embedPy API
