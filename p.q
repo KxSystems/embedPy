@@ -8,8 +8,7 @@ k)c:{'[y;x]}/|:
 / compose with enlist (for composition trick used for 'variadic functions')
 k)ce:{'[y;x]}/enlist,|:
 py2q:{$[112=type x;conv[first .p.type x];]x}     / convert to q using best guess of type
-q2pyc:q2py / keep so people can test conversions with .p.q2pyc[something;conversiondict]
-q2py:{q2pyc[x;topy]}
+q2py:{$[112=type x;;topy type x]x}
 / aliases
 {x set y}'[`.p.attr`arraydims;getattr,getarraydims];
 pyattr:.p.attr;
@@ -37,12 +36,11 @@ scalar:callable .p.pyeval"lambda x:x.tolist()"
 conv:neg[1 3 7 9 21 30h]!getb,getnone,getj,getf,repr,scalar
 conv[4 10 30 41 42 99h]:getG,getC,{d#x[z;0]1*/d:y z}[getarray;getarraydims],(2#(py2q each getseq@)),dict
 .P.runs:0 /open the P namespace - keep the c-api in .P.    uses up a valuable namespace?
-(Pp:{@[`.P;x;:;.p x];![`.p;();0b;x];})`getseq`getb`getnone`getj`getf`getG`getC`getarraydims`getattr`getarray`getbuffer`dict`scalar`ntolist`runs
-uni:{x enlist .P.G2py"x"$y}call[pyeval"lambda x:x.decode('utf-8')";;()!()];
-.P.topy:(neg[1 4 5 6 7h]!5#(j2py"j"$)),(neg[8 9h]!2#(f2py"f"$)),(4 -10 10 11 -11h!G2py,{uni 1#x},uni,{uni@'string x},{uni string x}),0 99 100 101h!(fs2py q2py@'),dict2py,lambda2py,null2py
-.P.topy[1 2 4 5 6 7 8 9h]:a2py
-Pp`j2py`f2py`null2py`G2py`a2py`fs2py`lambda2py`rr2py
-topy:(0#0h)!() / defaults done in c, TODO temporal types here or in c
+(Pp:{@[.P;x;:;.p x];![`.p;();0b;x]})`getseq`getb`getnone`getj`getf`getG`getC`getarraydims`getattr`getarray`getbuffer`dict`scalar`ntolist`runs;
+uni:{call[.p.eval"lambda x:x.decode('utf-8')";;()!()]enlist G2py"x"$x}
+topy:(neg[1 4 5 6 7h]!5#(j2py"j"$)),(neg[8 9h]!2#(f2py"f"$)),(4 -10 10 11 -11h!G2py,{uni 1#x},uni,{uni@'string x},{uni string x}),0 99 100 101h!(fs2py q2py@'),dict2py,lambda2py,null2py
+topy[1 2 4 5 6 7 8 9h]:a2py
+/Pp`j2py`f2py`G2py`fs2py`null2py`lambda2py`a2py;
 / now pyutils stuff
 / python list (q2py gives tuple by default on vectors
 pylist:pycallable_imp[`builtins;`list]
