@@ -7,7 +7,7 @@ k)c:{'[y;x]}/|:         / compose list of functions
 k)ce:{'[y;x]}/enlist,|: / compose with enlist (for variadic functions)
 
 / Aliases
-set'[`pyget`pyeval`pyimport`pyattr`arraydims;.p.get,.p.eval,import,getattr,getarraydims];
+set'[`pykey`pyvalue`pyget`pyeval`pyimport`pyattr`arraydims;.p.key,.p.value,.p.get,.p.eval,import,getattr,getarraydims];
 qeval:c`.p.py2q,pyeval;
 
 pycallable:{if[not 112=type x;'`type];ce .[.p.call x],`.p.q2pargs}
@@ -16,7 +16,7 @@ setattr:pycallable pyattr[pyimport`builtins]`setattr
 
 / Converting python to q
 py2q:{$[112=type x;conv .p.type[x]0;]x} / convert to q using best guess of type
-dict:{({$[all 10=type@'x;`$;]x}py2q .p.key x)!py2q .p.value x}
+dict:{({$[all 10=type@'x;`$;]x}py2q pykey x)!py2q pyvalue x}
 scalar:callable .p.pyeval"lambda x:x.tolist()"
 / conv: type -> convfunction
 conv:neg[1 3 7 9 21 30h]!getb,getnone,getj,getf,repr,scalar
@@ -52,10 +52,13 @@ wf:{[c;r;x;a]
   $[count a:1_a;.[;a];]w[c;r]x}
 wrap:(w:{[c;r;x]ce wf[c;r;x]})[0;0]
 unwrap:{$[105=type x;x`.;x]}
-import: ce{r:wrap pyimport a:x 0;$[count x:1_x;.[;x];]r}
-.p.eval:ce{r:wrap pyeval   a:x 0;$[count x:1_x;.[;x];]r}
-.p.get: ce{r:wrap pyget    a:x 0;$[count x:1_x;.[;x];]r}
+wfunc:{[f;x]r:wrap f x 0;$[count x:1_x;.[;x];]r}
+import:ce wfunc pyimport
+.p.eval:ce wfunc pyeval
+.p.get:ce wfunc pyget
 .p.set:{[f;x;y]f[x]unwrap y;}.p.set
+.p.key:{wrap pykey x`.}
+.p.value:{wrap pyvalue x`.}
 
 / Help & Print
 gethelp:{[h;x]h$[112=0N!t:type x;x;105=t;x`.;:"no help available"]}

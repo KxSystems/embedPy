@@ -21,4 +21,8 @@ foo:.p.import[`$"__main__";`foo;*]42
 ver:.p.import[`sys;`version]`
 p)import sys
 ver~.p.eval["sys.version"]`
+q)p)pyd={'one':1,'two':2,'three':3}
+q)qd:.p.get`pyd
+("one";"two";"three")~.p.key[qd]`
+1 2 3~.p.value[qd]`
 -1"## Basic tests end";
