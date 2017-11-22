@@ -42,4 +42,3 @@ p)x=(__import__("ctypes").pythonapi.Py_DecRef)
 \l tests/memory.t
 \l tests/qfunc.t
 \l tests/tensorflow.t
-\l tests/unicode.t
