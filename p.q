@@ -12,9 +12,8 @@ qeval:c`.p.py2q,pyeval
 
 / Wrapper for foreigns
 embedPy:{[c;r;x;a] / r (0 wrapped, 1 q, 2 foreign)
-  if[($)~a0:a 0;:x];
-  if[c;:(wrap;py2q;::)[r].[pyfunc x]a];
-  $[`.~a0;:x;`~a0;:py2q x;-11=type a0;x:x getattr/` vs a0;
+  if[102<>type a0:a 0;if[c;:(wrap;py2q;::)[r].[pyfunc x]a]];
+  $[($)~a0;:x;`.~a0;:x;`~a0;:py2q x;-11=type a0;x:x getattr/` vs a0;
   (:)~a0;[setattr . x,1_a;:(::)];
   [c:1;r:$[(*)~a0;0;(<)~a0;1;(>)~a0;2;'`NYI]]];
   $[count a:1_a;.[;a];]w[c;r]x}
