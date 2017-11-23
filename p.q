@@ -62,9 +62,9 @@ i.gpykwargs:{dd:(0#`)!();
 i.gpyargs:{$[not any u:`..pyas~'first each x;(u;());1<sum u;'"only one pyargs allowed";(u;(),x[where u;1]0)]}
 
 / Help & Print
-gethelp:{[h;x]$[i.isf x;h x;i.isw x;h x`.;i.isc x;h 2{last get x}/first get x;[-2"no help available";]]}
+gethelp:{[h;x]$[i.isf x;h x;i.isw x;h x`.;i.isc x;h 2{last get x}/first get x;"no help available"]}
 repr:gethelp repr
-help:{[h;x]gethelp[h]x;}import[`builtins;`help;*]
+help:{[h;x]if[10=type u:gethelp[h]x;-2 u]}import[`builtins;`help;*] 
 helpstr:gethelp import[`inspect;`getdoc;<]
 print:{x y;}import[`builtins;`print;*]
 {@[`.;x;:;get x]}each`help`print; / comment to remove from global namespace
