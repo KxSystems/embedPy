@@ -1,6 +1,6 @@
 .p:(`:./p 2:`lib,1)`
 \d .p
-e:{x[0;y];}runs /"run" a string, x, as though it were the contents of a file.
+e:{x[0;y];}runs
 .p.eval:runs[1;]
 
 k)c:{'[y;x]}/|:         / compose list of functions
@@ -8,7 +8,7 @@ k)ce:{'[y;x]}/enlist,|: / compose with enlist (for variadic functions)
 
 / Aliases
 set'[`pykey`pyvalue`pyget`pyeval`pyimport`pyattr`arraydims;.p.key,.p.value,.p.get,.p.eval,import,getattr,getarraydims];
-qeval:c`.p.py2q,pyeval;
+qeval:c`.p.py2q,pyeval
 
 pycallable:{if[not 112=type x;'`type];ce .[.p.call x],`.p.q2pargs}
 callable:{c`.p.py2q,pycallable x}
@@ -34,9 +34,9 @@ q2pargs:{
  cn:{$[()~x;x;11<>type x;'`type;x~distinct x;x;'`dupnames]};
  :(unwrap each x[where not[al]&not u],a 1;cn[named[;1],key k 1]!(unwrap each named:(x,(::))where u)[;2],value k 1)
  }
-if[not`pykw      in key`.q;.p.pykw:     (`..pykw;;);.q.pykw:.p.pykw];           / identify keyword args with `name pykw value
-if[not`pyarglist in key`.q;.p.pyarglist:(`..pyas;) ;.q.pyarglist:.p.pyarglist]; / identify pos arg list (*args in python)
-if[not`pykwargs  in key`.q;.p.pykwargs: (`..pyks;) ;.q.pykwargs:.p.pykwargs];   / identify keyword dict (**kwargs in python)
+if[not`pykw      in key`.q;.p.pykw:     (`..pykw;;);.q.pykw:.p.pykw]           / identify keyword args with `name pykw value
+if[not`pyarglist in key`.q;.p.pyarglist:(`..pyas;) ;.q.pyarglist:.p.pyarglist] / identify pos arg list (*args in python)
+if[not`pykwargs  in key`.q;.p.pykwargs: (`..pyks;) ;.q.pykwargs:.p.pykwargs]   / identify keyword dict (**kwargs in python)
 i.gpykwargs:{dd:(0#`)!();
  $[not any u:`..pyks~'first each x;(0;dd);not last u;'"pykwargs last";
   1<sum u;'"only one pykwargs allowed";(1;dd,x[where u;1]0)]}
