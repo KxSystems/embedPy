@@ -526,20 +526,37 @@ foreign
 This will rarely be used in practice, as conversion of q data to Python objects is performed automatically whenever q data is passed to Python.
 
 
-#### Getting attributes
+#### Getting attributes/properties
 
-Function `.p.pyattr ` will retrieve an attribute/property from a `foreign` object.  The result will be another `foreign`.
+Function `.p.getattr ` will get an attribute/property from a `foreign` object.  The result will be another `foreign`.
+```
+$ cat class.p 
+class obj:
+    def __init__(self,x=0,y=0):
+        self.x = x
+        self.y = y
+```
 ```q
-q)p)import numpy as np
-q)m:.p.pyeval"np.arange(8).reshape(2,4)"
-q).p.py2q m
-0 1 2 3
-4 5 6 7
-q).p.py2q .p.pyattr[m]`T
-0 1
-2 3
-4 5
-6 7
+q)\l class.p
+q)obj:.p.get[`obj;>][1;2]
+q).p.py2q .p.getattr[obj]`x
+1
+q).p.py2q .p.getattr[obj]`y
+2
+```
+
+
+#### Setting attributes/properties
+
+Function `.p.setattr ` will set an attribute/property on a `foreign` object.
+
+```q
+q).p.setattr[obj;`x;10]
+q).p.setattr[obj;`y;20]
+q).p.py2q .p.getattr[obj]`x
+10
+q).p.py2q .p.getattr[obj]`y
+20
 ```
 
 
