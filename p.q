@@ -11,13 +11,14 @@ set'[`pykey`pyvalue`pyget`pyeval`pyimport`arraydims;.p.key,.p.value,.p.get,.p.ev
 qeval:c`.p.py2q,pyeval
 
 / Wrapper for foreigns
-wf:{[c;r;x;a] / r (0 wrapped, 1 q, 2 foreign)
+embedPy:{[c;r;x;a] / r (0 wrapped, 1 q, 2 foreign)
   if[($)~a0:a 0;:x];
-  if[c;:(wrap;py2q;::)[r].[pycallable x]a];
+  if[c;:(wrap;py2q;::)[r].[pyfunc x]a];
   $[`.~a0;:x;`~a0;:py2q x;-11=type a0;x:x getattr/` vs a0;
   (:)~a0;[setattr . x,1_a;:(::)];
   [c:1;r:$[(*)~a0;0;(<)~a0;1;(>)~a0;2;'`NYI]]];
   $[count a:1_a;.[;a];]w[c;r]x}
+wf:{[c;r;x;a]embedPy[c;r;x;a]}
 wrap:(w:{[c;r;x]ce wf[c;r;x]})[0;0]
 unwrap:{$[105=type x;x($);x]}
 wfunc:{[f;x]r:wrap f x 0;$[count x:1_x;.[;x];]r}
@@ -27,6 +28,9 @@ import:ce wfunc pyimport
 .p.set:{[f;x;y]f[x]unwrap y;}.p.set
 .p.key:{wrap pykey$[i.isf x;x;i.isw x;x($);'`type]}
 .p.value:{wrap pyvalue$[i.isf x;x;i.isw x;x($);'`type]}
+.p.callable:{$[i.isw x;x(*);'type]}
+.p.pycallable:{$[i.isw x;x(>);'type]}
+.p.qcallable:{$[i.isw x;x(<);'type]}
 / is foreign, wrapped, callable
 i.isf:112=type@ 
 i.isw:{$[105=type x;wf~$[104=type u:first get x;first get u;0b];0b]}
@@ -45,7 +49,7 @@ conv[4 10 30 41 42 99h]:getG,getC,{d#x[z;0]1*/d:y z}[getarray;getarraydims],(2#(
 {![`.p;();0b;x]}`getseq`getb`getnone`getj`getf`getG`getC`getarraydims`getarray`getbuffer`dict`scalar`ntolist`runs;
 
 / Calling python functions
-pycallable:{if[not i.isf x;'`type];ce .[.p.call x],`.p.q2pargs}
+pyfunc:{if[not i.isf x;'`type];ce .[.p.call x],`.p.q2pargs}
 q2pargs:{
  if[x~enlist(::);:(();()!())]; / zero args
  hd:(k:i.gpykwargs x)0; 
