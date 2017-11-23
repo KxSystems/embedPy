@@ -61,7 +61,8 @@ import:ce wfunc pyimport
 .p.value:{wrap pyvalue x`.}
 
 / Help & Print
-gethelp:{[h;x]h$[112=0N!t:type x;x;105=t;x`.;:"no help available"]}
+gethelp:{[h;x]h$[112=t:type x;x;105=t;x`.;:"no help available"]}
+repr:gethelp repr
 help:{[h;x]gethelp[h]x;}import[`builtins;`help;*]
 helpstr:gethelp import[`inspect;`getdoc;<]
 print:{x y;}import[`builtins;`print;*]
@@ -75,10 +76,10 @@ p)def qclosure(func,*state):
     state=(res[0],)
     return res[1]
   return cfunc
-qclosure:.p.get[`qclosure;*]
-/ implement 'closure' as: qclosure[{[state;dummy] ...;(newState;result)};initState]
+closure:.p.get[`qclosure;*]
+/ implement 'closure' as: closure[{[state;dummy] ...;(newState;result)};initState]
 
 / Generators
 p)import itertools
 gl:.p.eval["lambda f,n:(f(x)for x in(itertools.count()if n==None else range(n)))"][>]
-genfunc:{[f;i;n]gl[qclosure[f;i]`.;n]}
+generator:{[f;i;n]gl[closure[f;i]`.;n]}
