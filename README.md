@@ -423,9 +423,8 @@ We then wrap the function using `.p.closure`, which takes 2 arguments
 - The initial state value
 e.g.
 ```q
-q)ftil:.p.closure[xtil;0]
+q)ftil:.p.closure[xtil;0][<]
 q).p.set[`ftil]ftil
-q)ftil@:(<) / make callable
 q)ftil[]
 1
 q)p)print(ftil())
@@ -436,9 +435,8 @@ q)p)print(ftil())
 4
 ```
 ```q
-q)runsum:.p.closure[xrunsum;0]
+q)runsum:.p.closure[xrunsum;0][<]
 q).p.set[`runsum]runsum
-q)runsum@:(<) / make callable
 q)runsum 2
 2
 q)p)print(runsum(4))
@@ -514,7 +512,7 @@ A number of low level functions are provided to act directly on `foreign` object
 
 Function `.p.py2q` will attempt to convert Python (`foreign`) data to q
 ```q
-q)qvar:.p.get[`var1]
+q)qvar:.p.pyget`var1
 q).p.py2q qvar
 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 ..
 ```
@@ -524,6 +522,24 @@ q).p.q2py 1 2 3
 foreign
 ```
 This will rarely be used in practice, as conversion of q data to Python objects is performed automatically whenever q data is passed to Python.
+
+
+#### Function calls
+
+A `foreign` object (representing a callable Python object) can be made callable in q with `.p.call`.  
+`.p.call` will return a q function, taking 2 arguments.
+- a list of positional arguments
+- a dictionary of keyword arguments
+
+Either of these arguments can be empty.
+
+The result of calling this function, will be another `foreign`.  
+e.g.
+```q
+q)p)def f4(a,b,c,d):return (a*b,c*d)
+q).p.py2q .p.call[.p.get`f4;1 2;`d`c!4 3]
+2 12
+```
 
 
 #### Getting attributes/properties
@@ -559,24 +575,6 @@ q).p.py2q .p.getattr[obj]`x
 10
 q).p.py2q .p.getattr[obj]`y
 20
-```
-
-
-#### Function calls
-
-A `foreign` object (representing a callable Python object) can be made callable in q with `.p.call`.  
-`.p.call` will return a q function, taking 2 arguments.
-- a list of positional arguments
-- a dictionary of keyword arguments
-
-Either of these arguments can be empty.
-
-The result of calling this function, will be another `foreign`.  
-e.g.
-```q
-q)p)def f4(a,b,c,d):return (a*b,c*d)
-q).p.py2q .p.call[.p.get`f4;1 2;`d`c!4 3]
-2 12
 ```
 
 
