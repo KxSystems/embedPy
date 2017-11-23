@@ -12,20 +12,21 @@ qeval:c`.p.py2q,pyeval
 
 / Wrapper for foreigns
 wf:{[c;r;x;a] / r (0 wrapped, 1 q, 2 foreign)
+  if[($)~a0:a 0;:x];
   if[c;:(wrap;py2q;::)[r].[pycallable x]a];
-  $[`.~a0:a 0;:x;`~a0;:py2q x;-11=type a0;x:x getattr/` vs a0;
+  $[`.~a0;:x;`~a0;:py2q x;-11=type a0;x:x getattr/` vs a0;
   (:)~a0;[setattr . x,1_a;:(::)];
   [c:1;r:$[(*)~a0;0;(<)~a0;1;(>)~a0;2;'`NYI]]];
   $[count a:1_a;.[;a];]w[c;r]x}
 wrap:(w:{[c;r;x]ce wf[c;r;x]})[0;0]
-unwrap:{$[105=type x;x`.;x]}
+unwrap:{$[105=type x;x($);x]}
 wfunc:{[f;x]r:wrap f x 0;$[count x:1_x;.[;x];]r}
 import:ce wfunc pyimport
 .p.eval:ce wfunc pyeval
 .p.get:ce wfunc pyget
 .p.set:{[f;x;y]f[x]unwrap y;}.p.set
-.p.key:{wrap pykey$[i.isf x;x;i.isw x;x`.;'`type]}
-.p.value:{wrap pyvalue$[i.isf x;x;i.isw x;x`.;'`type]}
+.p.key:{wrap pykey$[i.isf x;x;i.isw x;x($);'`type]}
+.p.value:{wrap pyvalue$[i.isf x;x;i.isw x;x($);'`type]}
 / is foreign, wrapped, callable
 i.isf:112=type@ 
 i.isw:{$[105=type x;wf~$[104=type u:first get x;first get u;0b];0b]}
@@ -62,7 +63,7 @@ i.gpykwargs:{dd:(0#`)!();
 i.gpyargs:{$[not any u:`..pyas~'first each x;(u;());1<sum u;'"only one pyargs allowed";(u;(),x[where u;1]0)]}
 
 / Help & Print
-gethelp:{[h;x]$[i.isf x;h x;i.isw x;h x`.;i.isc x;h 2{last get x}/first get x;"no help available"]}
+gethelp:{[h;x]$[i.isf x;h x;i.isw x;h x($);i.isc x;h 2{last get x}/first get x;"no help available"]}
 repr:gethelp repr
 help:{[h;x]if[10=type u:gethelp[h]x;-2 u]}import[`builtins;`help;*] 
 helpstr:gethelp import[`inspect;`getdoc;<]
@@ -82,4 +83,4 @@ closure:.p.get[`qclosure;*] / implement as: closure[{[state;dummy] ...;(newState
 / Generators
 p)import itertools
 gl:.p.eval["lambda f,n:(f(x)for x in(itertools.count()if n==None else range(n)))"][>]
-generator:{[f;i;n]gl[closure[f;i]`.;n]}
+generator:{[f;i;n]gl[closure[f;i]($);n]}
