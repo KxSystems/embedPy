@@ -410,20 +410,20 @@ q).p.help n / interactive help
 
 Closures allow us to define functions that retain state between calls.  
 We first define a function in q with
-* 2+ arguments - the current state and at least one other (possibly dummy) argument
-* 2 return values - the new state and the return value
+- 2+ arguments - the current state and at least one other (possibly dummy) argument
+- 2 return values - the new state and the return value
 
 e.g.
 ```q
 q)xtil:{[x;dummy]x,x+:1} / initial state 0; returns 1, 2, 3, 4, ...
 q)xrunsum:{x,x+:y} / initial state 0; returns running sum so far
 ```
-We then wrap the function using `.p.qclosure`, which takes 2 arguments
+We then wrap the function using `.p.closure`, which takes 2 arguments
 - The q function
 - The initial state value
 e.g.
 ```q
-q)ftil:.p.qclosure[xtil;0]
+q)ftil:.p.closure[xtil;0]
 q).p.set[`ftil]ftil
 q)ftil@:(<) / make callable
 q)ftil[]
@@ -436,14 +436,14 @@ q)p)print(ftil())
 4
 ```
 ```q
-q)runsum:.p.qclosure[xrunsum;0]
+q)runsum:.p.closure[xrunsum;0]
 q).p.set[`runsum]runsum
 q)runsum@:(<) / make callable
-q)runsum[2]
+q)runsum 2
 2
 q)p)print(runsum(4))
 6
-q)runsum[-3]
+q)runsum -3
 3
 q)p)print(runsum(7))
 10
@@ -459,24 +459,35 @@ e.g.
 ```q
 q)xfact:{[x;dummy](x;last x:prds x+1 0)} / initial state 0 1; returns 1!, 2!, 3!, 4!, ...
 ```
-We then wrap the function using `.p.genfunc`, which takes 3 arguments
+We then wrap the function using `.p.generator`, which takes 3 arguments
 - The q function
 - The initial state value
 - The max number of iterations (or `::` to run indefinitely)
 
 e.g.
 ```q
-q)fact_3:.p.genfunc[xfact;0 1;3]     / generates first 3 factorial values
-q)fact_inf:.p.genfunc[xfact;0 1;::]  / generates factorial values indefinitely
+q)fact4:.p.generator[xfact;0 1;4]     / generates first 4 factorial values
+q)factinf:.p.generator[xfact;0 1;::]  / generates factorial values indefinitely
 ```
 The resulting generators can be used as iterators in Python.
 
 e.g.
 ```q
-.p.set[`fact_3]fact_3
-.p.e"for x in fact_3:\n if x>5:break\n print(x)"
-.p.set[`fact_inf]fact_inf
-.p.e"for x in fact_inf:\n if x>5:break\n print(x)"
+q).p.set[`fact4]fact4
+q).p.e"for x in fact4:print(x)"
+1
+2
+6
+24
+q).p.set[`factinf]factinf
+q).p.e"for x in factinf:\n print(x)\n if x>1000:break"  / force break to stop iteration
+1
+2
+6
+24
+120
+720
+5040
 ```
 
 
