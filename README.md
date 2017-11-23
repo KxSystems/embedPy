@@ -538,13 +538,13 @@ class obj:
 ```
 ```q
 q)\l class.p
-q)obj:.p.pycallable[.p.pyget`obj][2;3]
+q)obj:.p.call[.p.pyget`obj;2 3;()!()]
 q)obj
 foreign
 q).p.py2q .p.getattr[obj]`x
-1
-q).p.py2q .p.getattr[obj]`y
 2
+q).p.py2q .p.getattr[obj]`y
+3
 ```
 
 
