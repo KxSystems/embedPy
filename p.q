@@ -26,7 +26,7 @@ import:ce wfunc pyimport
 .p.set:{[f;x;y]f[x]unwrap y;}.p.set
 .p.key:{wrap pykey x`.}
 .p.value:{wrap pyvalue x`.}
-setattr:import[`builtins;`setattr;>]
+setattr:{[f;x;y;z]f[x;y;z];}import[`builtins;`setattr;*]
 
 / Converting python to q
 py2q:{$[112=type x;conv .p.type[x]0;]x} / convert to q using best guess of type
