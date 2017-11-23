@@ -1,31 +1,46 @@
 .p:(`:./p 2:`lib,1)`
 \d .p
-e:{x[0;y];}runs
-.p.eval:runs[1;]
+e:{x[0]y;}runs
+.p.eval:runs 1
 
 k)c:{'[y;x]}/|:         / compose list of functions
 k)ce:{'[y;x]}/enlist,|: / compose with enlist (for variadic functions)
 
 / Aliases
-set'[`pykey`pyvalue`pyget`pyeval`pyimport`pyattr`arraydims;.p.key,.p.value,.p.get,.p.eval,import,getattr,getarraydims];
+set'[`pykey`pyvalue`pyget`pyeval`pyimport`arraydims;.p.key,.p.value,.p.get,.p.eval,import,getarraydims];
 qeval:c`.p.py2q,pyeval
 
-pycallable:{if[not 112=type x;'`type];ce .[.p.call x],`.p.q2pargs}
-callable:{c`.p.py2q,pycallable x}
-setattr:pycallable pyattr[pyimport`builtins]`setattr
+/ Wrapper for foreigns
+wf:{[c;r;x;a] / r (0 wrapped, 1 q, 2 foreign)
+  if[c;:(wrap;py2q;::)[r].[pycallable x]a];
+  $[`.~a0:a 0;:x;`~a0;:py2q x;-11=type a0;x:x getattr/` vs a0;
+  (:)~a0;[setattr . x,1_a;:(::)];
+  [c:1;r:$[(*)~a0;0;(<)~a0;1;(>)~a0;2;'`NYI]]];
+  $[count a:1_a;.[;a];]w[c;r]x}
+wrap:(w:{[c;r;x]ce wf[c;r;x]})[0;0]
+unwrap:{$[105=type x;x`.;x]}
+wfunc:{[f;x]r:wrap f x 0;$[count x:1_x;.[;x];]r}
+import:ce wfunc pyimport
+.p.eval:ce wfunc pyeval
+.p.get:ce wfunc pyget
+.p.set:{[f;x;y]f[x]unwrap y;}.p.set
+.p.key:{wrap pykey x`.}
+.p.value:{wrap pyvalue x`.}
+setattr:import[`builtins;`setattr;>]
 
 / Converting python to q
 py2q:{$[112=type x;conv .p.type[x]0;]x} / convert to q using best guess of type
 dict:{({$[all 10=type@'x;`$;]x}py2q pykey x)!py2q pyvalue x}
-scalar:callable .p.pyeval"lambda x:x.tolist()"
+scalar:.p.eval["lambda x:x.tolist()";<]
 / conv: type -> convfunction
 conv:neg[1 3 7 9 21 30h]!getb,getnone,getj,getf,repr,scalar
 conv[4 10 30 41 42 99h]:getG,getC,{d#x[z;0]1*/d:y z}[getarray;getarraydims],(2#(py2q each getseq@)),dict
 
 / Cleanup
-{![`.p;();0b;x]}`getseq`getb`getnone`getj`getf`getG`getC`getarraydims`getattr`getarray`getbuffer`dict`scalar`ntolist`runs;
+{![`.p;();0b;x]}`getseq`getb`getnone`getj`getf`getG`getC`getarraydims`getarray`getbuffer`dict`scalar`ntolist`runs;
 
 / Calling python functions
+pycallable:{if[not 112=type x;'`type];ce .[.p.call x],`.p.q2pargs}
 q2pargs:{
  if[x~enlist(::);:(();()!())]; / zero args
  hd:(k:i.gpykwargs x)0; 
@@ -41,24 +56,6 @@ i.gpykwargs:{dd:(0#`)!();
  $[not any u:`..pyks~'first each x;(0;dd);not last u;'"pykwargs last";
   1<sum u;'"only one pykwargs allowed";(1;dd,x[where u;1]0)]}
 i.gpyargs:{$[not any u:`..pyas~'first each x;(u;());1<sum u;'"only one pyargs allowed";(u;(),x[where u;1]0)]}
-
-/ Wrapper for foreigns
-/ r (0 wrapped, 1 q, 2 foreign)
-wf:{[c;r;x;a]
-  if[c;:(wrap;py2q;::)[r].[pycallable x]a];
-  $[`.~a0:a 0;:x;`~a0;:py2q x;-11=type a0;x:x pyattr/` vs a0;
-  (:)~a0;[setattr . x,1_a;:(::)];
-  [c:1;r:$[(*)~a0;0;(<)~a0;1;(>)~a0;2;'`NYI]]];
-  $[count a:1_a;.[;a];]w[c;r]x}
-wrap:(w:{[c;r;x]ce wf[c;r;x]})[0;0]
-unwrap:{$[105=type x;x`.;x]}
-wfunc:{[f;x]r:wrap f x 0;$[count x:1_x;.[;x];]r}
-import:ce wfunc pyimport
-.p.eval:ce wfunc pyeval
-.p.get:ce wfunc pyget
-.p.set:{[f;x;y]f[x]unwrap y;}.p.set
-.p.key:{wrap pykey x`.}
-.p.value:{wrap pyvalue x`.}
 
 / Help & Print
 gethelp:{[h;x]h$[112=t:type x;x;105=t;x`.;:"no help available"]}
@@ -76,8 +73,7 @@ p)def qclosure(func,*state):
     state=(res[0],)
     return res[1]
   return cfunc
-closure:.p.get[`qclosure;*]
-/ implement 'closure' as: closure[{[state;dummy] ...;(newState;result)};initState]
+closure:.p.get[`qclosure;*] / implement as: closure[{[state;dummy] ...;(newState;result)};initState]
 
 / Generators
 p)import itertools
