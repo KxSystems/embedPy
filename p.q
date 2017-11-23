@@ -24,12 +24,16 @@ import:ce wfunc pyimport
 .p.eval:ce wfunc pyeval
 .p.get:ce wfunc pyget
 .p.set:{[f;x;y]f[x]unwrap y;}.p.set
-.p.key:{wrap pykey x`.}
-.p.value:{wrap pyvalue x`.}
+.p.key:{wrap pykey$[i.isf x;x;i.isw x;x`.;'`type]}
+.p.value:{wrap pyvalue$[i.isf x;x;i.isw x;x`.;'`type]}
+/ is foreign, wrapped, callable
+i.isf:112=type@ 
+i.isw:{$[105=type x;wf~$[104=type u:first get x;first get u;0b];0b]}
+i.isc:{$[105=type x;$[last[u:get x]~ce 1#`.p.q2pargs;1b;0b];0b]}
 setattr:{[f;x;y;z]f[x;y;z];}import[`builtins;`setattr;*]
 
 / Converting python to q
-py2q:{$[112=type x;conv .p.type[x]0;]x} / convert to q using best guess of type
+py2q:{$[i.isf x;conv .p.type[x]0;]x} / convert to q using best guess of type
 dict:{({$[all 10=type@'x;`$;]x}py2q pykey x)!py2q pyvalue x}
 scalar:.p.eval["lambda x:x.tolist()";<]
 / conv: type -> convfunction
@@ -40,7 +44,7 @@ conv[4 10 30 41 42 99h]:getG,getC,{d#x[z;0]1*/d:y z}[getarray;getarraydims],(2#(
 {![`.p;();0b;x]}`getseq`getb`getnone`getj`getf`getG`getC`getarraydims`getarray`getbuffer`dict`scalar`ntolist`runs;
 
 / Calling python functions
-pycallable:{if[not 112=type x;'`type];ce .[.p.call x],`.p.q2pargs}
+pycallable:{if[not i.isf x;'`type];ce .[.p.call x],`.p.q2pargs}
 q2pargs:{
  if[x~enlist(::);:(();()!())]; / zero args
  hd:(k:i.gpykwargs x)0; 
@@ -58,9 +62,9 @@ i.gpykwargs:{dd:(0#`)!();
 i.gpyargs:{$[not any u:`..pyas~'first each x;(u;());1<sum u;'"only one pyargs allowed";(u;(),x[where u;1]0)]}
 
 / Help & Print
-gethelp:{[h;x]h$[112=t:type x;x;105=t;x`.;:"no help available"]}
+gethelp:{[h;x]$[i.isf x;h x;i.isw x;h x`.;i.isc x;h 2{last get x}/first get x;"no help available"]}
 repr:gethelp repr
-help:{[h;x]gethelp[h]x;}import[`builtins;`help;*]
+help:{[h;x]if[10=type u:gethelp[h]x;-2 u]}import[`builtins;`help;*] 
 helpstr:gethelp import[`inspect;`getdoc;<]
 print:{x y;}import[`builtins;`print;*]
 {@[`.;x;:;get x]}each`help`print; / comment to remove from global namespace
