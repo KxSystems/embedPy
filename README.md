@@ -89,59 +89,147 @@ Foreign objects can be stored in variables just like any other q datatype, or as
 
 ### embedPy objects
 
-Foreign objects cannot be directly operated on in q. Instead, Python objects should be represented as `embedPy` objects, which wrap the underlying `foreign` objects, and provide users with the ability to
-- Get attributes/properties
-- Set attributes/properties
-- Call functions/methods
-- Convert data to q/foreign
+Foreign objects cannot be directly operated on in q. Instead, Python objects are typically represented as `embedPy` objects, which wrap the underlying `foreign` objects.
 
-By default, calling an `embedPy` function/method, will return another `embedPy` object. This allows users to chain together sequences of operations.  
-Alternatively, users can explicitly specify the return type as q or foreign.
-
-`embedPy` objects are retrieved from Python using one of the following calls
+An `embedPy` object can created from a `foreign` object using `.p.wrap`.
+```q
+q)x
+foreign
+q)p:.p.wrap x
+q)p
+{[c;r;x;a]embedPy[c;r;x;a]}[0;0;foreign]enlist
+```
+More commonly, `embedPy` objects are retrieved from Python using one of the following functions
 
 #### .p.import
 Symbol arg- the name of a Python module or package to import  
-e.g. ``.p.import`numpy``
+e.g. ``np:.p.import`numpy``
 #### .p.get
 Symbol arg- the name of a Python variable in `__main__`
-- ``.p.get`varName``
+- ``v:.p.get`varName``
 #### .p.eval
 String arg- the Python code to evaluate
-- ``.p.eval"1+1"``  
+- ``x:.p.eval"1+1"``  
 
 **NB** As with other Python evaluation functions, .p.eval does not permit side effects
 
+#### Converting data
 
-### embedPy API
+Given `obj`, an `embedPy` object representing Python data, we can get the underlying data (as foreign or q) using
+```q
+obj`. / get data as foreign
+obj`  / get data as q
+```
+e.g.
+```q
+q)x:.p.eval"(1,2,3)"
+q)x
+{[c;r;x;a]embedPy[c;r;x;a]}[0;0;foreign]enlist
+q)x`.
+foreign
+q)x`
+1 2 3
+```
 
+#### Getting attributes/properties
+
+Given `obj`, an `embedPy` object representing a Python object, we can get an attribute/property directly using 
+```q
+obj`attr         / equivalent to obj.attr in Python
+obj`attr1.attr2  / equivalent to obj.attr1.attr2 in Python
+```
+These operations return `embedPy` objects, allowing users to chain together operations.  
+```q
+obj[`attr1]`attr2  / equivalent to obj.attr1.attr2 in Python
+```
+e.g.
+```bash
+$ cat class.p 
+class obj:
+    def __init__(self,x=0,y=0):
+        self.x = x
+        self.y = y
+```
+```q
+q)\l class.p
+q)obj:.p.eval"obj(2,3)"
+q)obj[`x]`
+2
+q)obj[`y]`
+3
+```
+
+
+#### Setting attributes/properties
+
+Given `obj`, an `embedPy` object representing a Python object, we can set an attribute/property directly using 
+```q
+obj[:;`attr;val]      / set attribute/property
+```
+e.g.
+```q
+q)obj[`x]`
+2
+q)obj[`y]`
+3
+q)obj[:;`x;10]
+q)obj[:;`y;20]
+q)obj[`x]`
+10
+q)obj[`y]`
+20
+```
+
+
+#### Function calls
+
+`embedPy` objects representing callable Python functions/methods, can be declared as callable in q using
+- `.p.callable`   (declare callable with embedPy return)
+- `.p.qcallable`  (declare callable with q return)
+- `.p.pycallable` (declare callable with foreign return)
+
+The return from each of these functions is a new embedPy `object`, representing the same underlying Python function/method. However, the new object is callable in q.
+
+e.g.
+```q
+q)np:.p.import`numpy
+q)np`arange
+{[c;r;x;a]embedPy[c;r;x;a]}[0;0;foreign]enlist
+q)arange:.p.callable np`arange / callable returning embedPy
+q)arange 12
+{[c;r;x;a]embedPy[c;r;x;a]}[0;0;foreign]enlist
+q)arange[12]`
+0 1 2 3 4 5 6 7 8 9 10 11
+q)arange_py:.p.pycallable np`arange  / callable returning foreign
+q)arange_py 12
+foreign
+q)arange_q:.p.qcallable np`arange  / callable returning q
+q)arange_q 12
+0 1 2 3 4 5 6 7 8 9 10 11
+```
+
+
+#### embedPy function API
+
+Using the function API, `embedPy` objects can be directly declared callable, enabling more-direct calling of functions/methods.
+
+Users explicitly specify the return type as embedPy, q or foreign.  
 Given `obj`, an embedPy object, we can carry out the following operations
 ```q
-obj`                  / get data (as q)
-obj`.                 / get data (as foreign)
-obj`attr              / get attribute/property (as embedPy)
-obj`attr1.attr2       / get attribute/property at depth (as embedPy)
-obj[:;`attr;val]      / set attribute/property
+obj[*]                / declare obj callable (returning embedPy)
+obj[*]arg             / call obj (returning embedPy)
+obj[*;arg]            / equivalent
 
-obj[`method][*]       / define obj.method callable (returning embedPy)
-obj[`method;*]        / equivalent
-obj[`method][*]arg    / call obj.method (returning embedPy)
-obj[`method;*]arg     / equivalent
-obj[`method;*;arg]    / equivalent
+obj[<]                / declare obj callable (returning q)
+obj[<]arg             / call obj (returning q)
+obj[<;arg]            / equivalent
 
-obj[`method][<]       / define obj.method callable (returning q)
-obj[`method;<]        / equivalent
-obj[`method][<]arg    / call obj.method (returning q)
-obj[`method;<]arg     / equivalent
-obj[`method;<;arg]    / equivalent
-
-obj[`method][>]       / define obj.method callable (returning foreign)
-obj[`method;>]        / equivalent
-obj[`method][>]arg    / call obj.method (returning foreign)
-obj[`method;>]arg     / equivalent
-obj[`method;>;arg]    / equivalent
+obj[>]                / declare obj callable (returning foreign)
+obj[>]arg             / call obj (returning foreign)
+obj[>;arg]            / equivalent
 ```
-We can chain operations together and combine them with `.p.import`, `.p.get` and `.p.eval`.
+**NB** Returning another `embedPy` object from a function/method call,allows users to chain together sequences of operations.  
+We can also chain these operations with calls to `.p.import`, `.p.get` and `.p.eval`.
 
 ### embedPy examples
 
