@@ -211,10 +211,10 @@ q)arange_q 12
 
 #### embedPy function API
 
-Using the function API, `embedPy` objects can be directly declared callable, enabling more-direct calling of functions/methods.
+Using the function API, `embedPy` objects can be directly declared callable, enabling direct calling of functions/methods.
 
 Users explicitly specify the return type as embedPy, q or foreign.  
-Given `obj`, an embedPy object, we can carry out the following operations
+Given `obj`, an `embedPy` object representing a callable Python function/method, we can carry out the following operations
 ```q
 obj[*]                / declare obj callable (returning embedPy)
 obj[*]arg             / call obj(arg) (returning embedPy)
@@ -228,7 +228,7 @@ obj[>]                / declare obj callable (returning foreign)
 obj[>]arg             / call obj(arg) (returning foreign)
 obj[>;arg]            / equivalent
 ```
-**NB** Returning another `embedPy` object from a function/method call,allows users to chain together sequences of operations.  
+**NB** Returning another `embedPy` object from a function/method call, allows users to chain together sequences of operations.  
 We can also chain these operations with calls to `.p.import`, `.p.get` and `.p.eval`.
 
 ### embedPy examples
