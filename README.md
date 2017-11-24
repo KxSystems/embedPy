@@ -338,7 +338,7 @@ q).p.qeval"var1"
 
 Python `None` maps to the q identity function `::` when converting from Python to q (and vice versa).
 
-There is one important exception to this. When calling Python functions, methods or classes with a single q data argument, passing `::` will result in the Python object being called with _no_ arguments, rather than a single argument of `None`. See the section below on callables for how to explicitly call a Python callable with a single `None` argument. 
+There is one important exception to this. When calling Python functions, methods or classes with a single q data argument, passing `::` will result in the Python object being called with _no_ arguments, rather than a single argument of `None`. See the section below on _Zero argument calls_ for how to explicitly call a Python callable with a single `None` argument. 
 
 
 ### Function calls
