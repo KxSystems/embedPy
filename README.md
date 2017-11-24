@@ -537,7 +537,7 @@ The result of calling this function, will be another `foreign`.
 e.g.
 ```q
 q)p)def f4(a,b,c,d):return (a*b,c*d)
-q).p.py2q .p.call[.p.get`f4;1 2;`d`c!4 3]
+q).p.py2q .p.call[.p.pyget`f4;1 2;`d`c!4 3]
 2 12
 ```
 
