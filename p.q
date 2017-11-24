@@ -1,3 +1,4 @@
+if[system["s"]|0>system"p";'"slaves or multithreaded input not currently supported"];
 .p:(`:./p 2:`lib,1)`
 \d .p
 e:{x[0]y;}runs
@@ -27,9 +28,9 @@ import:ce wfunc pyimport
 .p.set:{[f;x;y]f[x]unwrap y;}.p.set
 .p.key:{wrap pykey$[i.isf x;x;i.isw x;x($);'`type]}
 .p.value:{wrap pyvalue$[i.isf x;x;i.isw x;x($);'`type]}
-.p.callable:{$[i.isw x;x(*);'type]}
-.p.pycallable:{$[i.isw x;x(>);'type]}
-.p.qcallable:{$[i.isw x;x(<);'type]}
+.p.callable:{$[i.isw x;x(*);i.isf x;wrap[x](*);'`type]}
+.p.pycallable:{$[i.isw x;x(>);i.isf x;wrap[x](>);'`type]}
+.p.qcallable:{$[i.isw x;x(<);i.isf x;wrap[x](<);'`type]}
 / is foreign, wrapped, callable
 i.isf:112=type@ 
 i.isw:{$[105=type x;wf~$[104=type u:first get x;first get u;0b];0b]}
@@ -53,17 +54,18 @@ q2pargs:{
  if[x~enlist(::);:(();()!())]; / zero args
  hd:(k:i.gpykwargs x)0; 
  al:neg[hd]_(a:i.gpyargs x)0;
- if[any 1_prev[u]and not u:`..pykw~'first each neg[hd]_x;'"keywords last"]; / check arg order
+ if[any 1_prev[u]and not u:i.isarg[i.kw]each neg[hd]_x;'"keywords last"]; / check arg order
  cn:{$[()~x;x;11<>type x;'`type;x~distinct x;x;'`dupnames]};
- :(unwrap each x[where not[al]&not u],a 1;cn[named[;1],key k 1]!(unwrap each named:(x,(::))where u)[;2],value k 1)
+ :(unwrap each x[where not[al]&not u],a 1;cn[named[;1],key k 1]!(unwrap each named:get'[(x,(::))where u])[;2],value k 1)
  }
-if[not`pykw      in key`.q;.p.pykw:     (`..pykw;;);.q.pykw:.p.pykw]           / identify keyword args with `name pykw value
-if[not`pyarglist in key`.q;.p.pyarglist:(`..pyas;) ;.q.pyarglist:.p.pyarglist] / identify pos arg list (*args in python)
-if[not`pykwargs  in key`.q;.p.pykwargs: (`..pyks;) ;.q.pykwargs:.p.pykwargs]   / identify keyword dict (**kwargs in python)
+if[not`pykw      in key`.q;pykw:     {x[y;z]}i.kw:(`..pykw;;;);.q.pykw:pykw]           / identify keyword args with `name pykw value
+if[not`pyarglist in key`.q;pyarglist:{x y}i.al:(`..pyas;;)    ;.q.pyarglist:pyarglist] / identify pos arg list (*args in python)
+if[not`pykwargs  in key`.q;pykwargs: {x y}i.ad:(`..pyks;;)    ;.q.pykwargs:pykwargs]   / identify keyword dict (**kwargs in python)
 i.gpykwargs:{dd:(0#`)!();
- $[not any u:`..pyks~'first each x;(0;dd);not last u;'"pykwargs last";
-  1<sum u;'"only one pykwargs allowed";(1;dd,x[where u;1]0)]}
-i.gpyargs:{$[not any u:`..pyas~'first each x;(u;());1<sum u;'"only one pyargs allowed";(u;(),x[where u;1]0)]}
+ $[not any u:i.isarg[i.ad]each x;(0;dd);not last u;'"pykwargs last";
+  1<sum u;'"only one pykwargs allowed";(1;dd,get[x where[u]0]1)]}
+i.gpyargs:{$[not any u:i.isarg[i.al]each x;(u;());1<sum u;'"only one pyargs allowed";(u;(),get[x where[u]0]1)]}
+i.isarg:{$[104=type y;x~first get y;0b]} / y is python argument identifier x
 
 / Help & Print
 gethelp:{[h;x]$[i.isf x;h x;i.isw x;h x($);i.isc x;h 2{last get x}/first get x;"no help available"]}
@@ -85,5 +87,5 @@ closure:.p.get[`qclosure;*] / implement as: closure[{[state;dummy] ...;(newState
 
 / Generators
 p)import itertools
-gl:.p.eval["lambda f,n:(f(x)for x in(itertools.count()if n==None else range(n)))"][>]
-generator:{[f;i;n]gl[closure[f;i]($);n]}
+i.gl:.p.eval["lambda f,n:(f(x)for x in(itertools.count()if n==None else range(n)))"][>]
+generator:{[f;i;n]i.gl[closure[f;i]($);n]}
