@@ -45,9 +45,6 @@ scalar:.p.eval["lambda x:x.tolist()";<]
 conv:neg[1 3 7 9 21 30h]!getb,getnone,getj,getf,repr,scalar
 conv[4 10 30 41 42 99h]:getG,getC,{d#x[z;0]1*/d:y z}[getarray;getarraydims],(2#(py2q each getseq@)),dict
 
-/ Cleanup
-{![`.p;();0b;x]}`getseq`getb`getnone`getj`getf`getG`getC`getarraydims`getarray`getbuffer`dict`scalar`ntolist`runs;
-
 / Calling python functions
 pyfunc:{if[not i.isf x;'`type];ce .[.p.call x],`.p.q2pargs}
 q2pargs:{
@@ -70,7 +67,7 @@ i.isarg:{$[104=type y;x~first get y;0b]} / y is python argument identifier x
 / Help & Print
 gethelp:{[h;x]$[i.isf x;h x;i.isw x;h x($);i.isc x;h 2{last get x}/first get x;"no help available"]}
 repr:gethelp repr
-help:{[h;x]if[10=type u:gethelp[h]x;-2 u]}import[`builtins;`help;*] 
+help:{[gh;h;x]if[10=type u:gh[h]x;-2 u]}[gethelp]import[`builtins;`help;*] 
 helpstr:gethelp import[`inspect;`getdoc;<]
 print:{x y;}import[`builtins;`print;*]
 {@[`.;x;:;get x]}each`help`print; / comment to remove from global namespace
@@ -89,3 +86,6 @@ closure:.p.get[`qclosure;*] / implement as: closure[{[state;dummy] ...;(newState
 p)import itertools
 i.gl:.p.eval["lambda f,n:(f(x)for x in(itertools.count()if n==None else range(n)))"][>]
 generator:{[f;i;n]i.gl[closure[f;i]($);n]}
+
+/ Cleanup
+{![`.p;();0b;x]}`getseq`getb`getnone`getj`getf`getG`getC`getarraydims`getarray`getbuffer`dict`scalar`ntolist`runs`wfunc`gethelp;
