@@ -24,7 +24,7 @@ Build the interface and run sanity checks with
 ```
 If running in an environment without Internet access, you will need to download the kdb+ [C API header file](https://raw.githubusercontent.com/KxSystems/kdb/master/c/c/k.h) manually and place in the build directory.
 
-Install by placing `p.q` in `$QHOME` and `p.so` in `$QHOME/{l64|m64}`.  
+Install by placing `p.q` and `p.k` in `$QHOME` and `p.so` in `$QHOME/{l64|m64}`.  
 
 **NB** If you are currently using PyQ, it also has a file called p.so, which it places in `$QHOME/{l64|m64}`. In this case, you may want to initially run from the local build directory without installing.
 
@@ -45,26 +45,26 @@ The interface allows execution of Python code directly in a q console or from a 
 q)p)print(1+2)
 3
 ```
-Multiline Python code can be loaded and executed using q scripts (but not from the console). Prefix the first line of the code with `p)` and indent subsequent lines of Python code according to the usual Python indentation rules. e.g.
+Multiline Python code can be loaded and executed using q scripts (but not from the console). Prefix the first line of the code with `p)` and indent subsequent lines of Python code according to the usual Python indentation rules. e.g. create a `q` script with the contents below.
 ```bash
-$ cat test.q
+$ cat embedPytest.q
 a:1                   / q code
 p)def add1(arg1):     # Python code
     return arg1+1     # still Python code
 ```
 Then in a q session
 ```q
-q)\l test.q
+q)\l embedPytest.q
 q)p)print(add1(12))
 13
 ```
 Full scripts of Python code can be executed in q, using the `.p` file extension (not `.py`). The script is loaded as usual.
-```
-$ cat hq.p 
+```bash
+$ cat helloq.p 
 print("Hello q!")
 ```
 ```q
-q)\l hq.p
+q)\l helloq.p
 Hello q!
 ```
 
@@ -146,7 +146,7 @@ We can chain operations together and combine them with `.p.import`, `.p.get` and
 ### embedPy examples
 
 Some examples
-```q
+```bash
 $ cat test.p # used for tests
 class obj:
     def __init__(self,x=0,y=0):
@@ -163,7 +163,7 @@ class obj:
     def total(self):
         return self.x + self.y
 ```
-```
+```q
 q)\l test.p
 q)obj:.p.get[`obj;*][]
 q)obj[`x]`
@@ -186,7 +186,7 @@ q)tot[]
 q)tot[]
 26
 ```
-```
+```q
 q)np:.p.import`numpy
 q)v:np[`arange;*;12]
 q)v`
@@ -211,14 +211,14 @@ q)np[`arange;*;12][`reshape;*;3;4][`T]`
 6 7  8 
 9 10 11
 ```
-```
+```q
 q)stdout:.p.import[`sys;`stdout.write;*]
 q)stdout"hello\n";
 hello
 q)stdout"goodbye\n";
 goodbye
 ```
-```
+```q
 q)oarg:.p.eval"10"
 q)oarg`
 10
@@ -264,9 +264,9 @@ Specifically
 - Default arguments are applied where no explicit arguments are given
 - Individual keyword arguments are specified using the (infix) `pykw` operator
 - A list of positional arguments can be passed using `pyarglist` (like Python *args)
-- A dictionary of keyword arguments can be passed using `pykwargs` (like Python *kwargs)
+- A dictionary of keyword arguments can be passed using `pykwargs` (like Python **kwargs)
 
-n.b. We can combine positional arguments, lists of positional arguments, keyword arguments and a dictionary of keyword arguments. However, _all_ keyword arguments must always follow _any_ positional arguments and the dictionary of keyword arguments (if given) must be specified last.
+n.b. We can combine positional arguments, lists of positional arguments, keyword arguments and a dictionary of keyword arguments. However, _all_ keyword arguments must always follow _any_ positional arguments. The dictionary of keyword arguments (if given) must be specified last.
 
 
 ### Example function calls
@@ -341,7 +341,7 @@ q)qfunc[4;pyarglist enlist 3;`c pykw 2;pykwargs enlist[`d]!enlist 1]
 
 In q, every function takes at least one argument. Even a niladic function, called with `func[]`, is passed the identity function `::` as an argument. In embedPy, if a function is called with `::` as the only argument, the underlying Python function will be called with _no_ arguments.  
 As we noted above `::` in q maps to `None` in Python, however in Python these two calls are not equivalent:
-```
+```python
 func()
 func(None)
 ```
@@ -545,7 +545,7 @@ q).p.py2q .p.call[.p.pyget`f4;1 2;`d`c!4 3]
 #### Getting attributes/properties
 
 Function `.p.getattr ` will get an attribute/property from a `foreign` object.  The result will be another `foreign`.
-```
+```bash
 $ cat class.p 
 class obj:
     def __init__(self,x=0,y=0):
