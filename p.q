@@ -57,7 +57,6 @@ q2pargs:{
  cn:{$[()~x;x;11<>type x;'`type;x~distinct x;x;'`dupnames]};
  :(unwrap each x[where not[al]&not u],a 1;cn[named[;1],key k 1]!(unwrap each named:get'[(x,(::))where u])[;2],value k 1)
  }
-/ TODO tidy, maybe arglist and kwargs don't need the lambdas?
 if[not`pykw      in key`.q;pykw:     {x[y;z]}i.kw:(`..pykw;;;);.q.pykw:pykw]           / identify keyword args with `name pykw value
 if[not`pyarglist in key`.q;pyarglist:{x y}i.al:(`..pyas;;)    ;.q.pyarglist:pyarglist] / identify pos arg list (*args in python)
 if[not`pykwargs  in key`.q;pykwargs: {x y}i.ad:(`..pyks;;)    ;.q.pykwargs:pykwargs]   / identify keyword dict (**kwargs in python)
