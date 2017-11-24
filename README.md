@@ -623,18 +623,18 @@ name                 | description
 `.p.unwrap`          | unwrap `x` and return result as foreign
 `.p.helpstr`         | get docstring for `x` as q-string
 `.p.help`            | interactive help on `x`
-`.p.repr`            | get string representation of get `x` as q-string
+`.p.repr`            | get string representation of `x` as q-string
 `.p.printpy`         | print string representation of `x`
-`.p.closure`         | create closure with `x` the q function and `y` the initial state
-`.p.generator`       | create a generator with `x` the q function, `y` the initial state and `z` the max iterations (`::` to run indefinitely)
+`.p.closure`         | create closure with q function `x` and initial state `y`
+`.p.generator`       | create generator with q function `x`, initial state `y` and the max number of iterations `z` (`::` to run indefinitely)
 `.p.pyimport`        | import module `x - symbol` and return result as foreign
 `.p.pyeval`          | evaluate `x - string` as Python code and return result as foreign
 `.p.pyget`           | get `x - symbol` from Python `__main__`  and return result as foreign
 `.p.py2q`            | convert `x - foreign` to q
 `.p.q2py`            | convert `x - q` to foreign
 `.p.getattr`         | get attribute `y - symbol` from `x - foreign`
-`.p.setattr`         | set attribute `y - symbol` on `x - foreign` with value `z`
-`.p.call`            | calls function `x` with positional args `y - list` and keyword args `z - list`
+`.p.setattr`         | set attribute `y - symbol` from `x - foreign` with value `z`
+`.p.call`            | calls function `x` with positional args `y - list` and keyword args `z - dict`
 `.p.pyfunc`          | make `x - foreign` a callable function, which will return foreign results
 `.p.pykey`           | get keys of dictionary `x - foreign` as foreign
 `.p.pyvalue`         | get values of dictionary `x - foreign` as foreign
@@ -642,8 +642,8 @@ name                 | description
 `.p.type`            | [internal] type of `x - foreign` (used internally for `py2q` conversion)
 `.p.conv`            | [internal] dictionary from Python type to conversion function (used internally for `py2q` conversion)
 `.p.c`               | [internal] compose a list of functions
-`.p.ce`              | [internal] compose a list of functions with `enlist` appended to the end of the list
-`.p.q2pargs`         | [internal] interpret parameters (positional and pykw/pyarglist/pykwargs) passed to callables
+`.p.ce`              | [internal] compose a list of functions with `enlist` appended to the end
+`.p.q2pargs`         | [internal] interpret parameters (positional and pykw/pyarglist/pykwargs) for passing to callables
 `.p.pykw`            | [internal] identify keyword parameter (also present in `.q` namespace to allow infix notation and prevent assignment in top level namespace)
 `.p.pyarglist`       | [internal] identify list of positional parameters (also present in `.q` namespace to prevent assignment in top level namespace)
 `.p.pykwargs`        | [internal] identify dictionary of keyword argument names to values (also present in `.q` namespace to prevent assignment in top level namespace)
