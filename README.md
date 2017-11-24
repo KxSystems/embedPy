@@ -91,7 +91,7 @@ Foreign objects can be stored in variables just like any other q datatype, or as
 
 Foreign objects cannot be directly operated on in q. Instead, Python objects are typically represented as `embedPy` objects, which wrap the underlying `foreign` objects.
 
-An `embedPy` object can created from a `foreign` object using `.p.wrap`.
+An `embedPy` object can created from an existing `foreign` object using `.p.wrap`.
 ```q
 q)x
 foreign
@@ -99,7 +99,7 @@ q)p:.p.wrap x
 q)p
 {[c;r;x;a]embedPy[c;r;x;a]}[0;0;foreign]enlist
 ```
-More commonly, `embedPy` objects are retrieved from Python using one of the following functions
+More commonly, `embedPy` objects are retrieved directly from Python using one of the following functions
 
 #### .p.import
 Symbol arg- the name of a Python module or package to import  
@@ -164,7 +164,7 @@ q)obj[`y]`
 
 Given `obj`, an `embedPy` object representing a Python object, we can set an attribute/property directly using 
 ```q
-obj[:;`attr;val]      / set attribute/property
+obj[:;`attr;val]  / equivalent to obj.attr=val in Python
 ```
 e.g.
 ```q
@@ -188,7 +188,7 @@ q)obj[`y]`
 - `.p.qcallable`  (declare callable with q return)
 - `.p.pycallable` (declare callable with foreign return)
 
-The return from each of these functions is a new embedPy `object`, representing the same underlying Python function/method. However, the new object is callable in q.
+The return from each of these functions is a new embedPy `object`, representing the same underlying Python function/method, but now callable in q.
 
 e.g.
 ```q
@@ -217,15 +217,15 @@ Users explicitly specify the return type as embedPy, q or foreign.
 Given `obj`, an embedPy object, we can carry out the following operations
 ```q
 obj[*]                / declare obj callable (returning embedPy)
-obj[*]arg             / call obj (returning embedPy)
+obj[*]arg             / call obj(arg) (returning embedPy)
 obj[*;arg]            / equivalent
 
 obj[<]                / declare obj callable (returning q)
-obj[<]arg             / call obj (returning q)
+obj[<]arg             / call obj(arg) (returning q)
 obj[<;arg]            / equivalent
 
 obj[>]                / declare obj callable (returning foreign)
-obj[>]arg             / call obj (returning foreign)
+obj[>]arg             / call obj(arg) (returning foreign)
 obj[>;arg]            / equivalent
 ```
 **NB** Returning another `embedPy` object from a function/method call,allows users to chain together sequences of operations.  
