@@ -17,9 +17,9 @@ embedPy:{[c;r;x;a] / r (0 wrapped, 1 q, 2 foreign)
   $[($)~a0;:x;`.~a0;:x;`~a0;:py2q x;-11=type a0;x:x getattr/` vs a0;
   (:)~a0;[setattr . x,1_a;:(::)];
   [c:1;r:$[(*)~a0;0;(<)~a0;1;(>)~a0;2;'`NYI]]];
-  $[count a:1_a;.[;a];]w[c;r]x}
-wf:{[c;r;x;a]embedPy[c;r;x;a]}
-wrap:(w:{[c;r;x]ce wf[c;r;x]})[0;0]
+  $[count a:1_a;.[;a];]i.w[c;r]x}
+i.wf:{[c;r;x;a]embedPy[c;r;x;a]}
+wrap:(i.w:{[c;r;x]ce i.wf[c;r;x]})[0;0]
 unwrap:{$[105=type x;x($);x]}
 wfunc:{[f;x]r:wrap f x 0;$[count x:1_x;.[;x];]r}
 import:ce wfunc pyimport
@@ -33,7 +33,7 @@ import:ce wfunc pyimport
 .p.qcallable:{$[i.isw x;x(<);i.isf x;wrap[x](<);'`type]}
 / is foreign, wrapped, callable
 i.isf:112=type@ 
-i.isw:{$[105=type x;wf~$[104=type u:first get x;first get u;0b];0b]}
+i.isw:{$[105=type x;i.wf~$[104=type u:first get x;first get u;0b];0b]}
 i.isc:{$[105=type x;$[last[u:get x]~ce 1#`.p.q2pargs;1b;0b];0b]}
 setattr:{[f;x;y;z]f[x;y;z];}import[`builtins;`setattr;*]
 
