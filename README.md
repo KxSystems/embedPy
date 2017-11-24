@@ -253,22 +253,23 @@ class obj:
 ```
 ```q
 q)\l test.p
-q)obj:.p.get[`obj;*][]
-q)obj[`x]`
+q)obj:.p.get`obj
+q)o:.p.callable[obj][]
+q)o[`x]`
 0
-q)obj[;`]each 5#`x
+q)o[;`]each 5#`x
 0 0 0 0 0
-q)obj[:;`x;10]
-q)obj[`x]`
+q)o[:;`x;10]
+q)o[`x]`
 10
-q)obj[`y]`
+q)o[`y]`
 0
-q)obj[;`]each 5#`y
+q)o[;`]each 5#`y
 1 2 3 4 5
-q)obj[:;`y;10]
-q)obj[;`]each 5#`y
+q)o[:;`y;10]
+q)o[;`]each 5#`y
 10 11 12 13 14
-q)tot:obj[`total;<]
+q)tot:.p.qcallable o`total
 q)tot[]
 25
 q)tot[]
@@ -300,10 +301,11 @@ q)np[`arange;*;12][`reshape;*;3;4][`T]`
 9 10 11
 ```
 ```q
-q)stdout:.p.import[`sys;`stdout.write;*]
+q)stdout:.p.callable(.p.import[`sys]`stdout.write)
 q)stdout"hello\n";
 hello
-q)stdout"goodbye\n";
+q)stderr:.p.import[`sys;`stderr.write;*]
+q)stderr"goodbye\n";
 goodbye
 ```
 ```q
