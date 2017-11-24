@@ -1,3 +1,4 @@
+if[system["s"]|0>system"p";'"slaves or multithreaded input not currently supported"];
 .p:(`:./p 2:`lib,1)`
 \d .p
 e:{x[0]y;}runs
