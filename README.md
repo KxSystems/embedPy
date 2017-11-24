@@ -638,6 +638,7 @@ name                 | description
 `.p.pyfunc`          | make `x - foreign` a callable function, which will return foreign results
 `.p.pykey`           | get keys of dictionary `x - foreign` as foreign
 `.p.pyvalue`         | get values of dictionary `x - foreign` as foreign
+`.p.arraydims`       | get the shape of `x - foreign` (a numpy multi-dimensional array)
 `.p.i`               | internal functions and objects 
 `.p.type`            | [internal] type of `x - foreign` (used internally for `py2q` conversion)
 `.p.conv`            | [internal] dictionary from Python type to conversion function (used internally for `py2q` conversion)
@@ -647,7 +648,4 @@ name                 | description
 `.p.pykw`            | [internal] identify keyword parameter (also present in `.q` namespace to allow infix notation and prevent assignment in top level namespace)
 `.p.pyarglist`       | [internal] identify list of positional parameters (also present in `.q` namespace to prevent assignment in top level namespace)
 `.p.pykwargs`        | [internal] identify dictionary of keyword argument names to values (also present in `.q` namespace to prevent assignment in top level namespace)
-`.p.arraydims`       | get the shape of `x - foreign` (a numpy multi-dimensional array)
 `.p.embedPy`         | [internal] defines embedPy API
-`.p.wf`              | [internal] used to call embedPy API
-`.p.w`               | [internal] used to wrap foreign as embedPy
