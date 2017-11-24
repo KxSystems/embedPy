@@ -1,4 +1,3 @@
-/ can we make default callable for python callables, returning embedPy, explicit resolution in cases where object is callable and has attributes?
 .p:(`:./p 2:`lib,1)`
 \d .p
 e:{x[0]y;}runs
