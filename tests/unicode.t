@@ -3,7 +3,7 @@
 p)1
 bad:"hello\351world";
 p)def slen(x):return len(x)
-v:.p.callable .p.pyeval"slen";
+v:.p.callable .p.eval"slen";
 `pyerr~@[v;bad;{`pyerr}]
 `pyerr~@[.p.set[`bad];bad;{`pyerr}]
 `pyerr~@[.p.set[`bad];2#enlist bad;{`pyerr}]
