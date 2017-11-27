@@ -181,6 +181,15 @@ q)obj[`y]`
 ```
 
 
+#### Getting methods
+
+Given `obj`, an `embedPy` object representing a Python object, we can access a method directly using 
+```q
+obj`method  / equivalent to obj.method in Python
+```
+This will return an `embedPy` object, which is not, by default, callable in q. Instead, `embedPy` objects representing callable Python functions/methods, must be explicitly declared callable. This process is described below.
+
+
 #### Function calls
 
 `embedPy` objects representing callable Python functions/methods, can be declared as callable in q using
@@ -214,19 +223,19 @@ q)arange_q 12
 Using the function API, `embedPy` objects can be directly declared callable, enabling direct calling of the underlying functions/methods.
 
 Users explicitly specify the return type as embedPy, q or foreign.  
-Given `obj`, an `embedPy` object representing a callable Python function/method, we can carry out the following operations
+Given `func`, an `embedPy` object representing a callable Python function/method, we can carry out the following operations
 ```q
-obj[*]                / declare obj callable (returning embedPy)
-obj[*]arg             / call obj(arg) (returning embedPy)
-obj[*;arg]            / equivalent
+func[*]                / declare func callable (returning embedPy)
+func[*]arg             / call func(arg) (returning embedPy)
+func[*;arg]            / equivalent
 
-obj[<]                / declare obj callable (returning q)
-obj[<]arg             / call obj(arg) (returning q)
-obj[<;arg]            / equivalent
+func[<]                / declare func callable (returning q)
+func[<]arg             / call func(arg) (returning q)
+func[<;arg]            / equivalent
 
-obj[>]                / declare obj callable (returning foreign)
-obj[>]arg             / call obj(arg) (returning foreign)
-obj[>;arg]            / equivalent
+func[>]                / declare func callable (returning foreign)
+func[>]arg             / call func(arg) (returning foreign)
+func[>;arg]            / equivalent
 ```
 **NB** Returning another `embedPy` object from a function/method call, allows users to chain together sequences of operations.  
 We can also chain these operations together with calls to `.p.import`, `.p.get` and `.p.eval`.
