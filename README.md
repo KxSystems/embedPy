@@ -2,10 +2,13 @@
 
 Allows the kdb+ interpreter to manipulate Python objects and call Python functions.
 
+**This release (v0.2-beta) features a number of changes that are not back-compatible with the previous release (v0.1-beta). Most notably, the default _type_ used in many operations is now the embedPy type, rather than the foreign type. Differences between these types (and the associated APIs) are setout below**
 
 ## Status
 
-The embedPy library is still in development. If you would like to participate in the beta tests, please write to ai@kx.com. 
+
+
+The embedPy library is still in development. If you would like to participate in the beta tests, please write to ai@kx.com.
 
 
 ## Requirements
