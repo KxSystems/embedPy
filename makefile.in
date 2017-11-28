@@ -3,4 +3,4 @@ p.so:p.c k.h makefile
 k.h:
 	curl https://raw.githubusercontent.com/KxSystems/kdb/master/c/c/k.h -o k.h
 test:p.so
-	q tests/test.q tests/test.t 
+	q test.q tests/*.t
