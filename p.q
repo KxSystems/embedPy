@@ -1,14 +1,11 @@
 if[system["s"]|0>system"p";'"slaves or multithreaded input not currently supported"];
 .p:(`:./p 2:`lib,1)`
 \d .p
-e:{x[0]y;}runs
-.p.eval:runs 1
-
 k)c:{'[y;x]}/|:         / compose list of functions
 k)ce:{'[y;x]}/enlist,|: / compose with enlist (for variadic functions)
 
 / Aliases
-set'[`pykey`pyvalue`pyget`pyeval`pyimport`arraydims;.p.key,.p.value,.p.get,.p.eval,import,getarraydims];
+set'[`pykey`pyvalue`pyget`pyeval`pyimport;.p.key,.p.value,.p.get,.p.eval,import];
 qeval:c`.p.py2q,pyeval
 
 / Wrapper for foreigns
@@ -36,14 +33,6 @@ i.isf:112=type@
 i.isw:{$[105=type x;i.wf~$[104=type u:first get x;first get u;0b];0b]}
 i.isc:{$[105=type x;$[last[u:get x]~ce 1#`.p.q2pargs;1b;0b];0b]}
 setattr:{[f;x;y;z]f[x;y;z];}import[`builtins;`setattr;*]
-
-/ Converting python to q
-py2q:{$[i.isf x;conv .p.type[x]0;]x} / convert to q using best guess of type
-dict:{({$[all 10=type@'x;`$;]x}py2q pykey x)!py2q pyvalue x}
-scalar:.p.eval["lambda x:x.tolist()";<]
-/ conv: type -> convfunction
-conv:neg[1 3 7 9 21 30h]!getb,getnone,getj,getf,repr,scalar
-conv[4 10 30 41 42 99h]:getG,getC,{d#x[z;0]1*/d:y z}[getarray;getarraydims],(2#(py2q each getseq@)),dict
 
 / Calling python functions
 pyfunc:{if[not i.isf x;'`type];ce .[.p.call x],`.p.q2pargs}
@@ -88,4 +77,4 @@ i.gl:.p.eval["lambda f,n:(f(x)for x in(itertools.count()if n==None else range(n)
 generator:{[f;i;n]i.gl[closure[f;i]($);n]}
 
 / Cleanup
-{![`.p;();0b;x]}`getseq`getb`getnone`getj`getf`getG`getC`getarraydims`getarray`getbuffer`dict`scalar`ntolist`runs`wfunc`gethelp;
+{![`.p;();0b;x]}`getseq`ntolist`runs`wfunc`gethelp;
