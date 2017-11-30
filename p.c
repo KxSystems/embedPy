@@ -71,7 +71,7 @@ Z O ok(K x){P(pq(x),kget(x))P(gnull(x),Py_None)P(xt<0,-128==xt?PyErr_Format(PyEx
 Z K2(runs){P(xt!=-KJ||y->t!=KC,E(type))J j=xj;C z=0;r1(y);x=ja(&y,&z);x==y?--xn:r0(y);PyErr_Clear();O o=PyRun_String((S)xG,j?Py_eval_input:Py_file_input,d,d);r0(x);R ko(o)?:PE;} //evaluate a string, x, returning a foreign.  $[y;evaluate;runasfile]   TODO check return
 Z K2(set){P(xt!=-KS,E(type))O o=ok(y);P(!o,PE)PyDict_SetItemString(d,xs,o);Py_DECREF(o);R 0;}//set a python variable x (symbol) with value y in the __main__ module TODO - check SIS return
 Z K1(import){P(xt!=-KS,E(type))O m=PyImport_ImportModule(xs);P(!m,F(xs))R ko(m);}//import x (symbol) returns a foreign with the contents of module named by x
-Z K2(getattr){P(y->t!=-KS,E(type))Oo;O f=PyObject_GetAttrString(o,TX(S,y));P(!f,F(TX(S,y)))Py_DECREF(o);R ko(f);}//for a foreign, x, get the attribute named by y (symbol)
+Z K2(getattr){P(y->t!=-KS,E(type))Oo;O f=PyObject_GetAttrString(o,TX(S,y));P(!f,(PyErr_Print(),F(TX(S,y))))Py_DECREF(o);R ko(f);}//for a foreign, x, get the attribute named by y (symbol)
 Z K3(call){P(y->t<0,E(type))O f=kget(x),o,s,t;P(!PyCallable_Check(f),E(type))t=pq(z)?kget(y):atup(y);CPO(t,E(pyerr),Py_DECREF(f))s=pq(z)?kget(z):odict(z);CPO(s,E(pyerr),Py_DECREF(f);Py_DECREF(t))o=PyObject_Call(f,t,s);Py_DECREF(t);Py_DECREF(s);Py_DECREF(f);P(!o,PE)R ko(o);}//call a foreign, x, with positional args y and keyword args z
 Z K1(repr){O o;K r;P(!pq(x),E(type))P(!(o=PyObject_Repr(kget(x))),PE)r=koC(o);Py_DECREF(o);R r;}//return a string like repr(x)
 Z K1(getseq){Oo;O0(kseq(o))}//return an array of foreigns from x. x should be a sequence
