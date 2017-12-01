@@ -27,5 +27,10 @@ q)p)pyd={'one':1,'two':2,'three':3}
 q)qd:.p.get`pyd
 ("one";"two";"three")~.p.key[qd]`
 1 2 3~.p.value[qd]`
-.p.py2q .p.pyeval"{}"
+(()!())~.p.py2q .p.pyeval"{}"
+/ error, non existent attribute
+np:.P.eval"np"
+10=type .p.repr .P.getattr[np;`eye]
+1~@[.p.getattr[np];`banana;1]
+10=type .p.repr .P.getattr[np;`eye]
 -1"## Basic tests end";
