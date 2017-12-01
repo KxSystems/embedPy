@@ -29,7 +29,7 @@ import:ce wfunc pyimport
 .p.pycallable:{$[i.isw x;x(>);i.isf x;wrap[x](>);'`type]}
 .p.qcallable:{$[i.isw x;x(<);i.isf x;wrap[x](<);'`type]}
 / is foreign, wrapped, callable
-i.isf:112=type@ 
+i.isf:isp
 i.isw:{$[105=type x;i.wf~$[104=type u:first get x;first get u;0b];0b]}
 i.isc:{$[105=type x;$[last[u:get x]~ce 1#`.p.q2pargs;1b;0b];0b]}
 setattr:{[f;x;y;z]f[x;y;z];}import[`builtins;`setattr;*]
@@ -42,11 +42,11 @@ q2pargs:{
  al:neg[hd]_(a:i.gpyargs x)0;
  if[any 1_prev[u]and not u:i.isarg[i.kw]each neg[hd]_x;'"keywords last"]; / check arg order
  cn:{$[()~x;x;11<>type x;'`type;x~distinct x;x;'`dupnames]};
- :(unwrap each x[where not[al]&not u],a 1;cn[named[;1],key k 1]!(unwrap each named:get'[(x,(::))where u])[;2],value k 1)
+ :(unwrap each x[where not[al]&not u],a 1;cn[named[;1],key k 1]!unwrap each(named:get'[(x,(::))where u])[;2],value k 1)
  }
-if[not`pykw      in key`.q;.p.pykw:     {x[y;z]}i.kw:(`..pykw;;;);.q.pykw:.p.pykw]           / identify keyword args with `name pykw value
-if[not`pyarglist in key`.q;.p.pyarglist:{x y}i.al:(`..pyas;;)    ;.q.pyarglist:.p.pyarglist] / identify pos arg list (*args in python)
-if[not`pykwargs  in key`.q;.p.pykwargs: {x y}i.ad:(`..pyks;;)    ;.q.pykwargs:.p.pykwargs]   / identify keyword dict (**kwargs in python)
+.q.pykw:{x[y;z]}i.kw:(`..pykw;;;)  / identify keyword args with `name pykw value
+.q.pyarglist:{x y}i.al:(`..pyas;;) / identify pos arg list (*args in python)
+.q.pykwargs: {x y}i.ad:(`..pyks;;) / identify keyword dict (**kwargs in python)
 i.gpykwargs:{dd:(0#`)!();
  $[not any u:i.isarg[i.ad]each x;(0;dd);not last u;'"pykwargs last";
   1<sum u;'"only one pykwargs allowed";(1;dd,get[x where[u]0]1)]}
