@@ -42,7 +42,7 @@ q2pargs:{
  al:neg[hd]_(a:i.gpyargs x)0;
  if[any 1_prev[u]and not u:i.isarg[i.kw]each neg[hd]_x;'"keywords last"]; / check arg order
  cn:{$[()~x;x;11<>type x;'`type;x~distinct x;x;'`dupnames]};
- :(unwrap each x[where not[al]&not u],a 1;cn[named[;1],key k 1]!(unwrap each named:get'[(x,(::))where u])[;2],value k 1)
+ :(unwrap each x[where not[al]&not u],a 1;cn[named[;1],key k 1]!unwrap each(named:get'[(x,(::))where u])[;2],value k 1)
  }
 .q.pykw:{x[y;z]}i.kw:(`..pykw;;;)  / identify keyword args with `name pykw value
 .q.pyarglist:{x y}i.al:(`..pyas;;) / identify pos arg list (*args in python)
