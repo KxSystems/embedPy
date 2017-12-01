@@ -28,7 +28,7 @@ q)qd:.p.get`pyd
 ("one";"two";"three")~.p.key[qd]`
 1 2 3~.p.value[qd]`
 (()!())~.p.py2q .p.pyeval"{}"
-/ error, non existent attribute
+/ error, non existent attribute #1  this uses the .P namespace to show it works in p.c
 np:.P.eval"np"
 10=type .p.repr .P.getattr[np;`eye]
 1~@[.p.getattr[np];`banana;1]
