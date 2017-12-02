@@ -14,7 +14,7 @@ The embedPy library is still in development. If you would like to participate in
 ## Requirements
 
 - KDB+ >=3.5 64-bit
-- Python 3.x
+- Anaconda Python 3.x
 - Mac/Linux 
 
 
