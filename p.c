@@ -90,10 +90,15 @@ Z K1(getarraydims){Oo;Co(Array)R dim(o);}//for an array, return an array of "j" 
  K arr(O o,J m,J n){A a=(A)o;I t=npyt(PyArray_TYPE(a));P(!t,E(type))I z=zh[t];P(m<0,E(index));P(n<0||PyArray_NBYTES(a)<z*(m+n),E(length))K x=ktn(t,n);memcpy(xG,PyArray_DATA(a)+m*z,n*z);R x;}
 Z K3(getarray){Oo;Co(Array)P(y->t!=-KJ||z->t!=-KJ,E(type))R arr(o,y->j,z->j);}//for an array, x, return a q list
 Z K1(get){P(xt!=-KS,E(type));O o=PyDict_GetItemString(d,xs);;P(o,(Py_INCREF(o),ko(o)))R E(item);}//get a python variable named by x (symbol) in the __main__ module
-Z K1(init){P(Py_IsInitialized(),0);if(RP)Py_SetPythonHome(PH);Py_Initialize();PySys_SetArgvEx(0,0,0);d=PyModule_GetDict(M=PyImport_AddModule("__main__"));m=ko(M);dyl(DY);import_array1(E(numpy));R 0;}
 Z K1(isp){R kb(pq(x));}
+Z K1(init){P(Py_IsInitialized(),0);if(RP)Py_SetPythonHome(PH);
+ Py_Initialize();
+ PySys_SetArgvEx(0,0,0);d=PyModule_GetDict(M=PyImport_AddModule("__main__"));m=ko(M);dyl(DY);import_array1(E(numpy));
+ R 0;}
 #define sdl(f,n) (js(&x,ss(#f)),jk(&y,dl(f,n)));
-K1(dld){K y=ktn(0,0);x=ktn(KS,0);sdl(runs,2)sdl(set,2)sdl(import,1)sdl(isp,1)sdl(getattr,2)sdl(call,3)sdl(repr,1)sdl(py2q,1)sdl(q2py,1)sdl(key,1)sdl(value,1)sdl(type,1)sdl(get,1)sdl(getseq,1)sdl(getb,1)sdl(getnone,1)sdl(getj,1)sdl(getf,1)sdl(getG,1)sdl(getC,1)sdl(getarraydims,1)sdl(getarray,3)sdl(getbuffer,1)R xD(x,y);}
+K1(dld){
+ K y=ktn(0,0);x=ktn(KS,0);sdl(runs,2)sdl(set,2)sdl(import,1)sdl(isp,1)sdl(getattr,2)sdl(call,3)sdl(repr,1)sdl(py2q,1)sdl(q2py,1)sdl(key,1)sdl(value,1)sdl(type,1)sdl(get,1)sdl(getseq,1)sdl(getb,1)sdl(getnone,1)sdl(getj,1)sdl(getf,1)sdl(getG,1)sdl(getC,1)sdl(getarraydims,1)sdl(getarray,3)sdl(getbuffer,1)
+ R xD(x,y);}
 #define Ke(x) ({K r=k(0,x,(S)0);if(r->t==-128)R fprintf(stderr,"  %s\n",x),r;r;})
 K1(lib){init(x);r0(K(".[`.P;();:;]",dld(x)));K r,d0=K("\\d");S s[]={"\\d .P","e:{runs[0;x];}","k)eval:runs[1]","k)scalar:py2q call[eval\"lambda x:x.tolist()\";;()!()]@,:","k)py2q:{$[isp x;conv type[x]0;]x}",
  "k)dict:{({$[1b~&/10=@:'x;`$;]x}py2q key x)!py2q value x}","k)conv:((- 1 3 7 9 21 30h)!getb,getnone,getj,getf,repr,scalar),4 10 30 41 42 99h!getG,getC,{d#x[z;0]1*/d:y z}[getarray;getarraydims],(2#(py2q'getseq@)),dict",0};
