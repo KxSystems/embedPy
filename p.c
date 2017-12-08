@@ -9,6 +9,8 @@ Z K ker(S e,S f,I l,S g){Z C b[99];snprintf(b,98,"%s:%d %s %s",f,l,g,e);K r=krr(
 #include<Python.h>
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION // http://docs.scipy.org/doc/numpy/reference/c-api.deprecations.html
 #include<numpy/arrayobject.h>
+#include <pthread.h>
+Z pthread_key_t tk;PyInterpreterState*tp;
 
 #if PY_MAJOR_VERSION<3
 #define PY(x,y) x
@@ -35,7 +37,9 @@ typedef PyObject*O;typedef PyArrayObject*A;O d,M;K m;
 
 Z O ok(K);Z K kpy2q;K1(py2q){R K("@",r1(kpy2q),r1(x));}
 Z K pget(O x){K r=PyCapsule_GetPointer(x,0);R r;}Z V destr(O o){r0(pget(o));}Z O pwrap(K x){R PyCapsule_New(r1(x),0,destr);}
-Z V p0(K x){Py_DECREF(kK(x)[1]);}Z K ko(O o){P(!o,0);K r=knk(2,p0,o);R r->t=112,r;}ZI pq(K x){R xt==112&&xn==2&&*kK(x)==(K)p0;}Z O kget(K x){P(!pq(x),0)O o=(O)kK(x)[1];Py_INCREF(o);R o;}
+Z V p0(K x){
+ Py_DECREF(kK(x)[1]);}
+Z K ko(O o){P(!o,0);K r=knk(2,p0,o);R r->t=112,r;}ZI pq(K x){R xt==112&&xn==2&&*kK(x)==(K)p0;}Z O kget(K x){P(!pq(x),0)O o=(O)kK(x)[1];Py_INCREF(o);R o;}
 Z O ck(O x,O y){K a=ko(y);Py_INCREF(y);K r=K(".",r1(pget(x)),py2q(a));O o=ok(r);R r0(a),r0(r),o;} // ok here is fine without checking, python will print pyerr
 Z PyMethodDef pmd={"q)",ck,METH_VARARGS,""};Z O ocall(K x){O o=pwrap(x),f=PyCFunction_New(&pmd,o);Py_DECREF(o);R f;}
 
@@ -91,8 +95,6 @@ Z K1(getarraydims){Oo;Co(Array)R dim(o);}//for an array, return an array of "j" 
 Z K3(getarray){Oo;Co(Array)P(y->t!=-KJ||z->t!=-KJ,E(type))R arr(o,y->j,z->j);}//for an array, x, return a q list
 Z K1(get){P(xt!=-KS,E(type));O o=PyDict_GetItemString(d,xs);;P(o,(Py_INCREF(o),ko(o)))R E(item);}//get a python variable named by x (symbol) in the __main__ module
 Z K1(isp){R kb(pq(x));}
-#include <pthread.h>
-Z pthread_key_t tk;PyInterpreterState*tp;
 Z K1(init){P(Py_IsInitialized(),0);if(RP)Py_SetPythonHome(PH);
  Py_InitializeEx(1);PyEval_InitThreads();pthread_key_create(&tk,0);
  PySys_SetArgvEx(0,0,0);d=PyModule_GetDict(M=PyImport_AddModule("__main__"));m=ko(M);dyl(DY);import_array1(E(numpy));
