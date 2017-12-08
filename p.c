@@ -35,16 +35,13 @@ typedef PyObject*O;typedef PyArrayObject*A;O d,M;K m;
 #define PE   (PyErr_Occurred()?PyErr_Print(),E(pyerr):E(pyerr))
 #define A(x) {typeof(x)x_=(x);x_?x_:*(V*)0;}
 
-ZI gil6(){I g=PyGILState_Check();if(!g){V*s=pthread_getspecific(tk);if(!s)s=PyThreadState_New(tp);PyEval_RestoreThread(s);}}
+ZI gil6(){I g=PyGILState_Check();if(!g){V*s=pthread_getspecific(tk);if(!s)s=PyThreadState_New(tp);PyEval_RestoreThread(s);}R g;}
 ZI gil9(I g){if(!g)pthread_setspecific(tk,PyEval_SaveThread());}
 Z O ok(K);Z K kpy2q;K1(py2q){R K("@",r1(kpy2q),r1(x));}
 Z K pget(O x){K r=PyCapsule_GetPointer(x,0);R r;}Z V destr(O o){r0(pget(o));}Z O pwrap(K x){R PyCapsule_New(r1(x),0,destr);}
-Z V p0(K x){
- I g=gil6();
- Py_DECREF(kK(x)[1]);
- gil9(g);}
+Z V p0(K x){I g=gil6();Py_DECREF(kK(x)[1]);gil9(g);}
 Z K ko(O o){P(!o,0);K r=knk(2,p0,o);R r->t=112,r;}ZI pq(K x){R xt==112&&xn==2&&*kK(x)==(K)p0;}Z O kget(K x){P(!pq(x),0)O o=(O)kK(x)[1];Py_INCREF(o);R o;}
-Z O ck(O x,O y){I g=gil6();K a=ko(y);Py_INCREF(y);K r=K(".",r1(pget(x)),py2q(a));O o=ok(r);R r0(a),r0(r);gil9(g);R o;} // ok here is fine without checking, python will print pyerr
+Z O ck(O x,O y){I g=gil6();K a=ko(y);Py_INCREF(y);K r=K(".",r1(pget(x)),py2q(a));O o=ok(r);r0(a);r0(r);gil9(g);R o;} // ok here is fine without checking, python will print pyerr
 Z PyMethodDef pmd={"q)",ck,METH_VARARGS,""};Z O ocall(K x){O o=pwrap(x),f=PyCFunction_New(&pmd,o);Py_DECREF(o);R f;}
 
 Z K at(K x,J i){R !xt?r1(kK(x)[i]):K("@",r1(x),kj(i));}Z J cn(K x){J n;K r=K("#:",r1(x));n=r->j;R r0(r),n;}
