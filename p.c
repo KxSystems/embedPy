@@ -35,10 +35,14 @@ typedef PyObject*O;typedef PyArrayObject*A;O d,M;K m;
 #define PE   (PyErr_Occurred()?PyErr_Print(),E(pyerr):E(pyerr))
 #define A(x) {typeof(x)x_=(x);x_?x_:*(V*)0;}
 
+ZI gil6(){I g=PyGILState_Check();if(!g){V*s=pthread_getspecific(tk);if(!s)s=PyThreadState_New(tp);PyEval_RestoreThread(s);}}
+ZI gil9(I g){if(!g)pthread_setspecific(tk,PyEval_SaveThread());}
 Z O ok(K);Z K kpy2q;K1(py2q){R K("@",r1(kpy2q),r1(x));}
 Z K pget(O x){K r=PyCapsule_GetPointer(x,0);R r;}Z V destr(O o){r0(pget(o));}Z O pwrap(K x){R PyCapsule_New(r1(x),0,destr);}
 Z V p0(K x){
- Py_DECREF(kK(x)[1]);}
+ I g=gil6();
+ Py_DECREF(kK(x)[1]);
+ gil9(g);}
 Z K ko(O o){P(!o,0);K r=knk(2,p0,o);R r->t=112,r;}ZI pq(K x){R xt==112&&xn==2&&*kK(x)==(K)p0;}Z O kget(K x){P(!pq(x),0)O o=(O)kK(x)[1];Py_INCREF(o);R o;}
 Z O ck(O x,O y){K a=ko(y);Py_INCREF(y);K r=K(".",r1(pget(x)),py2q(a));O o=ok(r);R r0(a),r0(r),o;} // ok here is fine without checking, python will print pyerr
 Z PyMethodDef pmd={"q)",ck,METH_VARARGS,""};Z O ocall(K x){O o=pwrap(x),f=PyCFunction_New(&pmd,o);Py_DECREF(o);R f;}
@@ -100,7 +104,7 @@ Z K1(init){P(Py_IsInitialized(),0);if(RP)Py_SetPythonHome(PH);
  PySys_SetArgvEx(0,0,0);d=PyModule_GetDict(M=PyImport_AddModule("__main__"));m=ko(M);dyl(DY);import_array1(E(numpy));
  PyThreadState*g=PyEval_SaveThread();tp=g->interp;pthread_setspecific(tk,g);
  R 0;}
-Z K2(safe){P(xt!=112||y->t<0,E(type))P(pq(x),E(foreign))K r;V*s=pthread_getspecific(tk);if(!s)s=PyThreadState_New(tp);PyEval_RestoreThread(s);r=K(".",r1(x),r1(y));pthread_setspecific(tk,PyEval_SaveThread()); R r;}
+Z K2(safe){P(xt!=112||y->t<0,E(type))P(pq(x),E(foreign))K r;I g=gil6();r=K(".",r1(x),r1(y));gil9(g); R r;}
 #define sdl(f,n) (js(&x,ss(#f)),jk(&y,dl(f,n)),j=n,ja(&z,&j));
 K1(dld){
  J j;K y=ktn(0,0),z=ktn(7,0);x=ktn(KS,0);sdl(runs,2)sdl(set,2)sdl(import,1)sdl(isp,1)sdl(getattr,2)sdl(call,3)sdl(repr,1)sdl(py2q,1)sdl(q2py,1)sdl(key,1)sdl(value,1)sdl(type,1)sdl(get,1)sdl(getseq,1)sdl(getb,1)sdl(getnone,1)sdl(getj,1)sdl(getf,1)sdl(getG,1)sdl(getC,1)sdl(getarraydims,1)sdl(getarray,3)sdl(getbuffer,1)sdl(safe,2)
