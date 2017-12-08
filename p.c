@@ -44,7 +44,7 @@ Z V p0(K x){
  Py_DECREF(kK(x)[1]);
  gil9(g);}
 Z K ko(O o){P(!o,0);K r=knk(2,p0,o);R r->t=112,r;}ZI pq(K x){R xt==112&&xn==2&&*kK(x)==(K)p0;}Z O kget(K x){P(!pq(x),0)O o=(O)kK(x)[1];Py_INCREF(o);R o;}
-Z O ck(O x,O y){K a=ko(y);Py_INCREF(y);K r=K(".",r1(pget(x)),py2q(a));O o=ok(r);R r0(a),r0(r),o;} // ok here is fine without checking, python will print pyerr
+Z O ck(O x,O y){I g=gil6();K a=ko(y);Py_INCREF(y);K r=K(".",r1(pget(x)),py2q(a));O o=ok(r);R r0(a),r0(r);gil9(g);R o;} // ok here is fine without checking, python will print pyerr
 Z PyMethodDef pmd={"q)",ck,METH_VARARGS,""};Z O ocall(K x){O o=pwrap(x),f=PyCFunction_New(&pmd,o);Py_DECREF(o);R f;}
 
 Z K at(K x,J i){R !xt?r1(kK(x)[i]):K("@",r1(x),kj(i));}Z J cn(K x){J n;K r=K("#:",r1(x));n=r->j;R r0(r),n;}
