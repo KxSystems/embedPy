@@ -519,7 +519,7 @@ To create a closure in embedPy, we must
 - The q function
 - The initial state
 
-**NB** The dummy argument is required if we want the final function to be niladic.
+**NB** The dummy argument is needed if we require the final function to be niladic.
 
 #### Example 1: til
 
@@ -547,7 +547,7 @@ q)ftil[]
 ```
 #### Example 2: Fibonacci
 
-The Fibonacci sequence is a series where each number is the sum of the two numbers preceding it.  
+The Fibonacci sequence is a sequence where each number is the sum of the two numbers preceding it.  
 Starting with 0 and 1, the sequence goes ```x(n) = x(n-1) + x(n-2)```
 
 i.e. 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ...
@@ -579,7 +579,7 @@ q)fib[]
 
 #### Example 3: Running sum
 
-In this example, we will allow a numeric argument to be passed to the closure. The closure will keep track of the arguments passed so far and return a running sum
+In this example, we will allow a numeric argument to be passed to the closure (removing the need for a dummy argument). The closure will keep track of all arguments passed so far and return a running sum.
 
 The state (x) will be the total so far
 
@@ -611,14 +611,14 @@ To create a generator in embedPy, we must
 1) Define a function in q (as per closures) with
 - 2 arguments - the current state and a dummy argument
 - 2 return values - the new state and the return value  
-2) Wrap the function using `.p.generator`, which takes 2 arguments
+2) Wrap the function using `.p.generator`, which takes 3 arguments
 - The q function
 - The initial state
 - The max number of iterations (or `::` to run indefinitely)
 
 #### Example 1: Factorials
 
-The factorial (n!), of non-negative integer n, is the product of all positive integers less than or equal to n.  
+The factorial (n!) of a non-negative integer n, is the product of all positive integers less than or equal to n.  
 We can create a sequence of factorials (starting with 1), with the sequence  ```x(n) = x(n-1) * n```
 
 The state (x) will be a 2 item list comprising
@@ -627,7 +627,7 @@ The state (x) will be a 2 item list comprising
 
 ```q)xfact:{[x;dummy](x;last x:prds x+1 0)}```
 
-Create two generators, with initial state 0 1.
+Create two generators, each with initial state 0 1.
 
 ```
 q)fact4:.p.generator[xfact;0 1;4]     / generates first 4 factorial values
@@ -692,11 +692,11 @@ We can define a closure to extract successive sublists, of a given size, from a 
 The state (x) will be a 3 item list comprising
 - the list
 - the start index
-- the chunk size
+- the sublist size
 
 ```q)xsub:{[x;d](@[x;1;+;x 2];sublist[x 1 2]x 0)}```
 
-e.g. To create a generator (to run for 6 iterations), extracting sublists of size 6 from .Q.A (list of 26 upper-case alphabetical characters)
+e.g. To create a generator (to run for 6 iterations), extracting sublists of size 6 from .Q.A (list of 26 alphabetical chars)
 
 ```q)sub:.p.generator[xsub;(.Q.A;0;6);6]```
 
