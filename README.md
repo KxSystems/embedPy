@@ -510,8 +510,8 @@ q).p.help n / interactive help
 
 ### Closures
 
-Closures allow us to define functions that retain state between calls, avoiding the need for global variables.  
-To create a Closure in embedPy, we must
+Closures allow us to define functions that retain state between successive calls, avoiding the need for global variables.  
+To create a closure in embedPy, we must
 1) Define a function in q with
 - 2+ arguments - the current state and at least one other (possibly dummy) argument
 - 2 return values - the new state and the return value  
@@ -524,7 +524,6 @@ To create a Closure in embedPy, we must
 #### Example 1: til
 
 We can define a closure to return incrementing natural numbers, similar to the q `til` function.  
-Starting with 0, the sequence goes  ```x(n) = x(n-1) + 1```  
 
 The state (x) is the last value produced
 
@@ -536,7 +535,7 @@ Create the closure with initial state -1, so the first value produced will be 0
 
 This produces the following
 
-```
+```q
 q)ftil[]
 0
 q)ftil[]
@@ -563,7 +562,7 @@ Create the closure with initial state 0 1, so the first value produced will be 1
 
 This produces the following
 
-```
+```q
 q)fib[]
 1
 q)fib[]
@@ -578,40 +577,7 @@ q)fib[]
 13
 ```
 
-#### Example 3: Look-and-say
-
-The look-and-say sequence is the sequence of integers beginning as follows:
-1, 11, 21, 1211, 111221, 312211, 13112221, 1113213211
-
-* 1 is read off as "one 1" or 11.
-* 11 is read off as "two 1s" or 21.
-* 21 is read off as "one 2, then one 1" or 1211.
-* 1211 is read off as "one 1, one 2, then two 1s" or 111221
-
-The state (x) will be the last value produced.
-
-```q)xlook:{[x;dummy]r,r:"J"$raze string[count each s],'first each s:(where differ s)_s:string x}```
-
-Create the closure with initial state 1, so the first value produced will be 11.
-
-```q)look:.p.closure[xlook;1][<]```
-
-This produces the following
-
-```
-q)look[]
-11
-q)look[]
-21
-q)look[]
-1211
-q)look[]
-111221
-q)look[]
-312211
-```
-
-#### Example 4: Running sum
+#### Example 3: Running sum
 
 In this example, we will allow a numeric argument to be passed to the closure. The closure will keep track of the arguments passed so far and return a running sum
 
@@ -625,7 +591,7 @@ Create the closure with initial state 0, so the first value produced will be the
 
 This produces the following
 
-```
+```q
 q)runsum 2
 2
 q)runsum 3
@@ -638,65 +604,40 @@ q)runsum 10
 12.5
 ```
 
-#### Example 5: Successive sublists
-
-We can define a closure to extract successive sublists, of a given size, from a larger list.  
-
-The state (x) will be a 3 item list comprising
-- the list
-- the start index
-- the chunk size
-
-```q)xsub:{[x;d](@[x;1;+;x 2];sublist[x 1 2]x 0)}```
-
-e.g. To create a closure with initial state
-- .Q.A (list of 26 upper-case alphabetical characters)
-- 0 (start index)
-- 6
-
-```q)sub:.p.closure[xsub;(.Q.A;0;6)][<]```
-
-This produces the following
-```
-q)sub[]
-"ABCDEF"
-q)sub[]
-"GHIJKL"
-q)sub[]
-"MNOPQR"
-q)sub[]
-"STUVWX"
-q)sub[]
-"YZ"
-q)sub[]
-""
-```
-
 ### Generators
 
-Generators allow us to iterate to produce sequences of values. 
-We first define a function in q, as per closures (with a single _dummy_ argument following the state argument).
-
-e.g.
-```q
-q)xfact:{[x;dummy](x;last x:prds x+1 0)} / initial state 0 1; returns 1!, 2!, 3!, 4!, ...
-```
-We then wrap the function using `.p.generator`, which takes 3 arguments
+Generators allow us to produce objects that we can iterate over (e.g. in a `for` loop) to produce sequences of values.  
+To create a generator in embedPy, we must
+1) Define a function in q (as per closures) with
+- 2 arguments - the current state and a dummy argument
+- 2 return values - the new state and the return value  
+2) Wrap the function using `.p.generator`, which takes 2 arguments
 - The q function
-- The initial state value
+- The initial state
 - The max number of iterations (or `::` to run indefinitely)
 
-e.g.
-```q
+#### Example 1: Factorials
+
+The factorial (n!), of non-negative integer n, is the product of all positive integers less than or equal to n.  
+We can create a sequence of factorials (starting with 1), with the sequence  ```x(n) = x(n-1) * n```
+
+The state (x) will be a 2 item list comprising
+- the last value used in the product
+- the last value returned
+
+```q)xfact:{[x;dummy](x;last x:prds x+1 0)}```
+
+Create two generators, with initial state 0 1.
+
+```
 q)fact4:.p.generator[xfact;0 1;4]     / generates first 4 factorial values
 q)factinf:.p.generator[xfact;0 1;::]  / generates factorial values indefinitely
 ```
 The resulting generators can be used as iterators in Python.
 
-e.g.
 ```q
 q).p.set[`fact4]fact4
-q).p.e"for x in fact4:print(x)"
+q)p)for x in fact4:print(x)
 1
 2
 6
@@ -712,6 +653,66 @@ q).p.e"for x in factinf:\n print(x)\n if x>1000:break"  / force break to stop it
 5040
 ```
 
+#### Example 2: Look-and-say
+
+The look-and-say sequence is the sequence of integers beginning as follows:
+1, 11, 21, 1211, 111221, 312211, 13112221, 1113213211
+
+* 1 is read off as "one 1" or 11.
+* 11 is read off as "two 1s" or 21.
+* 21 is read off as "one 2, then one 1" or 1211.
+* 1211 is read off as "one 1, one 2, then two 1s" or 111221
+
+The state (x) will be the last value produced.
+
+```q)xlook:{[x;dummy]r,r:"J"$raze string[count each s],'first each s:(where differ s)_s:string x}```
+
+Create a generator (to run for 7 iterations) with initial state 1, so the first value produced will be 11.
+
+```q)look:.p.generator[xlook;1;7]```
+
+This can be used as an iterator in Python.
+
+```q
+q).p.set[`look]look
+q)p)for x in look:print(x)
+11
+21
+1211
+111221
+312211
+13112221
+1113213211
+```
+
+#### Example 3: Successive sublists
+
+We can define a closure to extract successive sublists, of a given size, from a larger list.  
+
+The state (x) will be a 3 item list comprising
+- the list
+- the start index
+- the chunk size
+
+```q)xsub:{[x;d](@[x;1;+;x 2];sublist[x 1 2]x 0)}```
+
+e.g. To create a generator (to run for 6 iterations), extracting sublists of size 6 from .Q.A (list of 26 upper-case alphabetical characters)
+
+```q)sub:.p.generator[xsub;(.Q.A;0;6);6]```
+
+This can be used as an iterator in Python.
+
+```q
+q).p.set[`sub]sub
+q)p)for x in sub:print(x)
+ABCDEF
+GHIJKL
+MNOPQR
+STUVWX
+YZ
+
+q)
+```
 
 ### Raw (foreign) data
 
