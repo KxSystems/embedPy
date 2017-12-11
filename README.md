@@ -510,45 +510,167 @@ q).p.help n / interactive help
 
 ### Closures
 
-Closures allow us to define functions that retain state between calls.  
-We first define a function in q with
+Closures allow us to define functions that retain state between calls, avoiding the need for global variables.  
+To create a Closure in embedPy, we must
+1) Define a function in q with
 - 2+ arguments - the current state and at least one other (possibly dummy) argument
-- 2 return values - the new state and the return value
-
-e.g.
-```q
-q)xtil:{[x;dummy]x,x+:1} / initial state 0; returns 1, 2, 3, 4, ...
-q)xrunsum:{x,x+:y} / initial state 0; returns running sum so far
-```
-We then wrap the function using `.p.closure`, which takes 2 arguments
+- 2 return values - the new state and the return value  
+2) Wrap the function using `.p.closure`, which takes 2 arguments
 - The q function
-- The initial state value
-e.g.
-```q
-q)ftil:.p.closure[xtil;0][<]
-q).p.set[`ftil]ftil
+- The initial state
+
+**NB** The dummy argument is required if we want the final function to be niladic.
+
+#### Example 1: til
+
+We can define a closure to return incrementing natural numbers, similar to the q `til` function.  
+Starting with 0, the sequence goes  ```x(n) = x(n-1) + 1```  
+
+The state (x) is the last value produced
+
+```q)xtil:{[x;dummy]x,x+:1}```
+
+Create the closure with initial state -1, so the first value produced will be 0
+
+```q)ftil:.p.closure[xtil;1][<]```
+
+This produces the following
+
+```
+q)ftil[]
+0
 q)ftil[]
 1
-q)p)print(ftil())
+q)ftil[]
 2
 q)ftil[]
 3
-q)p)print(ftil())
-4
 ```
-```q
-q)runsum:.p.closure[xrunsum;0][<]
-q).p.set[`runsum]runsum
-q)runsum 2
+#### Example 2: Fibonacci
+
+The Fibonacci sequence is a series where each number is the sum of the two numbers preceding it.  
+Starting with 0 and 1, the sequence goes ```x(n) = x(n-1) + x(n-2)```
+
+i.e. 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ...
+
+The state (x) will be the last two values produced.
+
+```q)xfib:{[x;dummy](x[1],r;r:sum x)}```
+
+Create the closure with initial state 0 1, so the first value produced will be 1.
+
+```q)fib:.p.closure[xfib;0 1][<]```
+
+This produces the following
+
+```
+q)fib[]
+1
+q)fib[]
 2
-q)p)print(runsum(4))
-6
-q)runsum -3
+q)fib[]
 3
-q)p)print(runsum(7))
-10
+q)fib[]
+5
+q)fib[]
+8
+q)fib[]
+13
 ```
 
+#### Example 3: Look-and-say
+
+The look-and-say sequence is the sequence of integers beginning as follows:
+1, 11, 21, 1211, 111221, 312211, 13112221, 1113213211
+
+* 1 is read off as "one 1" or 11.
+* 11 is read off as "two 1s" or 21.
+* 21 is read off as "one 2, then one 1" or 1211.
+* 1211 is read off as "one 1, one 2, then two 1s" or 111221
+
+The state (x) will be the last value produced.
+
+```q)xlook:{[x;dummy]r,r:"J"$raze string[count each s],'first each s:(where differ s)_s:string x}```
+
+Create the closure with initial state 1, so the first value produced will be 11.
+
+```q)look:.p.closure[xlook;1][<]```
+
+This produces the following
+
+```
+q)look[]
+11
+q)look[]
+21
+q)look[]
+1211
+q)look[]
+111221
+q)look[]
+312211
+```
+
+#### Example 4: Running sum
+
+In this example, we will allow a numeric argument to be passed to the closure. The closure will keep track of the arguments passed so far and return a running sum
+
+The state (x) will be the total so far
+
+```q)xrunsum:{x,x+:y}```
+
+Create the closure with initial state 0, so the first value produced will be the first argument passed.
+
+```q)runsum:.p.closure[xrunsum;0][<]```
+
+This produces the following
+
+```
+q)runsum 2
+2
+q)runsum 3
+5
+q)runsum -2.5
+2.5
+q)runsum 0
+2.5
+q)runsum 10
+12.5
+```
+
+#### Example 5: Successive sublists
+
+We can define a closure to extract successive sublists, of a given size, from a larger list.  
+
+The state (x) will be a 3 item list comprising
+- the list
+- the start index
+- the chunk size
+
+```q)xsub:{[x;d](@[x;1;+;x 2];sublist[x 1 2]x 0)}```
+
+e.g. To create a closure with initial state
+- .Q.A (list of 26 upper-case alphabetical characters)
+- 0 (start index)
+- 6
+
+```q)sub:.p.closure[xsub;(.Q.A;0;6)][<]```
+
+This produces the following
+```
+q)sub[]
+"ABCDEF"
+q)sub[]
+"GHIJKL"
+q)sub[]
+"MNOPQR"
+q)sub[]
+"STUVWX"
+q)sub[]
+"YZ"
+q)sub[]
+""
+```
 
 ### Generators
 
