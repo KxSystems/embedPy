@@ -9,6 +9,8 @@ Z K ker(S e,S f,I l,S g){Z C b[99];snprintf(b,98,"%s:%d %s %s",f,l,g,e);K r=krr(
 #include<Python.h>
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION // http://docs.scipy.org/doc/numpy/reference/c-api.deprecations.html
 #include<numpy/arrayobject.h>
+#include <pthread.h>
+Z pthread_key_t tk;PyInterpreterState*tp;
 
 #if PY_MAJOR_VERSION<3
 #define PY(x,y) x
@@ -33,10 +35,13 @@ typedef PyObject*O;typedef PyArrayObject*A;O d,M;K m;
 #define PE   (PyErr_Occurred()?PyErr_Print(),E(pyerr):E(pyerr))
 #define A(x) {typeof(x)x_=(x);x_?x_:*(V*)0;}
 
+ZI gil6(){I g=PyGILState_Check();if(!g){V*s=pthread_getspecific(tk);if(!s)s=PyThreadState_New(tp);PyEval_RestoreThread(s);}R g;}
+ZI gil9(I g){if(!g)pthread_setspecific(tk,PyEval_SaveThread());}
 Z O ok(K);Z K kpy2q;K1(py2q){R K("@",r1(kpy2q),r1(x));}
 Z K pget(O x){K r=PyCapsule_GetPointer(x,0);R r;}Z V destr(O o){r0(pget(o));}Z O pwrap(K x){R PyCapsule_New(r1(x),0,destr);}
-Z V p0(K x){Py_DECREF(kK(x)[1]);}Z K ko(O o){P(!o,0);K r=knk(2,p0,o);R r->t=112,r;}ZI pq(K x){R xt==112&&xn==2&&*kK(x)==(K)p0;}Z O kget(K x){P(!pq(x),0)O o=(O)kK(x)[1];Py_INCREF(o);R o;}
-Z O ck(O x,O y){K a=ko(y);Py_INCREF(y);K r=K(".",r1(pget(x)),py2q(a));O o=ok(r);R r0(a),r0(r),o;} // ok here is fine without checking, python will print pyerr
+Z V p0(K x){I g=gil6();Py_DECREF(kK(x)[1]);gil9(g);}
+Z K ko(O o){P(!o,0);K r=knk(2,p0,o);R r->t=112,r;}ZI pq(K x){R xt==112&&xn==2&&*kK(x)==(K)p0;}Z O kget(K x){P(!pq(x),0)O o=(O)kK(x)[1];Py_INCREF(o);R o;}
+Z O ck(O x,O y){I g=gil6();K a=ko(y);Py_INCREF(y);K r=K(".",r1(pget(x)),py2q(a));O o=ok(r);r0(a);r0(r);gil9(g);R o;} // ok here is fine without checking, python will print pyerr
 Z PyMethodDef pmd={"q)",ck,METH_VARARGS,""};Z O ocall(K x){O o=pwrap(x),f=PyCFunction_New(&pmd,o);Py_DECREF(o);R f;}
 
 Z K at(K x,J i){R !xt?r1(kK(x)[i]):K("@",r1(x),kj(i));}Z J cn(K x){J n;K r=K("#:",r1(x));n=r->j;R r0(r),n;}
@@ -90,13 +95,21 @@ Z K1(getarraydims){Oo;Co(Array)R dim(o);}//for an array, return an array of "j" 
  K arr(O o,J m,J n){A a=(A)o;I t=npyt(PyArray_TYPE(a));P(!t,E(type))I z=zh[t];P(m<0,E(index));P(n<0||PyArray_NBYTES(a)<z*(m+n),E(length))K x=ktn(t,n);memcpy(xG,PyArray_DATA(a)+m*z,n*z);R x;}
 Z K3(getarray){Oo;Co(Array)P(y->t!=-KJ||z->t!=-KJ,E(type))R arr(o,y->j,z->j);}//for an array, x, return a q list
 Z K1(get){P(xt!=-KS,E(type));O o=PyDict_GetItemString(d,xs);;P(o,(Py_INCREF(o),ko(o)))R E(item);}//get a python variable named by x (symbol) in the __main__ module
-Z K1(init){P(Py_IsInitialized(),0);if(RP)Py_SetPythonHome(PH);Py_Initialize();PySys_SetArgvEx(0,0,0);d=PyModule_GetDict(M=PyImport_AddModule("__main__"));m=ko(M);dyl(DY);import_array1(E(numpy));R 0;}
 Z K1(isp){R kb(pq(x));}
-#define sdl(f,n) (js(&x,ss(#f)),jk(&y,dl(f,n)));
-K1(dld){K y=ktn(0,0);x=ktn(KS,0);sdl(runs,2)sdl(set,2)sdl(import,1)sdl(isp,1)sdl(getattr,2)sdl(call,3)sdl(repr,1)sdl(py2q,1)sdl(q2py,1)sdl(key,1)sdl(value,1)sdl(type,1)sdl(get,1)sdl(getseq,1)sdl(getb,1)sdl(getnone,1)sdl(getj,1)sdl(getf,1)sdl(getG,1)sdl(getC,1)sdl(getarraydims,1)sdl(getarray,3)sdl(getbuffer,1)R xD(x,y);}
+Z K1(init){P(Py_IsInitialized(),0);if(RP)Py_SetPythonHome(PH);
+ Py_InitializeEx(1);PyEval_InitThreads();pthread_key_create(&tk,0);
+ PySys_SetArgvEx(0,0,0);d=PyModule_GetDict(M=PyImport_AddModule("__main__"));m=ko(M);dyl(DY);import_array1(E(numpy));
+ PyThreadState*g=PyEval_SaveThread();tp=g->interp;pthread_setspecific(tk,g);
+ R 0;}
+Z K2(safe){P(xt!=112||y->t<0,E(type))P(pq(x),E(foreign))K r;I g=gil6();r=K(".",r1(x),r1(y));gil9(g); R r;}
+#define sdl(f,n) (js(&x,ss(#f)),jk(&y,dl(f,n)),j=n,ja(&z,&j));
+K1(dld){
+ J j;K y=ktn(0,0),z=ktn(7,0);x=ktn(KS,0);sdl(runs,2)sdl(set,2)sdl(import,1)sdl(isp,1)sdl(getattr,2)sdl(call,3)sdl(repr,1)sdl(py2q,1)sdl(q2py,1)sdl(key,1)sdl(value,1)sdl(type,1)sdl(get,1)sdl(getseq,1)sdl(getb,1)sdl(getnone,1)sdl(getj,1)sdl(getf,1)sdl(getG,1)sdl(getC,1)sdl(getarraydims,1)sdl(getarray,3)sdl(getbuffer,1)sdl(safe,2)
+ R knk(3,x,y,z);}
 #define Ke(x) ({K r=k(0,x,(S)0);if(r->t==-128)R fprintf(stderr,"  %s\n",x),r;r;})
-K1(lib){init(x);r0(K(".[`.P;();:;]",dld(x)));K r,d0=K("\\d");S s[]={"\\d .P","e:{runs[0;x];}","k)eval:runs[1]","k)scalar:py2q call[eval\"lambda x:x.tolist()\";;()!()]@,:","k)py2q:{$[isp x;conv type[x]0;]x}",
+K1(lib){init(x);r0(K("{.[`.P;();:;x!y];.P.a:x!z}.",dld(x)));K r,d0=K("\\d");S s[]={"\\d .P","e:{runs[0;x];}","k)eval:runs[1]","k)scalar:py2q call[eval\"lambda x:x.tolist()\";;()!()]@,:","k)py2q:{$[isp x;conv type[x]0;]x}",
  "k)dict:{({$[1b~&/10=@:'x;`$;]x}py2q key x)!py2q value x}","k)conv:((- 1 3 7 9 21 30h)!getb,getnone,getj,getf,repr,scalar),4 10 30 41 42 99h!getG,getC,{d#x[z;0]1*/d:y z}[getarray;getarraydims],(2#(py2q'getseq@)),dict",0};
+ Ke("{.P[x]:('[.P.safe[.P x;];({enlist x};enlist[;];enlist[;;])@-1+.P.a x])}@'(key .P)except `safe");
  S*p=s-1;while(*++p)r0(Ke(*p));kpy2q=Ke("py2q");r=Ke("k)(k,`c)!(.P k:`eval`e`import`get`set`call`key`value`getattr`isp`type`py2q`q2py`repr`conv`runs),,.P");
  x=K(".\"\\\\d \",$:",d0);
  R xt==-128?x:r;
