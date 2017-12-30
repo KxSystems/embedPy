@@ -1,24 +1,30 @@
 # embedPy
 
+
 Allows the kdb+ interpreter to manipulate Python objects and call Python functions.
 
-**This release (v0.2-beta) features a number of changes that are not back-compatible with the previous release (v0.1-beta). Most notably, the default _type_ used in many operations is now the embedPy type, rather than the foreign type. Differences between these types (and the associated APIs) are setout below**
+**Back-incompatible changes in V0.2-beta**
+
+V0.2-beta features a number of changes back-incompatible with the previous release, V0.1-beta. 
+
+==Most notably==, the default _type_ used in many operations is now the embedPy type, rather than the foreign type. Differences between these types (and the associated APIs) are set out below. 
+
+<!-- FIXME List all back-incompatible changes. -->
+
 
 ## Status
-
-
 
 The embedPy library is still in development. If you would like to participate in the beta tests, please write to ai@kx.com.
 
 
 ## Requirements
 
-- KDB+ >=3.5 64-bit
+- kdb+ >=3.5 64-bit
 - Anaconda Python 3.x
-- Mac/Linux 
+- macOS or Linux 
 
 
-## Build and installation
+## Build and install
 
 Build the interface and run sanity checks with 
 
@@ -29,39 +35,40 @@ If running in an environment without Internet access, you will need to download 
 
 Install by placing `p.q` and `p.k` in `$QHOME` and `p.so` in `$QHOME/{l64|m64}`.  
 
-**NB** If you are currently using PyQ, it also has a file called p.so, which it places in `$QHOME/{l64|m64}`. In this case, you may want to initially run from the local build directory without installing.
+**Watch out** If you are currently using PyQ, it also has a file `p.so` in `$QHOME/{l64|m64}`. In this case, you may want to run initially from the local build directory without installing. <!-- FIXME: what would that look like? -->
+
 
 ## Example usage
 
-### Running the examples
+### Run the examples
 
-In each of the code snippets below, we assume that `p.q` has been loaded into a running q console with 
+To run the following examples, load `p.q`.
 ```q
 q)\l p.q
 ```
 
 
-### Executing Python code
+### Execute Python code
 
-The interface allows execution of Python code directly in a q console or from a script. In both the console and scripts, Python code should be prefixed with a `p)` prompt
+The interface allows execution of Python code directly in a q console or from a script. In both console and scripts, prefix Python code with `p)`.
 ```q
 q)p)print(1+2)
 3
 ```
-Multiline Python code can be loaded and executed using q scripts (but not from the console). Prefix the first line of the code with `p)` and indent subsequent lines of Python code according to the usual Python indentation rules. e.g. create a `q` script with the contents below.
+Q scripts (but not the console) can load and execute multiline Python code. Prefix the first line of the code with `p)` and indent subsequent lines of Python code according to the usual Python indentation rules.
 ```bash
 $ cat embedPytest.q
 a:1                   / q code
 p)def add1(arg1):     # Python code
     return arg1+1     # still Python code
 ```
-Then in a q session
+In a q session
 ```q
 q)\l embedPytest.q
 q)p)print(add1(12))
 13
 ```
-Full scripts of Python code can be executed in q, using the `.p` file extension (not `.py`). The script is loaded as usual.
+Full Python scripts can be executed in q, using the `.p` file extension (not `.py`). The script is loaded as usual.
 ```bash
 $ cat helloq.p 
 print("Hello q!")
@@ -72,49 +79,50 @@ Hello q!
 ```
 
 
-### Evaluating Python code
+### Evaluate Python code
+
 To evaluate Python code (as a string) and return results to q, use `.p.qeval`.  
 ```q
 q).p.qeval"1+2"
 3
 ```
-**NB** Python evaluation (unlike Python _execution_) does not allow side effects. Thus, any attempt at variable assignment or class definition, will result in an error. To execute a string performing side effects,  you should use `.p.e`. A more detailed explanation of the difference between `eval` and `exec` in Python can be found [here](https://stackoverflow.com/questions/2220699/whats-the-difference-between-eval-exec-and-compile-in-python)
+**Side effects** Python evaluation (unlike Python _execution_) does not allow side effects. Any attempt at variable assignment or class definition will signal an error. To execute a string performing side effects, use `.p.e`. A more detailed explanation of the difference between `eval` and `exec` in Python can be found [here](https://stackoverflow.com/questions/2220699/whats-the-difference-between-eval-exec-and-compile-in-python).
 
 
-### foreign objects
+### Foreign objects
 
 At the lowest level, Python objects are represented in q as `foreign` objects, which contain pointers to objects in the Python memory space.
 
-Foreign objects can be stored in variables just like any other q datatype, or as part of lists, dictionaries or tables. They will display `foreign` when inspected in the q console or using the `string` (or `.Q.s`) representation. 
+Foreign objects can be stored in variables just like any other q datatype, or as part of lists, dictionaries or tables. They will display as `foreign` when inspected in the q console or using the `string` (or `.Q.s`) representation. 
 
-**NB** Foreign object types cannot be serialized by kdb+ or sent over IPC: they live in the embedded Python memory space. To pass these objects over IPC, we must first convert them to q.
+**Serialization** Kdb+ cannot serialize foreign objects, nor send them over IPC: they live in the embedded Python memory space. To pass these objects over IPC, first convert them to q.
 
 
-### embedPy objects
+### EmbedPy objects
 
-Foreign objects cannot be directly operated on in q. Instead, Python objects are typically represented as `embedPy` objects, which wrap the underlying `foreign` objects.
+Foreign objects cannot be operated on directly in q. 
+<!-- FIXME So what use are they? -->
+Instead, Python objects are typically represented as `embedPy` objects, which wrap the underlying `foreign` objects.
+<!-- FIXME Clarify what wrapping a foreign object makes possible, and why some foreign objects are left unwrapped. -->
 
-An `embedPy` object can created from an existing `foreign` object using `.p.wrap`.
+Use `.p.wrap` to create an `embedPy` object from a `foreign` object.
 ```q
 q)x
 foreign
 q)p:.p.wrap x
-q)p
+q)p           /how an embedPy object looks
 {[c;r;x;a]embedPy[c;r;x;a]}[0;0;foreign]enlist
 ```
-More commonly, `embedPy` objects are retrieved directly from Python using one of the following functions
+More commonly, `embedPy` objects are retrieved directly from Python using one of the following unary functions:
 
-#### .p.import
-Symbol arg- the name of a Python module or package to import  
-e.g. ``np:.p.import`numpy``
-#### .p.get
-Symbol arg- the name of a Python variable in `__main__`
-- ``v:.p.get`varName``
-#### .p.eval
-String arg- the Python code to evaluate
-- ``x:.p.eval"1+1"``  
+function    | argument                                        | example
+------------|-------------------------------------------------|-----------------------
+`.p.import` | symbol: name of a Python module or package      | ``np:.p.import`numpy``
+`.p.get`    | symbol: name of a Python variable in `__main__` | ``v:.p.get`varName``
+`.p.eval`   | string: Python code to evaluate                 | `x:.p.eval"1+1"`
 
-**NB** As with other Python evaluation functions, .p.eval does not permit side effects
+**Side effects** As with other Python evaluation functions, `.p.eval` does not permit side effects.
+
 
 #### Converting data
 
@@ -134,14 +142,15 @@ q)x`
 1 2 3
 ```
 
-#### Getting attributes/properties
 
-Given `obj`, an `embedPy` object representing a Python object, we can get an attribute/property directly using 
+#### Getting attributes and properties
+
+Given `obj`, an `embedPy` object representing a Python object, we can get an attribute or property directly using 
 ```q
 obj`attr         / equivalent to obj.attr in Python
 obj`attr1.attr2  / equivalent to obj.attr1.attr2 in Python
 ```
-These operations return `embedPy` objects, allowing users to chain together operations.  
+These expressions return `embedPy` objects, allowing users to chain operations together.  
 ```q
 obj[`attr1]`attr2  / equivalent to obj.attr1.attr2 in Python
 ```
@@ -163,9 +172,9 @@ q)obj[`y]`
 ```
 
 
-#### Setting attributes/properties
+#### Setting attributes and properties
 
-Given `obj`, an `embedPy` object representing a Python object, we can set an attribute/property directly using 
+Given `obj`, an `embedPy` object representing a Python object, we can set an attribute or property directly using 
 ```q
 obj[:;`attr;val]  / equivalent to obj.attr=val in Python
 ```
@@ -190,17 +199,18 @@ Given `obj`, an `embedPy` object representing a Python object, we can access a m
 ```q
 obj`method  / equivalent to obj.method in Python
 ```
-This will return an `embedPy` object, which is not, by default, callable in q. Instead, `embedPy` objects representing callable Python functions/methods, must be explicitly declared callable. This process is described below.
+This will return an `embedPy` object, which is not, by default, callable in q. 
+Instead, `embedPy` objects representing callable Python functions or methods, must be explicitly declared callable. This process is described below.
 
 
 #### Function calls
 
-`embedPy` objects representing callable Python functions/methods, can be declared as callable in q using
+`embedPy` objects representing callable Python functions or methods, can be declared as callable in q using
 - `.p.callable`   (declare callable with embedPy return)
 - `.p.qcallable`  (declare callable with q return)
 - `.p.pycallable` (declare callable with foreign return)
 
-The return from each of these functions is a new embedPy `object`, representing the same underlying Python function/method, but now callable in q.
+The result of each of these functions is a new embedPy `object`, representing the same underlying Python function or method, but now callable in q.
 
 e.g.
 ```q
@@ -223,10 +233,10 @@ q)arange_q 12
 
 #### embedPy function API
 
-Using the function API, `embedPy` objects can be directly declared callable, enabling direct calling of the underlying functions/methods.
+Using the function API, `embedPy` objects can be directly declared callable, enabling direct calling of the underlying functions or methods.
 
 Users explicitly specify the return type as embedPy, q or foreign.  
-Given `func`, an `embedPy` object representing a callable Python function/method, we can carry out the following operations
+Given `func`, an `embedPy` object representing a callable Python function or method, we can carry out the following operations:
 ```q
 func[*]                / declare func callable (returning embedPy)
 func[*]arg             / call func(arg) (returning embedPy)
@@ -240,8 +250,9 @@ func[>]                / declare func callable (returning foreign)
 func[>]arg             / call func(arg) (returning foreign)
 func[>;arg]            / equivalent
 ```
-**NB** Returning another `embedPy` object from a function/method call, allows users to chain together sequences of operations.  
+**Chaining operations** Returning another `embedPy` object from a function or method call, allows users to chain together sequences of operations.  
 We can also chain these operations together with calls to `.p.import`, `.p.get` and `.p.eval`.
+
 
 ### embedPy examples
 
@@ -350,25 +361,28 @@ q).p.qeval"var1"
 
 Python `None` maps to the q identity function `::` when converting from Python to q (and vice versa).
 
-There is one important exception to this. When calling Python functions, methods or classes with a single q data argument, passing `::` will result in the Python object being called with _no_ arguments, rather than a single argument of `None`. See the section below on _Zero argument calls_ for how to explicitly call a Python callable with a single `None` argument. 
+There is one important exception to this. 
+When calling Python functions, methods or classes with a single q data argument, passing `::` will result in the Python object being called with _no_ arguments, rather than a single argument of `None`. See the section below on _Zero argument calls_ for how to explicitly call a Python callable with a single `None` argument. 
 
 
 ### Function calls
 
 Python allows for calling functions with 
+
 - A variable number of arguments
 - A mixture of positional and keyword arguments
 - Implicit (default) arguments
 
 All of these features are available through the embedPy function-call interface.  
-Specifically
+Specifically:
+
 - Callable `embedPy` objects are variadic
 - Default arguments are applied where no explicit arguments are given
 - Individual keyword arguments are specified using the (infix) `pykw` operator
 - A list of positional arguments can be passed using `pyarglist` (like Python *args)
 - A dictionary of keyword arguments can be passed using `pykwargs` (like Python **kwargs)
 
-n.b. We can combine positional arguments, lists of positional arguments, keyword arguments and a dictionary of keyword arguments. However, _all_ keyword arguments must always follow _any_ positional arguments. The dictionary of keyword arguments (if given) must be specified last.
+**Keyword arguments last** We can combine positional arguments, lists of positional arguments, keyword arguments and a dictionary of keyword arguments. However, _all_ keyword arguments must always follow _any_ positional arguments. The dictionary of keyword arguments (if given) must be specified last.
 
 
 ### Example function calls
@@ -389,8 +403,8 @@ q)qfunc[2;2;2;2;2] / error if too many args specified
 TypeError: func() takes from 0 to 4 positional arguments but 5 were given
 'p.c:73 call pyerr
 ```
-Individual keyword arguments can be specified using the `pykw` operator (with infix notation).  
-Keyword arguments must follow positional arguments but, otherwise, the order of keyword arguments does not matter.
+Individual keyword arguments can be specified using the `pykw` operator (applied infix).  
+Any keyword arguments must follow positional arguments, but the order of keyword arguments does not matter.
 ```q
 q)qfunc[`d pykw 1;`c pykw 2;`b pykw 3;`a pykw 4] / all keyword args specified
 4 3 2 1 24
@@ -439,15 +453,29 @@ q)qfunc[4;pyarglist enlist 3;`c pykw 2;pykwargs enlist[`d]!enlist 1]
 4 3 2 1 24
 ```
 
-### Zero argument calls
 
-In q, every function takes at least one argument. Even a niladic function, called with `func[]`, is passed the identity function `::` as an argument. In embedPy, if a function is called with `::` as the only argument, the underlying Python function will be called with _no_ arguments.  
-As we noted above `::` in q maps to `None` in Python, however in Python these two calls are not equivalent:
-```python
-func()
-func(None)
+### Zero-argument calls
+
+==In q, every function takes at least one argument. Even a niladic function, called with `func[]`, is passed the identity function `::` as an argument.==
+
+<!-- 
+FIXME How could you show the above to be true? Any reference in a lambda to its argument makes it _ipso facto_ a unary function. 
+What is true: a _unary_ function applied to an empty argument list gets `::` as its argument value.
+```q
+q){x~(::)}[]
+1b
 ```
-If you need to call a Python function with `None` as the sole argument, you can retrieve `None` as a foreign object and pass that as the argument to a q function. e.g.
+But I doubt this helps what follows. Perhaps better simply to omit.
+ -->
+
+In Python these two calls are _not_ equivalent:
+```python
+func()       #call with no arguments
+func(None)   #call with argument None
+```
+**Watch ouot** Although we noted above that `::` in q corresponds to `None` in Python, if an embedPy function is called with `::` as its only argument, the corresponding Python function will be called with _no_ arguments.
+
+To call a Python function with `None` as its sole argument, retrieve `None` as a foreign object in q and pass that as the argument.
 ```q
 q)pynone:.p.eval"None"
 q).p.eval["print";*;pynone];
@@ -457,7 +485,7 @@ None
 
 ### Dictionary keys and values
 
-Python dictionaries, when converted to q, will yield q dictionaries (and vice versa).
+Python dictionaries convert to q dictionaries, and vice versa.
 ```q
 q)p)pyd={'one':1,'two':2,'three':3}
 q)qd:.p.get`pyd
@@ -470,10 +498,10 @@ q).p.eval["print";<]qd
 ```
 Functions are also provided to retrieve the keys and values directly from an `embedPy` dictionary, without performing the conversion to a q dictionary. 
 
-- `.p.key` will return the keys
-- `.p.value` will return the values
+- `.p.key` returns the keys
+- `.p.value` returns the values
 
-In each case, the result will be an `embedPy` object.
+In each case, the result is an `embedPy` object.
 ```q
 q).p.key[qd]`
 "one"
@@ -483,9 +511,10 @@ q).p.value[qd]`
 1 2 3
 ```
 
+
 ### Printing and help
 
-The string representation of a Python (`embedPy` or `foreign`) object, can be accessed using `.p.repr`.  
+`.p.repr` returns the string representation of a Python object, embedPy or foreign.
 This representation can be printed to stdout using `.p.print`.
 ```q
 q)x:.p.eval"{'a':1,'b':2}"
@@ -494,15 +523,15 @@ q).p.repr x
 q).p.print x
 {'a': 1, 'b': 2}
 ```
-The string representation of Python's _help_ for a Python (`embedPy` or `foreign`) object can be accessed using `.p.helpstr`.
-This help can be accessed interactively using `.p.help`.
+`.p.helpstr` returns the string representation of Python’s _help_ for a Python object, embedPy or foreign. 
+This help can be ==accessed interactively== using `.p.help`. <!-- FIXME Clarify what acessed interactively means. -->
 ```q
 q)n:.p.eval"42"
 q).p.helpstr n
 "int(x=0) -> integer\nint(x, base=10) -> integer\n\nConvert a number or strin..
 q).p.help n / interactive help
 ```
-**NB** For convenience, p.q defines `print` and `help` in the top-level namespace of q (as aliases for `.p.print` and `.p.help` respectively). To prevent this, comment out the relevant code in p.q before loading
+**Aliases in the root** For convenience, `p.q` defines `print` and `help` in the root namespace of q, as aliases for `.p.print` and `.p.help`. To prevent this, comment out the relevant code in p.q before loading.
 ```q
 {@[`.;x;:;get x]}each`help`print; / comment to remove from global namespace
 ```
@@ -511,31 +540,30 @@ q).p.help n / interactive help
 ### Closures
 
 Closures allow us to define functions that retain state between successive calls, avoiding the need for global variables.  
-To create a closure in embedPy, we must
-1) Define a function in q with
-- 2+ arguments - the current state and at least one other (possibly dummy) argument
-- 2 return values - the new state and the return value  
-2) Wrap the function using `.p.closure`, which takes 2 arguments
-- The q function
-- The initial state
 
-**NB** The dummy argument is needed if we require the final function to be niladic.
+To create a closure in embedPy, we must:
+
+1. Define a function in q with
+    -   2+ arguments: the current state and at least one other (possibly dummy) argument
+    -   2 return values: the new state and the return value  
+1. Wrap the function using `.p.closure`, which takes 2 arguments:
+    -   the q function
+    -   the initial state
+
+**Functions without arguments** The dummy argument is needed if we want the resulting function to take no arguments.
+
 
 #### Example 1: til
 
 We can define a closure to return incrementing natural numbers, similar to the q `til` function.  
 
-The state (x) is the last value produced
-
-```q)xtil:{[x;dummy]x,x+:1}```
-
-Create the closure with initial state -1, so the first value produced will be 0
-
-```q)ftil:.p.closure[xtil;1][<]```
-
-This produces the following
-
+The state `x` is the last value returned
 ```q
+q)xtil:{[x;dummy]x,x+:1}
+```
+Create the closure with initial state -1, so the first value returned will be 0
+```q
+q)ftil:.p.closure[xtil;1][<]
 q)ftil[]
 0
 q)ftil[]
@@ -545,24 +573,22 @@ q)ftil[]
 q)ftil[]
 3
 ```
+
+
 #### Example 2: Fibonacci
 
-The Fibonacci sequence is a sequence where each number is the sum of the two numbers preceding it.  
-Starting with 0 and 1, the sequence goes ```x(n) = x(n-1) + x(n-2)```
+The Fibonacci sequence is a sequence in which each number is the sum of the two numbers preceding it.  
+Starting with 0 and 1, the sequence goes `x(n) = x(n-1) + x(n-2)`
 
-i.e. 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ...
+i.e. 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, …
 
-The state (x) will be the last two values produced.
-
-```q)xfib:{[x;dummy](x[1],r;r:sum x)}```
-
-Create the closure with initial state 0 1, so the first value produced will be 1.
-
-```q)fib:.p.closure[xfib;0 1][<]```
-
-This produces the following
-
+The state `x` will be the last two values produced.
 ```q
+q)xfib:{[x;dummy](x[1],r;r:sum x)}
+```
+Create the closure with initial state `0 1`, so the first value produced will be 1.
+```q
+q)fib:.p.closure[xfib;0 1][<]
 q)fib[]
 1
 q)fib[]
@@ -577,21 +603,18 @@ q)fib[]
 13
 ```
 
+
 #### Example 3: Running sum
 
-In this example, we will allow a numeric argument to be passed to the closure (removing the need for a dummy argument). The closure will keep track of all arguments passed so far and return a running sum.
+In this example, we will allow a numeric argument to be passed to the closure, removing the need for a dummy argument. The closure will keep track of all arguments passed so far, and return a running sum.
 
-The state (x) will be the total so far
-
-```q)xrunsum:{x,x+:y}```
-
-Create the closure with initial state 0, so the first value produced will be the first argument passed.
-
-```q)runsum:.p.closure[xrunsum;0][<]```
-
-This produces the following
-
+The state `x` will be the total so far.
 ```q
+q)xrunsum:{x,x+:y}
+```
+Create the closure with initial state 0, so the first value produced will be the first argument passed.
+```q
+q)runsum:.p.closure[xrunsum;0][<]
 q)runsum 2
 2
 q)runsum 3
@@ -604,37 +627,42 @@ q)runsum 10
 12.5
 ```
 
+
 ### Generators
 
 Generators allow us to produce objects that we can iterate over (e.g. in a `for` loop) to produce sequences of values.  
+
 To create a generator in embedPy, we must
-1) Define a function in q (as per closures) with
-- 2 arguments - the current state and a dummy argument
-- 2 return values - the new state and the return value  
-2) Wrap the function using `.p.generator`, which takes 3 arguments
-- The q function
-- The initial state
-- The max number of iterations (or `::` to run indefinitely)
+
+1. Define a function in q (as per closures) with:
+    -   2 arguments - the current state and a dummy argument
+    -   2 return values - the new state and the return value  
+1. Wrap the function using `.p.generator`, which takes 3 arguments:
+    -   the q function
+    -   the initial state
+    -   the max number of iterations, or `::` to run indefinitely
+
 
 #### Example 1: Factorials
 
-The factorial (n!) of a non-negative integer n, is the product of all positive integers less than or equal to n.  
-We can create a sequence of factorials (starting with 1), with the sequence  ```x(n) = x(n-1) * n```
+The _factorial_ (n!) of a non-negative integer n, is the product of all positive integers less than or equal to n.  
 
-The state (x) will be a 2 item list comprising
-- the last value used in the product
-- the last value returned
+We can create a sequence of factorials (starting with 1), with the sequence  `x(n) = x(n-1) * n`
 
-```q)xfact:{[x;dummy](x;last x:prds x+1 0)}```
+The state `x` will be a 2-item list comprising
 
-Create two generators, each with initial state 0 1.
+-   the last value used in the product
+-   the last value returned
 
+```q
+q)xfact:{[x;dummy](x;last x:prds x+1 0)}
 ```
+Create two generators, each with initial state `0 1`.
+```q
 q)fact4:.p.generator[xfact;0 1;4]     / generates first 4 factorial values
 q)factinf:.p.generator[xfact;0 1;::]  / generates factorial values indefinitely
 ```
 The resulting generators can be used as iterators in Python.
-
 ```q
 q).p.set[`fact4]fact4
 q)p)for x in fact4:print(x)
@@ -653,26 +681,26 @@ q).p.e"for x in factinf:\n print(x)\n if x>1000:break"  / force break to stop it
 5040
 ```
 
+
 #### Example 2: Look-and-say
 
 The look-and-say sequence is the sequence of integers beginning as follows:
 1, 11, 21, 1211, 111221, 312211, 13112221, 1113213211
 
-* 1 is read off as "one 1" or 11.
-* 11 is read off as "two 1s" or 21.
-* 21 is read off as "one 2, then one 1" or 1211.
-* 1211 is read off as "one 1, one 2, then two 1s" or 111221
+* `1` is read off as “one 1” or 11.
+* `11` is read off as “two 1s” or 21.
+* `21` is read off as “one 2, then one 1” or 1211.
+* `1211` is read off as “one 1, one 2, then two 1s” or 111221
 
-The state (x) will be the last value produced.
-
-```q)xlook:{[x;dummy]r,r:"J"$raze string[count each s],'first each s:(where differ s)_s:string x}```
-
+The state `x` will be the last value produced.
+```q
+q)xlook:{[x;dummy]r,r:"J"$raze string[count each s],'first each s:(where differ s)_s:string x}
+```
 Create a generator (to run for 7 iterations) with initial state 1, so the first value produced will be 11.
-
-```q)look:.p.generator[xlook;1;7]```
-
+```q
+q)look:.p.generator[xlook;1;7]
+```
 This can be used as an iterator in Python.
-
 ```q
 q).p.set[`look]look
 q)p)for x in look:print(x)
@@ -685,23 +713,25 @@ q)p)for x in look:print(x)
 1113213211
 ```
 
+
 #### Example 3: Successive sublists
 
 We can define a closure to extract successive sublists, of a given size, from a larger list.  
 
-The state (x) will be a 3 item list comprising
-- the list
-- the start index
-- the sublist size
+The state `x` will be a 3-item list comprising
 
-```q)xsub:{[x;d](@[x;1;+;x 2];sublist[x 1 2]x 0)}```
+-   the list
+-   the start index
+-   the sublist size
 
-e.g. To create a generator (to run for 6 iterations), extracting sublists of size 6 from .Q.A (list of 26 alphabetical chars)
-
-```q)sub:.p.generator[xsub;(.Q.A;0;6);6]```
-
+```q
+q)xsub:{[x;d](@[x;1;+;x 2];sublist[x 1 2]x 0)}
+```
+To create a generator (to run for 6 iterations), extracting sublists of size 6 from `.Q.A` (list of 26 alphabetical chars)
+ ```q
+ q)sub:.p.generator[xsub;(.Q.A;0;6);6]
+ ```
 This can be used as an iterator in Python.
-
 ```q
 q).p.set[`sub]sub
 q)p)for x in sub:print(x)
@@ -714,52 +744,53 @@ YZ
 q)
 ```
 
+
 ### Raw (foreign) data
 
-`foreign` objects are retrieved from Python using one of the following calls
+Foreign objects are retrieved from Python using one of the following calls.
 
-#### .p.pyimport
-Symbol arg- the name of a Python module or package to import  
-e.g. ``.p.pyimport`numpy``
-#### .p.pyget
-Symbol arg- the name of a Python variable in `__main__`
-- ``.p.pyget`varName``
-#### .p.pyeval
-String arg- the Python code to evaluate
-- ``.p.pyeval"1+1"`` 
+function      | argument                                        | example
+--------------|-------------------------------------------------|--------------
+`.p.pyimport` | symbol: name of a Python module or package      | ``.p.pyimport`numpy``
+`.p.pyget`    | symbol: name of a Python variable in `__main__` | ``.p.pyget`varName``
+`.p.pyeval`   | string: Python code to evaluate                 | `.p.pyeval"1+1"`
 
 
 ### Raw (foreign) API
 
-A number of low level functions are provided to act directly on `foreign` objects.
+Some low-level functions act directly on foreign objects.
 
-#### Converting data 
 
-Function `.p.py2q` will attempt to convert Python (`foreign`) data to q
+#### Convert data 
+
+Function `.p.py2q` attempts to convert Python (`foreign`) data to q
 ```q
 q)qvar:.p.pyget`var1
 q).p.py2q qvar
 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 ..
 ```
-Corresponding function `.p.q2py` converts q objects to Python objects  
+<!-- FIXME “attempts” – what happens when it fails? -->
+Complementary function `.p.q2py` converts q objects to Python objects  
 ```q
 q).p.q2py 1 2 3
 foreign
 ```
-This will rarely be used in practice, as conversion of q data to Python objects is performed automatically whenever q data is passed to Python.
+This is rarely needed, q data is converted whenever embedPy functions pass it to Python.
 
 
 #### Function calls
 
-A `foreign` object (representing a callable Python object) can be made callable in q with `.p.call`.  
-`.p.call` will return a q function, taking 2 arguments.
-- a list of positional arguments
-- a dictionary of keyword arguments
+A foreign object, representing a callable Python object, can be made callable in q with `.p.call`.  
 
-Either of these arguments can be empty.
+`.p.call` will return a q function, taking 2 arguments:
 
-The result of calling this function, will be another `foreign`.  
-e.g.
+-   a list of positional arguments
+-   a dictionary of keyword arguments
+
+Either of these arguments can be ==empty==. 
+<!-- FIXME Clarify “empty”. Empty list? Identity function? Omitted without forming a projection? -->
+
+The result of calling this function, will be another foreign object.  
 ```q
 q)p)def f4(a,b,c,d):return (a*b,c*d)
 q).p.py2q .p.call[.p.pyget`f4;1 2;`d`c!4 3]
@@ -769,7 +800,7 @@ q).p.py2q .p.call[.p.pyget`f4;1 2;`d`c!4 3]
 
 #### Getting attributes/properties
 
-Function `.p.getattr ` will get an attribute/property from a `foreign` object.  The result will be another `foreign`.
+Function `.p.getattr ` gets an attribute or property from a foreign object.  The result is another foreign.
 ```bash
 $ cat class.p 
 class obj:
@@ -789,9 +820,9 @@ q).p.py2q .p.getattr[obj]`y
 ```
 
 
-#### Setting attributes/properties
+#### Setting attributes and properties
 
-Function `.p.setattr ` will set an attribute/property on a `foreign` object.
+Function `.p.setattr ` will set an attribute or property of a foreign object.
 
 ```q
 q).p.setattr[obj;`x;10]
@@ -805,12 +836,12 @@ q).p.py2q .p.getattr[obj]`y
 
 #### Dictionary keys and values
 
-Functions are provided to retrieve the keys and values directly from a `foreign` dictionary, without performing the conversion to a q dictionary. 
+Two functions retrieve keys and values directly from a foreign dictionary, without performing the conversion to a q dictionary. 
 
-- `.p.pykey` will return the keys
-- `.p.pyvalue` will return the values
+-   `.p.pykey` returns the keys
+-   `.p.pyvalue` returns the values
 
-In each case, the result will be a `foreign` object.
+In each case, the result is a `foreign` object.
 ```q
 q)d:.p.pyeval"{'key1':1,'key2':2}"
 q).p.py2q d
@@ -826,7 +857,9 @@ q).p.py2q .p.pyvalue d
 
 ### Further examples 
 
-You’ll find further examples in the [examples](examples) directory. This includes an example of creating simple charts in Matplotlib either by running Python code in a kdb+ process, or importing the `matplotlib.pyplot` module into kdb+ and using functions from it in q code.
+Further examples are in the [examples](examples) folder of this repository. 
+
+This includes an example of creating simple charts in Matplotlib either by running Python code in a kdb+ process, or importing the `matplotlib.pyplot` module into kdb+ and using functions from it in q code.
  
 
 ### `.p` directory reference 
