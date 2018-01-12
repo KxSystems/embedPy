@@ -19,20 +19,39 @@ i.wf:{[c;r;x;a]embedPy[c;r;x;a]}
 wrap:(i.w:{[c;r;x]ce i.wf[c;r;x]})[0;0]
 unwrap:{$[105=type x;x($);x]}
 wfunc:{[f;x]r:wrap f x 0;$[count x:1_x;.[;x];]r}
+i.wf:{[f;x]embedPy[f;x]} / instead of i.wf
+wrap:.p.ce i.wf@      / instead of wrap
+embedPy:{[f;x]         / instead of embedPy
+ $[-11h<>type x0:x 0;
+    $[any u:x0~/:(*;<;>);
+      [c:(wrap;py2q;::)where[u]0;$[1=count x;.p.c c,;c .[;1_x]@]pyfunc f]; / calling
+     (:)~x0;
+      [setattr . f,1_x;];
+     ($)~x0;
+      f;
+      wrap pyfunc[f]. x];                             / calling
+    ":"~first a0:string x0;
+     $[1=count x;;.[;1_x]]wrap f getattr/` vs`$1_a0; / looking up and possibly calling
+    x0~`.;
+     f;
+    x0~`;
+     py2q f;
+     wrap pyfunc[f]. x]}
+unwrap:{$[i.isw x;x`.;x]}
 import:ce wfunc pyimport
 .p.eval:ce wfunc pyeval
 .p.get:ce wfunc pyget
 .p.set:{[f;x;y]f[x]unwrap y;}.p.set
 .p.key:{wrap pykey$[i.isf x;x;i.isw x;x($);'`type]}
 .p.value:{wrap pyvalue$[i.isf x;x;i.isw x;x($);'`type]}
-.p.callable:{$[i.isw x;x(*);i.isf x;wrap[x](*);'`type]}
+.p.callable:{$[i.isw x;x;i.isf x;wrap[x];'`type]}
 .p.pycallable:{$[i.isw x;x(>);i.isf x;wrap[x](>);'`type]}
 .p.qcallable:{$[i.isw x;x(<);i.isf x;wrap[x](<);'`type]}
 / is foreign, wrapped, callable
 i.isf:isp
 i.isw:{$[105=type x;i.wf~$[104=type u:first get x;first get u;0b];0b]}
 i.isc:{$[105=type x;$[last[u:get x]~ce 1#`.p.q2pargs;1b;0b];0b]}
-setattr:{[f;x;y;z]f[x;y;z];}import[`builtins;`setattr;*]
+setattr:{[f;x;y;z]f[x;y;z];}import[`builtins]`:setattr
 
 / Calling python functions
 pyfunc:{if[not i.isf x;'`type];ce .[.p.call x],`.p.q2pargs}
@@ -56,9 +75,9 @@ i.isarg:{$[104=type y;x~first get y;0b]} / y is python argument identifier x
 / Help & Print
 gethelp:{[h;x]$[i.isf x;h x;i.isw x;h x($);i.isc x;h 2{last get x}/first get x;"no help available"]}
 repr:gethelp repr
-help:{[gh;h;x]if[10=type u:gh[h]x;-2 u]}[gethelp]import[`builtins;`help;*] 
-helpstr:gethelp import[`inspect;`getdoc;<]
-print:{x y;}import[`builtins;`print;*]
+help:{[gh;h;x]if[10=type u:gh[h]x;-2 u]}[gethelp]import[`builtins;`:help]
+helpstr:gethelp import[`inspect;`:getdoc;<]
+print:{x y;}import[`builtins]`:print
 {@[`.;x;:;get x]}each`help`print; / comment to remove from global namespace
 
 / Closures
