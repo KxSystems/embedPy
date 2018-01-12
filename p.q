@@ -9,35 +9,19 @@ set'[`pykey`pyvalue`pyget`pyeval`pyimport;.p.key,.p.value,.p.get,.p.eval,import]
 qeval:c`.p.py2q,pyeval
 
 / Wrapper for foreigns
-embedPy:{[c;r;x;a] / r (0 wrapped, 1 q, 2 foreign)
-  if[102<>type a0:a 0;if[c;:(wrap;py2q;::)[r].[pyfunc x]a]];
-  $[($)~a0;:x;`.~a0;:x;`~a0;:py2q x;-11=type a0;x:x getattr/` vs a0;
-  (:)~a0;[setattr . x,1_a;:(::)];
-  [c:1;r:$[(*)~a0;0;(<)~a0;1;(>)~a0;2;'`NYI]]];
-  $[count a:1_a;.[;a];]i.w[c;r]x}
-i.wf:{[c;r;x;a]embedPy[c;r;x;a]}
-wrap:(i.w:{[c;r;x]ce i.wf[c;r;x]})[0;0]
-unwrap:{$[105=type x;x($);x]}
-wfunc:{[f;x]r:wrap f x 0;$[count x:1_x;.[;x];]r}
-i.wf:{[f;x]embedPy[f;x]} / instead of i.wf
-wrap:.p.ce i.wf@      / instead of wrap
-embedPy:{[f;x]         / instead of embedPy
+embedPy:{[f;x]         
  $[-11h<>type x0:x 0;
     $[any u:x0~/:(*;<;>);
-      [c:(wrap;py2q;::)where[u]0;$[1=count x;.p.c c,;c .[;1_x]@]pyfunc f]; / calling
-     (:)~x0;
-      [setattr . f,1_x;];
-     ($)~x0;
-      f;
-      wrap pyfunc[f]. x];                             / calling
-    ":"~first a0:string x0;
-     $[1=count x;;.[;1_x]]wrap f getattr/` vs`$1_a0; / looking up and possibly calling
-    x0~`.;
-     f;
-    x0~`;
-     py2q f;
-     wrap pyfunc[f]. x]}
+      [c:(wrap;py2q;::)where[u]0;$[1=count x;.p.c c,;c .[;1_x]@]pyfunc f]; / call type
+     (:)~x0;[setattr . f,1_x;];($)~x0;f;wrap pyfunc[f]. x];                / set attr, extract or call with non sym first arg
+    ":"~first a0:string x0;                                                / attr lookup and possible call
+     $[1=count x;;.[;1_x]]wrap f getattr/` vs`$1_a0;
+    x0~`.;f;x0~`;py2q f;                                                   / extract as foreign or q
+     wrap pyfunc[f]. x]}                                                   / default, call
 unwrap:{$[i.isw x;x`.;x]}
+wfunc:{[f;x]r:wrap f x 0;$[count x:1_x;.[;x];]r}
+i.wf:{[f;x]embedPy[f;x]}
+wrap:.p.ce i.wf@
 import:ce wfunc pyimport
 .p.eval:ce wfunc pyeval
 .p.get:ce wfunc pyget
