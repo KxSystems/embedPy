@@ -34,7 +34,7 @@ import:ce wfunc pyimport
 / is foreign, wrapped, callable
 i.isf:isp
 i.isw:{$[105=type x;i.wf~$[104=type u:first get x;first get u;0b];0b]}
-i.isc:{$[105=type x;$[last[u:get x]~ce 1#`.p.q2pargs;1b;0b];0b]}
+i.isc:{$[105=type y;$[x~y;1b;.z.s[x]last get y];0b]}ce 1#`.p.q2pargs
 setattr:{[f;x;y;z]f[x;y;z];}import[`builtins]`:setattr
 
 / Calling python functions
@@ -57,7 +57,7 @@ i.gpyargs:{$[not any u:i.isarg[i.al]each x;(u;());1<sum u;'"only one pyargs allo
 i.isarg:{$[104=type y;x~first get y;0b]} / y is python argument identifier x
 
 / Help & Print
-gethelp:{[h;x]$[i.isf x;h x;i.isw x;h x($);i.isc x;h 2{last get x}/first get x;"no help available"]}
+gethelp:{[h;x]$[i.isf x;h x;i.isw x;h x`.;i.isc x;h x{get[x]y}/1 0 1 1;"no help available"]}
 repr:gethelp repr
 help:{[gh;h;x]if[10=type u:gh[h]x;-2 u]}[gethelp]import[`builtins;`:help]
 helpstr:gethelp import[`inspect;`:getdoc;<]
