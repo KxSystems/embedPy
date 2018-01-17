@@ -214,6 +214,41 @@ q)obj[`:y]`
 ```
 
 
+#### Indexing
+
+Given `lst`, an embedPy object representing an indexable container object in Python, we can access the element at index `i` using
+```q
+lst[@;i]    / equivalent to lst[i] in Python
+```
+We can set the element at index `i` (to object `x`) using
+```q
+lst[=;i;x]  / equivalent to lst[i]=x in Python
+```
+
+These expressions return embedPy objects.
+
+e.g.
+```q
+q)lst:.p.eval"[True,2,3.0,'four']"
+q)lst[@;0]`
+1b
+q)lst[@;-1]`
+"four"
+q)lst'[@;;`]2 1 0 3
+3f
+2
+1b
+"four"
+q)lst[=;0;0b]
+q)lst[=;-1;`last]
+q)lst`
+0b
+2
+3f
+"last"
+```
+
+
 #### Getting methods
 
 Given `obj`, an embedPy object representing a Python object, we can access a method directly using 
