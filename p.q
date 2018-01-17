@@ -1,4 +1,3 @@
-if[system["s"]|0>system"p";'"slaves or multithreaded input not currently supported"];
 .p:(`:./p 2:`lib,1)`
 \d .p
 k)c:{'[y;x]}/|:         / compose list of functions
