@@ -10,10 +10,15 @@ qeval:c`.p.py2q,pyeval
 
 / Wrapper for foreigns
 embedPy:{[f;x]         
- $[-11h<>type x0:x 0;
-    $[any u:x0~/:(*;<;>);
-      [c:(wrap;py2q;::)where[u]0;$[1=count x;.p.c c,;c .[;1_x]@]pyfunc f]; / call type
-     (:)~x0;[setattr . f,1_x;];($)~x0;f;wrap pyfunc[f]. x];                / set attr, extract or call with non sym first arg
+ $[-11h<>t:type x0:x 0;
+    $[t=102h;
+      $[any u:x0~/:(*;<;>);
+         [c:(wrap;py2q;::)where[u]0;$[1=count x;.p.c c,;c .[;1_x]@]pyfunc f]; / call type
+        (:)~x0;[setattr . f,@[;0;{`$_[":"=s 0]s:string x}]1_x;];
+        (@)~x0;$[count 2_x;.[;2_x];]wrap call[getattr[f;`$"__getitem__"];raze x 1;()!()];
+        (=)~x0;[call[getattr[f;`$"__setitem__"];raze 1_x;()!()];];
+        ($)~x0;f;'`NYI];
+      wrap pyfunc[f]. x];
     ":"~first a0:string x0;                                                / attr lookup and possible call
      $[1=count x;;.[;1_x]]wrap f getattr/` vs`$1_a0;
     x0~`.;f;x0~`;py2q f;                                                   / extract as foreign or q
@@ -21,13 +26,13 @@ embedPy:{[f;x]
 unwrap:{$[i.isw x;x`.;x]}
 wfunc:{[f;x]r:wrap f x 0;$[count x:1_x;.[;x];]r}
 i.wf:{[f;x]embedPy[f;x]}
-wrap:.p.ce i.wf@
+wrap:ce i.wf@
 import:ce wfunc pyimport
 .p.eval:ce wfunc pyeval
 .p.get:ce wfunc pyget
 .p.set:{[f;x;y]f[x]unwrap y;}.p.set
-.p.key:{wrap pykey$[i.isf x;x;i.isw x;x($);'`type]}
-.p.value:{wrap pyvalue$[i.isf x;x;i.isw x;x($);'`type]}
+.p.key:{wrap pykey$[i.isf x;x;i.isw x;x`.;'`type]}
+.p.value:{wrap pyvalue$[i.isf x;x;i.isw x;x`.;'`type]}
 .p.callable:{$[i.isw x;x;i.isf x;wrap[x];'`type]}
 .p.pycallable:{$[i.isw x;x(>);i.isf x;wrap[x](>);'`type]}
 .p.qcallable:{$[i.isw x;x(<);i.isf x;wrap[x](<);'`type]}
@@ -57,7 +62,7 @@ i.gpyargs:{$[not any u:i.isarg[i.al]each x;(u;());1<sum u;'"only one pyargs allo
 i.isarg:{$[104=type y;x~first get y;0b]} / y is python argument identifier x
 
 / Help & Print
-gethelp:{[h;x]$[i.isf x;h x;i.isw x;h x($);i.isc x;h 2{last get x}/first get x;"no help available"]}
+gethelp:{[h;x]$[i.isf x;h x;i.isw x;h x`.;i.isc x;h 2{last get x}/first get x;"no help available"]}
 repr:gethelp repr
 help:{[gh;h;x]if[10=type u:gh[h]x;-2 u]}[gethelp]import[`builtins;`:help]
 helpstr:gethelp import[`inspect;`:getdoc;<]
@@ -72,12 +77,12 @@ p)def qclosure(func,*state):
     state=(res[0],)
     return res[1]
   return cfunc
-closure:.p.get[`qclosure;*] / implement as: closure[{[state;dummy] ...;(newState;result)};initState]
+closure:.p.get[`qclosure] / implement as: closure[{[state;dummy] ...;(newState;result)};initState]
 
 / Generators
 p)import itertools
 i.gl:.p.eval["lambda f,n:(f(x)for x in(itertools.count()if n==None else range(n)))"][>]
-generator:{[f;i;n]i.gl[closure[f;i]($);n]}
+generator:{[f;i;n]i.gl[closure[f;i]`.;n]}
 
 / Cleanup
 {![`.p;();0b;x]}`getseq`ntolist`runs`wfunc`gethelp;
