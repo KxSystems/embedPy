@@ -1,4 +1,3 @@
-if[system["s"]|0>system"p";'"slaves or multithreaded input not currently supported"];
 .p:(`:./p 2:`lib,1)`
 \d .p
 k)c:{'[y;x]}/|:         / compose list of functions
@@ -17,7 +16,7 @@ embedPy:{[f;x]
         (:)~x0;[setattr . f,@[;0;{`$_[":"=s 0]s:string x}]1_x;];
         (@)~x0;$[count 2_x;.[;2_x];]wrap call[getattr[f;`$"__getitem__"];raze x 1;()!()];
         (=)~x0;[call[getattr[f;`$"__setitem__"];raze 1_x;()!()];];
-        ($)~x0;f;'`NYI];
+        '`NYI];
       wrap pyfunc[f]. x];
     ":"~first a0:string x0;                                                / attr lookup and possible call
      $[1=count x;;.[;1_x]]wrap f getattr/` vs`$1_a0;
