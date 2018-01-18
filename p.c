@@ -90,10 +90,10 @@ Z K1(type){Oo;K r=ktn(KH,0);CH(Bool,-1)CH(Long,-7)CH(Float,-9)CH(Module,102)if(P
 Z K1(q2py){O o=ok(x);P(!o,PE)R ko(o);}//take a q value and return an equivalent value as a foreign
 Z K1(key){Oo;Co(Mapping)Ro(PyMapping_Keys(o))}//return the keys of a dictionary, x
 Z K1(value){Oo;Co(Mapping)Ro(PyMapping_Values(o))}//return the values of a dictionary, x
- K dim(O o){A a=(A)o;I n=PyArray_NDIM(a);K x=ktn(KJ,n);DO(n,xJ[i]=PyArray_DIMS(a)[i]);R x;}
+Z K dim(O o){A a=(A)o;I n=PyArray_NDIM(a);K x=ktn(KJ,n);DO(n,xJ[i]=PyArray_DIMS(a)[i]);R x;}
 Z K1(getarraydims){Oo;Co(Array)R dim(o);}//for an array, return an array of "j" describing the dims (or shape) of x
- K arr(O o,J m,J n){A a=(A)o;I t=npyt(PyArray_TYPE(a));P(!t,E(type))I z=zh[t];P(m<0,E(index));P(n<0||PyArray_NBYTES(a)<z*(m+n),E(length))K x=ktn(t,n);memcpy(xG,PyArray_DATA(a)+m*z,n*z);R x;}
-Z K3(getarray){Oo;Co(Array)P(y->t!=-KJ||z->t!=-KJ,E(type))R arr(o,y->j,z->j);}//for an array, x, return a q list
+Z K arr(A a,J m,J n){I t=npyt(PyArray_TYPE(a));P(!t,E(type))I z=zh[t];P(m<0,E(index));P(n<0||PyArray_NBYTES(a)<z*(m+n),E(length))K x=ktn(t,n);memcpy(xG,PyArray_DATA(a)+m*z,n*z);R x;}
+Z K3(getarray){Oo;Co(Array)P(y->t!=-KJ||z->t!=-KJ,E(type))A a=PyArray_GETCONTIGUOUS((A)o);P(!a,PE);x=arr(a,y->j,z->j);Py_DECREF(a);R x;}//for an array, x, return a q list
 Z K1(get){P(xt!=-KS,E(type));O o=PyDict_GetItemString(d,xs);;P(o,(Py_INCREF(o),ko(o)))R E(item);}//get a python variable named by x (symbol) in the __main__ module
 Z K1(isp){R kb(pq(x));}
 Z K1(init){P(Py_IsInitialized(),0);if(RP)Py_SetPythonHome(PH);
