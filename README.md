@@ -214,6 +214,41 @@ q)obj[`:y]`
 ```
 
 
+#### Indexing
+
+Given `lst`, an embedPy object representing an indexable container object in Python, we can access the element at index `i` using
+```q
+lst[@;i]    / equivalent to lst[i] in Python
+```
+We can set the element at index `i` (to object `x`) using
+```q
+lst[=;i;x]  / equivalent to lst[i]=x in Python
+```
+
+These expressions return embedPy objects.
+
+e.g.
+```q
+q)lst:.p.eval"[True,2,3.0,'four']"
+q)lst[@;0]`
+1b
+q)lst[@;-1]`
+"four"
+q)lst'[@;;`]2 1 0 3
+3f
+2
+1b
+"four"
+q)lst[=;0;0b]
+q)lst[=;-1;`last]
+q)lst`
+0b
+2
+3f
+"last"
+```
+
+
 #### Getting methods
 
 Given `obj`, an embedPy object representing a Python object, we can access a method directly using 
@@ -337,10 +372,10 @@ q)np[`:arange;12][`:reshape;3;4]`
 4 5 6  7 
 8 9 10 11
 q)np[`:arange;12][`:reshape;3;4][`:T]`
-0 1  2 
-3 4  5 
-6 7  8 
-9 10 11
+0 4 8 
+1 5 9 
+2 6 10
+3 7 11
 ```
 ```q
 q)stdout:.p.import[`sys]`:stdout.write
@@ -550,6 +585,7 @@ q).p.help n / interactive help
 
 Closures allow us to define functions that retain state between successive calls, avoiding the need for global variables.  
 
+
 To create a closure in embedPy, we must:
 
 1. Define a function in q with
@@ -639,7 +675,8 @@ q)runsum 10
 
 ### Generators
 
-Generators allow us to produce objects that we can iterate over (e.g. in a for-loop) to produce sequences of values.  
+Generators are objects that we can iterate over (e.g. in a for-loop) to produce sequences of values.  
+EmbedPy allows us to produce generators for use in Python functions and statements where they are required.
 
 To create a generator in embedPy, we must
 

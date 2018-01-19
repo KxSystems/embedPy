@@ -62,8 +62,8 @@ til[12]~v`
 m:v[`:reshape;3;4]
 (3 4#til 12)~.p.py2q m`.
 (3 4#til 12)~m`
-/(flip 3 4#til 12)~m[`:T]`
-/(flip 3 4#til 12)~.p.import[`numpy;`:arange;12][`:reshape;3;4][`:T]`
+(flip 3 4#til 12)~m[`:T]`
+(flip 3 4#til 12)~.p.import[`numpy;`:arange;12][`:reshape;3;4][`:T]`
 
 // Stdout
 
