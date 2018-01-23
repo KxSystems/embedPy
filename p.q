@@ -2,7 +2,7 @@
 \d .p
 ei:{eo y _ x;n set .p.get[n:`$(2+x)_(y?"(")#y]value y x;}
 eo:.p.e
-e:{$["def"~3#x;$[x[3]in"<*>";ei 3;eo];"class"~5#x;$["*"~x 5;ei 5;eo];eo]x}
+e:{$["def"~3#x;$[x[3]in"<*>";ei 3;eo];"class"~5#x;$[x[5]in"*>";ei 5;eo];eo]x}
 k)c:{'[y;x]}/|:         / compose list of functions
 k)ce:{'[y;x]}/enlist,|: / compose with enlist (for variadic functions)
 
