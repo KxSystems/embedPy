@@ -86,5 +86,11 @@ p)import itertools
 i.gl:.p.eval["lambda f,n:(f(x)for x in(itertools.count()if n==None else range(n)))"][>]
 generator:{[f;i;n]i.gl[closure[f;i]`.;n]}
 
+/ Add cwd and $QHOME to sys.path
+sp:.p.import[`sys]`:path
+spq:distinct("";getenv`QHOME),sp`
+sp[`:clear][];
+sp[`:extend]spq;
+
 / Cleanup
-{![`.p;();0b;x]}`getseq`ntolist`runs`wfunc`gethelp;
+{![`.p;();0b;x]}`getseq`ntolist`runs`wfunc`gethelp`sp`spq;
