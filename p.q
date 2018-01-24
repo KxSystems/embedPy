@@ -1,6 +1,8 @@
-if[system["s"]|0>system"p";'"slaves or multithreaded input not currently supported"];
 .p:(`:./p 2:`lib,1)`
 \d .p
+ei:{eo y _ x;n set .p.get[n:`$(2+x)_(y?"(")#y]value y x;}
+eo:.p.e
+e:{$["def"~3#x;$[x[3]in"<*>";ei 3;eo];"class"~5#x;$[x[5]in"*>";ei 5;eo];eo]x}
 k)c:{'[y;x]}/|:         / compose list of functions
 k)ce:{'[y;x]}/enlist,|: / compose with enlist (for variadic functions)
 
@@ -9,30 +11,38 @@ set'[`pykey`pyvalue`pyget`pyeval`pyimport;.p.key,.p.value,.p.get,.p.eval,import]
 qeval:c`.p.py2q,pyeval
 
 / Wrapper for foreigns
-embedPy:{[c;r;x;a] / r (0 wrapped, 1 q, 2 foreign)
-  if[102<>type a0:a 0;if[c;:(wrap;py2q;::)[r].[pyfunc x]a]];
-  $[($)~a0;:x;`.~a0;:x;`~a0;:py2q x;-11=type a0;x:x getattr/` vs a0;
-  (:)~a0;[setattr . x,1_a;:(::)];
-  [c:1;r:$[(*)~a0;0;(<)~a0;1;(>)~a0;2;'`NYI]]];
-  $[count a:1_a;.[;a];]i.w[c;r]x}
-i.wf:{[c;r;x;a]embedPy[c;r;x;a]}
-wrap:(i.w:{[c;r;x]ce i.wf[c;r;x]})[0;0]
-unwrap:{$[105=type x;x($);x]}
+embedPy:{[f;x]         
+ $[-11h<>t:type x0:x 0;
+    $[t=102h;
+      $[any u:x0~/:(*;<;>);
+         [c:(wrap;py2q;::)where[u]0;$[1=count x;.p.c c,;c .[;1_x]@]pyfunc f]; / call type
+        (:)~x0;[setattr . f,@[;0;{`$_[":"=s 0]s:string x}]1_x;];
+        (@)~x0;$[count 2_x;.[;2_x];]wrap call[getattr[f;`$"__getitem__"];raze x 1;()!()];
+        (=)~x0;[call[getattr[f;`$"__setitem__"];raze 1_x;()!()];];
+        '`NYI];
+      wrap pyfunc[f]. x];
+    ":"~first a0:string x0;                                                / attr lookup and possible call
+     $[1=count x;;.[;1_x]]wrap f getattr/` vs`$1_a0;
+    x0~`.;f;x0~`;py2q f;                                                   / extract as foreign or q
+     wrap pyfunc[f]. x]}                                                   / default, call
+unwrap:{$[i.isw x;x`.;x]}
 wfunc:{[f;x]r:wrap f x 0;$[count x:1_x;.[;x];]r}
+i.wf:{[f;x]embedPy[f;x]}
+wrap:ce i.wf@
 import:ce wfunc pyimport
 .p.eval:ce wfunc pyeval
 .p.get:ce wfunc pyget
 .p.set:{[f;x;y]f[x]unwrap y;}.p.set
-.p.key:{wrap pykey$[i.isf x;x;i.isw x;x($);'`type]}
-.p.value:{wrap pyvalue$[i.isf x;x;i.isw x;x($);'`type]}
-.p.callable:{$[i.isw x;x(*);i.isf x;wrap[x](*);'`type]}
+.p.key:{wrap pykey$[i.isf x;x;i.isw x;x`.;'`type]}
+.p.value:{wrap pyvalue$[i.isf x;x;i.isw x;x`.;'`type]}
+.p.callable:{$[i.isw x;x;i.isf x;wrap[x];'`type]}
 .p.pycallable:{$[i.isw x;x(>);i.isf x;wrap[x](>);'`type]}
 .p.qcallable:{$[i.isw x;x(<);i.isf x;wrap[x](<);'`type]}
 / is foreign, wrapped, callable
 i.isf:isp
 i.isw:{$[105=type x;i.wf~$[104=type u:first get x;first get u;0b];0b]}
-i.isc:{$[105=type x;$[last[u:get x]~ce 1#`.p.q2pargs;1b;0b];0b]}
-setattr:{[f;x;y;z]f[x;y;z];}import[`builtins;`setattr;*]
+i.isc:{$[105=type y;$[x~y;1b;.z.s[x]last get y];0b]}ce 1#`.p.q2pargs
+setattr:{[f;x;y;z]f[x;y;z];}import[`builtins]`:setattr
 
 / Calling python functions
 pyfunc:{if[not i.isf x;'`type];ce .[.p.call x],`.p.q2pargs}
@@ -54,11 +64,11 @@ i.gpyargs:{$[not any u:i.isarg[i.al]each x;(u;());1<sum u;'"only one pyargs allo
 i.isarg:{$[104=type y;x~first get y;0b]} / y is python argument identifier x
 
 / Help & Print
-gethelp:{[h;x]$[i.isf x;h x;i.isw x;h x($);i.isc x;h 2{last get x}/first get x;"no help available"]}
+gethelp:{[h;x]$[i.isf x;h x;i.isw x;h x`.;i.isc x;h x{get[x]y}/1 0 1 1;"no help available"]}
 repr:gethelp repr
-help:{[gh;h;x]if[10=type u:gh[h]x;-2 u]}[gethelp]import[`builtins;`help;*] 
-helpstr:gethelp import[`inspect;`getdoc;<]
-print:{x y;}import[`builtins;`print;*]
+help:{[gh;h;x]if[10=type u:gh[h]x;-2 u]}[gethelp]import[`builtins;`:help]
+helpstr:gethelp import[`inspect;`:getdoc;<]
+print:{x y;}import[`builtins]`:print
 {@[`.;x;:;get x]}each`help`print; / comment to remove from global namespace
 
 / Closures
@@ -69,12 +79,18 @@ p)def qclosure(func,*state):
     state=(res[0],)
     return res[1]
   return cfunc
-closure:.p.get[`qclosure;*] / implement as: closure[{[state;dummy] ...;(newState;result)};initState]
+closure:.p.get[`qclosure] / implement as: closure[{[state;dummy] ...;(newState;result)};initState]
 
 / Generators
 p)import itertools
 i.gl:.p.eval["lambda f,n:(f(x)for x in(itertools.count()if n==None else range(n)))"][>]
-generator:{[f;i;n]i.gl[closure[f;i]($);n]}
+generator:{[f;i;n]i.gl[closure[f;i]`.;n]}
+
+/ Add cwd and $QHOME to sys.path
+sp:.p.import[`sys]`:path
+spq:distinct("";getenv`QHOME),sp`
+sp[`:clear][];
+sp[`:extend]spq;
 
 / Cleanup
-{![`.p;();0b;x]}`getseq`ntolist`runs`wfunc`gethelp;
+{![`.p;();0b;x]}`getseq`ntolist`runs`wfunc`gethelp`sp`spq;

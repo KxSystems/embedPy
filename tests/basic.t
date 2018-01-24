@@ -18,9 +18,9 @@ r~first(.p.get[`x]`;.p.set[`x]x)
 p)class foo:
  def __init__(self,x): self.x = x
  def bar(self,y):return self.x+y
-foo:.p.import[`$"__main__";`foo;*]42
-142~foo[`bar;<;]100
-ver:.p.import[`sys;`version]`
+foo:.p.import[`$"__main__";`:foo;*]42
+142~foo[`:bar;<;]100
+ver:.p.import[`sys;`:version]`
 p)import sys
 ver~.p.eval["sys.version"]`
 q)p)pyd={'one':1,'two':2,'three':3}
