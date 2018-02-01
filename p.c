@@ -54,6 +54,7 @@ C pynt[13]={NPY_OBJECT,NPY_BOOL,0,0,NPY_UINT8,NPY_INT16,NPY_INT32,NPY_INT64,NPY_
 #define CK(x) Py##x##_Check
 #define Co(x) P(!CK(x)(o),E(pytype))
 #define PyC_Check PY(PyString_Check,PyUnicode_Check)
+#define pr1(x) (Py_INCREF(x),x)
 Z K kseq(O o){O f=PySequence_Fast(o,0);K x=ktn(0,PySequence_Fast_GET_SIZE(f));DO(xn,(kK(x)[i]=ko(o=PySequence_Fast_GET_ITEM(f,i)),Py_INCREF(o)))Py_DECREF(f);R x;}
 typedef V*(*T)(S);Z V*PyC_utf8(T f,O o){PY(0,P(!(o=PyUnicode_AsUTF8String(o)),PE));S s=PY(PyString_AsString,PyBytes_AS_STRING)(o);V*r=f(s);PY(0,Py_DECREF(o));R r;}
 #define KO(x) Z K ko##x(O o)
@@ -64,9 +65,9 @@ Z C gnull(K x){R xt==101&&!xg;}Z C anull(K x){R !xt&&xn==1&&gnull(xK[0]);}
 #define CPO(o,r,clean) if(!o){clean;if(PyErr_Occurred())PyErr_Print();R(r);}
 Z O otup(K x){J n=cn(x);O r=PyTuple_New(n);K y;DO(n,O o=ok(y=at(x,i));r0(y);CPO(o,o,Py_DECREF(r))PyTuple_SET_ITEM(r,i,o))R r;}
 Z O atup(K x){P(anull(x),PyTuple_New(0));R otup(x);}
-Z O odict(K x){O r=PyDict_New(),m,o;K y=kK(x)[1],v,z;x=*kK(x);P(xt<0,Py_None)DO(xn,m=ok(v=at(x,i));r0(v);CPO(m,m,Py_DECREF(r))o=ok(z=at(y,i));r0(z);CPO(o,o,Py_DECREF(r);Py_DECREF(m))PyDict_SetItem(r,m,o);Py_DECREF(m);Py_DECREF(o))R r;}
+Z O odict(K x){O r,m,o;K y=kK(x)[1],v,z;x=*kK(x);P(xt<0,pr1(Py_None))r=PyDict_New();DO(xn,m=ok(v=at(x,i));r0(v);CPO(m,m,Py_DECREF(r))o=ok(z=at(y,i));r0(z);CPO(o,o,Py_DECREF(r);Py_DECREF(m))PyDict_SetItem(r,m,o);Py_DECREF(m);Py_DECREF(o))R r;}
 Z O nk(K x){O r;npy_intp n=xn/*q<3?*/;R r=PyArray_SimpleNewFromData(1,&n,pynt[xt],xG),PyArray_SetBaseObject((A)r,pwrap(x)),PyArray_CLEARFLAGS((A)r,NPY_ARRAY_WRITEABLE),r;}
-Z O ok(K x){P(pq(x),kget(x))P(gnull(x),Py_None)P(xt<0,-128==xt?PyErr_Format(PyExc_RuntimeError,"%s",xs):-KB==xt?xg?Py_True:Py_False:-KG>=xt&&-KJ<=xt?PyLong_FromLong(-KG==xt?xg:-KH==xt?xh:-KI==xt?xi:xj):-KE==xt||-KF==xt?PyFloat_FromDouble(xt-KE?xf:xe):-KC==xt?PyUnicode_FromStringAndSize((S)&xg,1):-KS==xt?PyUnicode_FromString(xs):Py_None)P(!xt||xt==XT,otup(x))SW(xt){CS(KG,R PyBytes_FromStringAndSize((S)kG(x),xn))CS(KC,R PyUnicode_FromStringAndSize((S)kC(x),xn))CS(KS,R otup(x))CS(XD,R odict(x))CS(100,R ocall(x))CD:R 0<xt&&20>xt?nk(x):pwrap(x);}R Py_None;}
+Z O ok(K x){P(pq(x),kget(x))P(gnull(x),pr1(Py_None))P(xt<0,-128==xt?PyErr_Format(PyExc_RuntimeError,"%s",xs):-KB==xt?pr1(xg?Py_True:Py_False):-KG>=xt&&-KJ<=xt?PyLong_FromLong(-KG==xt?xg:-KH==xt?xh:-KI==xt?xi:xj):-KE==xt||-KF==xt?PyFloat_FromDouble(xt-KE?xf:xe):-KC==xt?PyUnicode_FromStringAndSize((S)&xg,1):-KS==xt?PyUnicode_FromString(xs):pr1(Py_None))P(!xt||xt==XT,otup(x))SW(xt){CS(KG,R PyBytes_FromStringAndSize((S)kG(x),xn))CS(KC,R PyUnicode_FromStringAndSize((S)kC(x),xn))CS(KS,R otup(x))CS(XD,R odict(x))CS(100,R ocall(x))CD:R 0<xt&&20>xt?nk(x):pwrap(x);}R pr1(Py_None);}
 
 
 #define Oo O o;P(!(o=kget(x)),E(type))
