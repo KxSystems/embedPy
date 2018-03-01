@@ -2,8 +2,12 @@
 
 
 Allows the kdb+ interpreter to manipulate Python objects and call Python functions.
+Part of the [_Fusion for kdb+_](http://code.kx.com/q/interfaces/fusion/) interface collection.
 
 Please direct any questions to ai@kx.com.
+
+Please [report issues](https://github.com/KxSystems/embedpy/issues) in this repository.
+
 
 ## Requirements
 
@@ -33,26 +37,28 @@ From q, load `p.q`.
 q)\l p.q
 ```
 
+
 ## Documentation
 
 Documentation is available on the [embedPy](https://code.kx.com/q/ml/embedpy/) homepage.
 
+
 ## Back-incompatible changes
 
-**V0.2-beta -> V1.0**
+### V0.2-beta -> V1.0
 
 - Attribute access from embedPy object 
- ```q
- / old
- q)obj`ATTRNAME
- / new
- q)obj`:ATTRNAME
- ``` 
+
+```q
+q)obj`ATTRNAME   / old
+q)obj`:ATTRNAME  / new
+``` 
 
 - `embedPy` objects can be called directly without explicitly specifying the call return type, the default return type is an `embedPy` object
 
-**V0.1-beta -> V0.2beta in V0.2-beta**
+
+### V0.1-beta -> V0.2beta in V0.2-beta
 
 V0.2-beta features a number of changes back-incompatible with the previous release, V0.1-beta. 
 
-Most notably, the default _type_ used in many operations is now the embedPy type, rather than the foreign type. Differences between these types (and the associated APIs) are set out below. 
+Most notably, the default _type_ used in many operations is now the embedPy type, rather than the foreign type. <!-- Differences between these types (and the associated APIs) are set out below. --> 
