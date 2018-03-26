@@ -1,4 +1,3 @@
--1"## Basic tests start";
 .p.set[`x;3]
 3~.p.py2q .p.pyget`x
 3~.p.get[`x]`
@@ -6,8 +5,7 @@ x:(0;1h;"str";`sym)
 r:(0;1; "str";"sym")
 r~.p.eval["lambda x:x";<]x
 p)import numpy as np
-p)a=np.arange(6).reshape(2,3)
-any 30 7h in .p.type .p.pyget`a
+p)a=np.arange(6,dtype=np.int64).reshape(2,3)
 (2 3#til 6)~.p.py2q .p.pyget`a
 p)s=np.int64(1)
 1~.p.py2q .p.pyget`s
@@ -23,14 +21,8 @@ foo:.p.import[`$"__main__";`:foo;*]42
 ver:.p.import[`sys;`:version]`
 p)import sys
 ver~.p.eval["sys.version"]`
-q)p)pyd={'one':1,'two':2,'three':3}
-q)qd:.p.get`pyd
-("one";"two";"three")~.p.key[qd]`
-1 2 3~.p.value[qd]`
-(()!())~.p.py2q .p.pyeval"{}"
-/ error, non existent attribute #1  this uses the .P namespace to show it works in p.c
-np:.P.eval"np"
-10=type .p.repr .P.getattr[np;`eye]
-1~@[.p.getattr[np];`banana;1]
-10=type .p.repr .P.getattr[np;`eye]
--1"## Basic tests end";
+p)pyd={'one':1,'two':2,'three':3}
+qd:.p.get`pyd
+(`one`two`three!1 2 3)~qd`
+(()!())~.p.qeval"{}"
+"getattr: module 'builtins' has no attribute 'banana'"~@[.p.getattr .p.import[`builtins]`.;`banana;::]

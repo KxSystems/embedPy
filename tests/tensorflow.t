@@ -1,5 +1,5 @@
 / tensorflow tests
--1"## Tensorflow fit tests start";
+setenv[`TF_CPP_MIN_LOG_LEVEL]1#"2"
 p)import tensorflow as tf
 p)def fit(x_data,y_data): #adapted from https://www.tensorflow.org/get_started
  W = tf.Variable(tf.random_uniform([1], -1.0, 1.0))
@@ -17,6 +17,4 @@ p)def fit(x_data,y_data): #adapted from https://www.tensorflow.org/get_started
 fit:.p.get[`fit;<]
 x:100?1f
 y:.3+.1*x
-t)8 8h~type each fit[x;y]
-8 8h~type each fit[x;y]
--1"## Tensorflow fit tests end";
+1 3~raze"j"$10*fit[x;y]
