@@ -13,21 +13,31 @@ Please [report issues](https://github.com/KxSystems/embedpy/issues) in this repo
 
 - kdb+ >=3.5 64-bit
 - Anaconda Python 3.x
-- macOS or Linux 
 
+## Installation
+### Download
 
-## Build and install
+Download the appropriate release archive from the [releases](../../releases/latest) page.
+
+Run tests with 
+```bash
+q test.q
+```
+
+To install, place `p.q` and `p.k` in `$QHOME` and place the library file (`p.so` for OSX/Linux or `p.dll` for Windows)  in `$QHOME/{l64|m64|w64}`
+
+**Watch out** If you are currently using [PyQ](https://code.kx.com/q/interfaces/pyq/), it also has a file `p.so` in `$QHOME/{l64|m64}`. In this case, you may want to run initially from the local directory without installing. Skip the install step and run q in the directory where you unzipped the release to do this.
+
+### Building from source
 
 Build the interface and run sanity checks with 
 
 ```bash
-./configure && make test
+make p.so && q test.q
 ```
 If running in an environment without Internet access, you will need to download the kdb+ [C API header file](https://raw.githubusercontent.com/KxSystems/kdb/master/c/c/k.h) manually and place in the build directory.
 
 To install, place `p.q` and `p.k` in `$QHOME` and `p.so` in `$QHOME/{l64|m64}`.  
-
-**Watch out** If you are currently using [PyQ](https://code.kx.com/q/interfaces/pyq/), it also has a file `p.so` in `$QHOME/{l64|m64}`. In this case, you may want to run initially from the local build directory without installing. Skip the install step and run q in the build directory to do this.
 
 
 ## Usage
@@ -44,6 +54,8 @@ Documentation is available on the [embedPy](https://code.kx.com/q/ml/embedpy/) h
 
 
 ## Back-incompatible changes
+### V1.0 -> V 1.1
+`.p.key` and `.p.value` removed
 
 ### V0.2-beta -> V1.0
 

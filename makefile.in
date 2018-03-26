@@ -1,8 +1,0 @@
-p.so:p.c k.h makefile
-	$C $< -o $@ $D $I $L
-k.h:
-	curl https://raw.githubusercontent.com/KxSystems/kdb/master/c/c/k.h -o k.h
-test:p.so
-	q test.q tests/*.t
-peach:p.so
-	q tests/peach.q -s -4
