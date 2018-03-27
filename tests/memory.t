@@ -1,5 +1,5 @@
 R:@[{.p.e x;1b};"import resource";0b]
-pmem:{$[R;.p.qeval"resource.getrusage(resource.RUSAGE_SELF).ru_maxrss";0]}
+pmem:{$[.z.o~`m64;0;$[R;.p.qeval"resource.getrusage(resource.RUSAGE_SELF).ru_maxrss";0]]}
 a:til 100;
 .p.set[`bbb]a;
 initmem:pmem[];

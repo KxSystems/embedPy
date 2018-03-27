@@ -23,6 +23,6 @@ p)import sys
 ver~.p.eval["sys.version"]`
 p)pyd={'one':1,'two':2,'three':3}
 qd:.p.get`pyd
-(`one`two`three!1 2 3)~qd`
+(asc`one`two`three!1 2 3)~asc qd`
 (()!())~.p.qeval"{}"
 "getattr: module 'builtins' has no attribute 'banana'"~@[.p.getattr .p.import[`builtins]`.;`banana;::]
