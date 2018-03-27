@@ -1,13 +1,19 @@
-.p:(`:./p 2:`lib,1)`
 \d .p
-ei:{eo y _ x;n set .p.get[n:`$(2+x)_(y?"(")#y]value y x;}
-eo:.p.e
-e:{$["def"~3#x;$[x[3]in"<*>";ei 3;eo];"class"~5#x;$[x[5]in"*>";ei 5;eo];eo]x}
+if[not .P.loaded:-1h=type@[`.p@;`numpy;`];
+ sc:{"'",x,"'.join([__import__('sysconfig').get_config_var(v)for v in",ssr[.j.j y;"\"";"'"],"])"};pr:{"print(",x,");"};
+ c:"-c \"",pr[$[.z.o like"w*";sc["/python";`BINDIR`VERSION],"+'.dll'";sc["/";`LIBDIR`INSTSONAME]]],pr[$[.z.o like"m*";sc["/";`PYTHONFRAMEWORKPREFIX`INSTSONAME];.z.o like"l*";sc["/";`LIBPL`LDLIBRARY];"''"]],pr["__import__('sys').prefix"],"\"2>",$[.z.o like"w*";"nul";"/dev/null"];
+ `L`M`H set'@[system"python3 ",;c;{system"python ",c}];if[count M;if[k~key k:`$":",M;L::M]];
+ .p:(`:./p 2:(`init;2))[L;H]]
+loaded:.P.loaded
+if[not loaded;
+ ei:{eo y _ x;n set .p.get[n:`$(2+x)_(y?"(")#y]value y x;};
+ eo:.p.e;
+ e:{$["def"~3#x;$[x[3]in"<*>";ei 3;eo];"class"~5#x;$[x[5]in"*>";ei 5;eo];eo]x}];
 k)c:{'[y;x]}/|:         / compose list of functions
 k)ce:{'[y;x]}/enlist,|: / compose with enlist (for variadic functions)
 
 / Aliases
-set'[`pykey`pyvalue`pyget`pyeval`pyimport;.p.key,.p.value,.p.get,.p.eval,import];
+if[not loaded;set'[`pyget`pyeval`pyimport;.p.get,.p.eval,import]];
 qeval:c`.p.py2q,pyeval
 
 / Wrapper for foreigns
@@ -33,8 +39,8 @@ import:ce wfunc pyimport
 .p.eval:ce wfunc pyeval
 .p.get:ce wfunc pyget
 .p.set:{[f;x;y]f[x]unwrap y;}.p.set
-.p.key:{wrap pykey$[i.isf x;x;i.isw x;x`.;'`type]}
-.p.value:{wrap pyvalue$[i.isf x;x;i.isw x;x`.;'`type]}
+//.p.key:{wrap pykey$[i.isf x;x;i.isw x;x`.;'`type]}
+//.p.value:{wrap pyvalue$[i.isf x;x;i.isw x;x`.;'`type]}
 .p.callable:{$[i.isw x;x;i.isf x;wrap[x];'`type]}
 .p.pycallable:{$[i.isw x;x(>);i.isf x;wrap[x](>);'`type]}
 .p.qcallable:{$[i.isw x;x(<);i.isf x;wrap[x](<);'`type]}
@@ -65,7 +71,7 @@ i.isarg:{$[104=type y;x~first get y;0b]} / y is python argument identifier x
 
 / Help & Print
 gethelp:{[h;x]$[i.isf x;h x;i.isw x;h x`.;i.isc x;h x{get[x]y}/1 0 1 1;"no help available"]}
-repr:gethelp repr
+repr:gethelp import[`builtins;`:repr;<]
 help:{[gh;h;x]if[10=type u:gh[h]x;-2 u]}[gethelp]import[`builtins;`:help]
 helpstr:gethelp import[`inspect;`:getdoc;<]
 print:{x y;}import[`builtins]`:print
@@ -93,4 +99,6 @@ sp[`:clear][];
 sp[`:extend]spq;
 
 / Cleanup
-{![`.p;();0b;x]}`getseq`ntolist`runs`wfunc`gethelp`sp`spq;
+{![`.p;();0b;x]}`getseq`ntolist`runs`wfunc`gethelp`sp`spq`loaded;
+
+list:import[`builtins;`:list;<]
