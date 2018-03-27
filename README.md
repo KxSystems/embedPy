@@ -26,6 +26,15 @@ q test.q
 
 To install, place `p.q` and `p.k` in `$QHOME` and place the library file (`p.so` for OSX/Linux or `p.dll` for Windows)  in `$QHOME/{l64|m64|w64}`
 
+**Watch out** On OSX and Linux if you are using Anaconda python rather than the system python, you should set your LD_LIBRARY_PATH (on Linux) or DYLD_LIBRARY_PATH (on OSX) to your python distributions library directory before starting q to avoid conflicts between libraries which both q and python use (e.g. `libz`, `libssl`) , you can find this directory's location in python.
+
+```python
+>>> import sysconfig
+>>> sysconfig.get_config_var('LIBDIR')
+```
+
+
+
 **Watch out** If you are currently using [PyQ](https://code.kx.com/q/interfaces/pyq/), it also has a file `p.so` in `$QHOME/{l64|m64}`. In this case, you may want to run initially from the local directory without installing. Skip the install step and run q in the directory where you unzipped the release to do this.
 
 ### Building from source
