@@ -100,5 +100,4 @@ sp[`:extend]spq;
 
 / Cleanup
 {![`.p;();0b;x]}`getseq`ntolist`runs`wfunc`gethelp`sp`spq`loaded;
-
-list:import[`builtins;`:list;<]
+{@[`.p;x;:;.p.import[`builtins]hsym x]}each`tuple`list`dict;

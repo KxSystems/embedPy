@@ -163,7 +163,7 @@ xfact:{[x;dummy](x;last x:prds x+1 0)}
 fact4:.p.generator[xfact;0 1;4]     / generates first 4 factorial values
 factinf:.p.generator[xfact;0 1;::]  / generates factorial values indefinitely
 
-1 2 6 24~.p.list fact4
+1 2 6 24~.p.list[fact4]`
 .p.set[`factinf]factinf
 1 2 6 24~.p.qeval"[next(factinf) for _ in range(4)]"
 
@@ -171,8 +171,8 @@ factinf:.p.generator[xfact;0 1;::]  / generates factorial values indefinitely
 
 xlook:{[x;dummy]r,r:"J"$raze string[count each s],'first each s:(where differ s)_s:string x}
 look:.p.generator[xlook;1;7]
-11 21 1211 111221 312211 13112221 1113213211~.p.list look
+11 21 1211 111221 312211 13112221 1113213211~.p.list[look]`
 
 xsub:{[x;d](@[x;1;+;x 2];sublist[x 1 2]x 0)}
 sub:.p.generator[xsub;(.Q.A;0;6);5]
-(0N 6#.Q.A)~.p.list sub
+(0N 6#.Q.A)~.p.list[sub]`
