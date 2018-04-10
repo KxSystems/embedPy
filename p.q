@@ -23,7 +23,7 @@ embedPy:{[f;x]
       $[any u:x0~/:(*;<;>);
          [c:(wrap;py2q;::)where[u]0;$[1=count x;.p.c c,;c .[;1_x]@]pyfunc f]; / call type
         (:)~x0;[setattr . f,@[;0;{`$_[":"=s 0]s:string x}]1_x;];
-        (@)~x0;$[count 2_x;.[;2_x];]wrap call[getattr[f;`$"__getitem__"];raze x 1;()!()];
+        (@)~x0;$[count 2_x;.[;2_x];]wrap call[getattr[f;`$"__getitem__"];enlist x 1;()!()];
         (=)~x0;[call[getattr[f;`$"__setitem__"];raze 1_x;()!()];];
         '`NYI];
       wrap pyfunc[f]. x];
@@ -100,4 +100,4 @@ sp[`:extend]spq;
 
 / Cleanup
 {![`.p;();0b;x]}`getseq`ntolist`runs`wfunc`gethelp`sp`spq`loaded;
-{@[`.p;x;:;.p.import[`builtins]hsym x]}each`tuple`list`dict;
+{@[`.p;x;:;.p.import[`builtins]hsym x]}each`tuple`list`dict`isinstance;
