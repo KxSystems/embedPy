@@ -97,6 +97,8 @@ sp:.p.import[`sys]`:path
 spq:distinct("";getenv`QHOME),sp`
 sp[`:clear][];
 sp[`:extend]spq;
+/ write python stdout/err to 1 and 2
+{.p.import[`sys;x][:;`:write;{x y;count y}y]}'[`:stdout`:stderr;1 2];
 
 / Cleanup
 {![`.p;();0b;x]}`getseq`ntolist`runs`wfunc`gethelp`sp`spq`loaded;
