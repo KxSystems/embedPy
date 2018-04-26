@@ -2,7 +2,7 @@ FROM debian:9 AS base
 
 # do not clean here, its cleaned later!
 RUN apt-get update \
-	&& apt-get -yy update
+	&& apt-get -yy upgrade
 
 ####
 
