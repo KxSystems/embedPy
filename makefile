@@ -2,10 +2,14 @@ QHOME=$(shell echo '-1 getenv`QHOME;'|q -q)
 CFLAGS=-ggdb3 -O2 -Wno-pointer-sign -Wno-parentheses
 ifeq ($(shell uname),Linux)
 LDFLAGS=-fPIC -shared
+QLIBDIR=l64
 else ifeq ($(shell uname),Darwin)
 LDFLAGS=-bundle -undefined dynamic_lookup
+QLIBDIR=m64
 endif
-p.so: py.c py.h k.h
+p.so: $(QLIBDIR)/p.so
+$(QLIBDIR)/p.so: py.c py.h k.h
+	mkdir -p $(QLIBDIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
 p.dll: py.c py.h k.h q.lib
 	cl64 /LD /DKXVER=3 /Fe$@ /O2 $< q.lib
