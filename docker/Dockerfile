@@ -8,6 +8,7 @@ RUN apt-get update \
 
 FROM base AS embedpy
 
+
 ARG embedpy_url=https://github.com/KxSystems/embedPy.git
 ARG embedpy_tag=1.1
 
@@ -18,6 +19,10 @@ RUN apt-get -yy --no-install-recommends install ca-certificates wget build-essen
 COPY . /opt/kx/embedPy
 
 RUN make -C /opt/kx/embedPy p.so
+
+####
+
+FROM continuumio/miniconda3 AS anaconda
 
 ####
 
@@ -38,7 +43,7 @@ LABEL	org.label-schema.schema-version="1.0" \
 	org.label-schema.build-date="$BUILD_DATE" \
 	org.label-schema.docker.cmd="docker run -v `pwd`/q:/tmp/q -p $PORT:$PORT kxsys/embedpy"
 
-RUN apt-get -yy --no-install-recommends install unzip rlwrap python3 libpython3.5 runit \
+RUN apt-get -yy --no-install-recommends install unzip rlwrap runit \
 	&& apt-get clean \
 	&& find /var/lib/apt/lists -type f -delete
 
@@ -48,12 +53,28 @@ COPY docker/profile-env /etc/profile.d/kxsys-embedpy.sh
 COPY docker/env /opt/kx/.env
 
 ENV QHOME=/opt/kx/q
+ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}/opt/conda/lib
+ENV PATH=${PATH:+$PATH:}/opt/conda/bin
 
 RUN mkdir -p $QHOME/l64
 
 COPY --from=embedpy /opt/kx/embedPy /opt/kx/embedPy
-RUN ln -s -t $QHOME/l64 /opt/kx/embedPy/p.so \
+RUN ln -s -t $QHOME/l64 /opt/kx/embedPy/l64/p.so \
 	&& ln -s -t $QHOME /opt/kx/embedPy/p.q /opt/kx/embedPy/p.k
+RUN echo 'alias q="rlwrap q "' >> ~kx/.bashrc
+RUN echo 'source activate kx' >> ~kx/.bashrc
+
+COPY --from=anaconda /opt/conda /opt/conda
+
+RUN . /opt/conda/etc/profile.d/conda.sh \
+	&& conda update -n base conda
+
+USER kx
+RUN . /opt/conda/etc/profile.d/conda.sh \
+	&& conda create -y -n kx python=3 --no-default-packages \
+	&& conda clean -y --all
+
+USER root
 
 COPY docker/init /init
 
