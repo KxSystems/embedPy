@@ -103,3 +103,12 @@ sp[`:extend]spq;
 / Cleanup
 {![`.p;();0b;x]}`getseq`ntolist`runs`wfunc`gethelp`sp`spq`loaded;
 {@[`.p;x;:;.p.import[`builtins]hsym x]}each`tuple`list`dict`isinstance;
+
+/ ensure python stdout/err displayed, python lets us pass through a func, so we could send it via normal socket, but writing it to q stdout/err for consistency
+p)import io
+p)class> stdwriter(io.TextIOBase):
+ def __init__(self,qfunc=None):
+  self.qfunc=qfunc
+ def write(self, stuff):
+  self.qfunc(stuff)
+{.p.import[`sys][:;x;stdwriter y]}'[`:stdout`:stderr;{1 x},{2 x}];
