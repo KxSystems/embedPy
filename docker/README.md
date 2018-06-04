@@ -20,7 +20,7 @@ Once built, you should have a local `embedpy` image, you can run the following t
 
 # Deploy
 
-[Google Cloud Builder](https://cloud.google.com/container-builder/docs/) is configured to monitor when tags of the format `/^[0-9.]+/` are added to the [GitHub hosted project](https://github.com/KxSystems/embedPy), a corresponding Docker image is generated and made available on [Docker Cloud](https://cloud.docker.com/)
+[travisCI](https://travis-ci.org/) is configured to monitor when tags of the format `/^[0-9]+\./` are added to the [GitHub hosted project](https://github.com/KxSystems/embedPy), a corresponding Docker image is generated and made available on [Docker Cloud](https://cloud.docker.com/)
 
 This is all done server side as the resulting image is north of 350MB.
 
@@ -30,7 +30,6 @@ To do a deploy, you simply tag and push your releases as usual:
     git tag 0.7
     git push --tag
 
-## Travis Option
 
 ## Related Links
 
