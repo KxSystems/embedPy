@@ -50,30 +50,66 @@ To install, place `p.q` and `p.k` in `$QHOME` and `p.so` in `$QHOME/{l64,m64}`.
 
 ### Docker
 
-If you have [Docker installed](https://www.docker.com/community-edition) you can alternatively create a directory called `q` and place your `kc.lic` (or `k4.lic`) file into a `q` directory and run:
+If you have [Docker installed](https://www.docker.com/community-edition) you can alternatively run:
 
-    $ docker run --rm -it -v `pwd`/q:/tmp/q kxsys/embedpy
-    kx@1ba5d6c29709:~$ q
-    KDB+ 3.5 2017.11.08 Copyright (C) 1993-2017 Kx Systems
-    l64/ 4(16)core 7905MB kx 0123456789ab 172.17.0.2 EXPIRE 2018.12.04 bob@example.com KOD #0000000
-
+    $ docker run -it --name myembedpy kxsys/embedpy
+    kdb+ on demand - Personal Edition
+    
+    [snipped]
+    
+    I agree to the terms of the license agreement for kdb+ on demand Personal Edition (N/y): y
+    
+    If applicable please provide your company name (press enter for none): ACME Limited
+    Please provide your name: Bob Smith
+    Please provide your email (requires validation): bob@example.com
+    KDB+ 3.5 2018.04.25 Copyright (C) 1993-2018 Kx Systems
+    l64/ 4()core 7905MB kx 0123456789ab 172.17.0.2 EXPIRE 2018.12.04 bob@example.com KOD #0000000
+    
     q)
 
-You can drop straight into `bash` with:
+For subsequent runs, you will not be prompted to redo the license setup when calling:
 
-    $ docker run --rm -it -v `pwd`/q:/tmp/q kxsys/embedpy bash
+    $ docker start -ai myembedpy
+    KDB+ 3.5 2018.04.25 Copyright (C) 1993-2018 Kx Systems
+    l64/ 4()core 7905MB kx 0123456789ab 172.17.0.2 EXPIRE 2018.12.04 bob@example.com KOD #0000000
+    
+    q)
+
+If you prefer to drop straight into `bash` you can with:
+
+    $ docker run -it kxsys/embedpy bash
+    [snipped license setup]
     kx@8ac226623908:~$ conda info
     
          active environment : kx
         active env location : /home/kx/.conda/envs/kx
     [snipped]
-
-Lastly you can also pipe your program in:
-
-    $ echo 'p)print(1+2)' | docker run --rm -i -v `pwd`/q:/tmp/q kxsys/embedpy q -q
-    3
+    kx@8ac226623908:~$ q
+    KDB+ 3.5 2018.04.25 Copyright (C) 1993-2018 Kx Systems
+    l64/ 4()core 7905MB kx 0123456789ab 172.17.0.2 EXPIRE 2018.12.04 bob@example.com KOD #0000000
+    
+    q)
 
 **N.B.** [build instructions for the image are available](docker/README.md)
+
+#### Headless/Presets
+
+If you are running this in a headless configuration, or wish to provide out-of-bound the answers to the license process, then you can call upon the following environment variables.  This is handled either by [`--env` (or `--env-file`) as detailed on the docker website](https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables--e---env---env-file).
+
+ * **`KDB_LICENSE_AGREE`:** pass in `yes` (case-insensitive) to agree to the license agreement
+ * **`COMPANY` (optional):** provide company name
+ * **`NAME`:** provide your name
+ * **`EMAIL`:** provide your email address
+
+If any of these are missing, then you will be prompted for the value as before.
+
+**N.B.** alternatively you can use `QLIC_KC` (also supported is `QLIC_K4`) which is the base64 encoded contents of your `kc.lic` file
+
+This allows for the following usage:
+
+    $ echo \\\\ | docker run -i -e QLIC_KC=$(cat $QHOME/kc.lic | base64 -w0) --name myembedpy embedpy q -q
+    $ echo 'p)print(1+2)' | docker start -i myembedpy
+    3
 
 ## Usage
 

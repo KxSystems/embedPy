@@ -2,22 +2,6 @@
 
 set -eu
 
-[ -d /tmp/q ] \
-	|| { echo q non-functional, did you include the q directory? >&2; exit 1; }
-
-[ -f /tmp/q/kc.lic ] && cat /tmp/q/kc.lic > "$QHOME/kc.lic" || true
-[ -f /tmp/q/k4.lic ] && cat /tmp/q/k4.lic > "$QHOME/k4.lic" || true
-[ -f "$QHOME/kc.lic" -o -f "$QHOME/k4.lic" ] \
-	|| { echo missing kc.lic/k4.lic >&2; exit 1; }
-
-[ "$(echo '-1 getenv`QHOME;' | q -q)" = "$QHOME" ] \
-	|| { echo q non-functional >&2; exit 1; }
-
-RC=0
-CHECK=$(echo '.z.K>=3.5' | q -q) || RC=$?
-[ $RC -eq 0 ] || { echo q non-functional >&2; exit 1; }
-[ "$CHECK" = "1b" ] || { echo "kdb+ version must be >= 3.5" >&2; exit 1; }
-
 if ! test -x "$1"; then
 	SH=$(which "$1")
 	shift
@@ -33,4 +17,8 @@ fi
 
 HOME=/home/kx
 cd $HOME
+
+export QLIC=$HOME
+chpst -u kx /bin/sh -l -c 'exec python /opt/kx/kc.lic.py'
+
 exec chpst -u kx "$@"
