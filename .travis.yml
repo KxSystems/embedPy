@@ -7,8 +7,7 @@ git:
 script:
 - make p.so
 - echo "Preparing version $TRAVIS_BRANCH-$TRAVIS_COMMIT"
-- zip -r embedPy_$TRAVIS_OS_NAME-$TRAVIS_BRANCH.zip p.q p.k test.q tests m64/p.so
-  l64/p.so LICENSE README.md || true
+- tar czf embedPy_$TRAVIS_OS_NAME-$TRAVIS_BRANCH.tgz p.q p.k test.q tests [ml]64/p.so LICENSE README.md
 - echo "Packaged as embedPy_$TRAVIS_OS_NAME-$TRAVIS_BRANCH.zip"
 compiler:
 - clang
