@@ -32,9 +32,7 @@ jobs:
       deploy:
         provider: script
         script:
-          - echo $DOCKER_PASSWORD|docker login --username $DOCKER_USERNAME --password-stdin
-          - docker push kxsys/embedpy:latest
-          - docker push kxsys/embedpy:$TRAVIS_BRANCH
+          - echo $DOCKER_PASSWORD|docker login --username $DOCKER_USERNAME --password-stdin && docker push kxsys/embedpy:latest && docker push kxsys/embedpy:$TRAVIS_BRANCH
         skip_cleanup: true
         on:
           tags: true
