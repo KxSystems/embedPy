@@ -50,30 +50,24 @@ To install, place `p.q` and `p.k` in `$QHOME` and `p.so` in `$QHOME/{l64,m64}`.
 
 ### Docker
 
-If you have [Docker installed](https://www.docker.com/community-edition) you can alternatively create a directory called `q` and place your `kc.lic` (or `k4.lic`) file into a `q` directory and run:
+If you have [Docker installed](https://www.docker.com/community-edition) you can alternatively run:
 
-    $ docker run --rm -it -v `pwd`/q:/tmp/q kxsys/embedpy
-    kx@1ba5d6c29709:~$ q
-    KDB+ 3.5 2017.11.08 Copyright (C) 1993-2017 Kx Systems
-    l64/ 4(16)core 7905MB kx 0123456789ab 172.17.0.2 EXPIRE 2018.12.04 bob@example.com KOD #0000000
-
+    $ docker run -it --name myembedpy kxsys/embedpy
+    kdb+ on demand - Personal Edition
+    
+    [snipped]
+    
+    I agree to the terms of the license agreement for kdb+ on demand Personal Edition (N/y): y
+    
+    If applicable please provide your company name (press enter for none): ACME Limited
+    Please provide your name: Bob Smith
+    Please provide your email (requires validation): bob@example.com
+    KDB+ 3.5 2018.04.25 Copyright (C) 1993-2018 Kx Systems
+    l64/ 4()core 7905MB kx 0123456789ab 172.17.0.2 EXPIRE 2018.12.04 bob@example.com KOD #0000000
+    
     q)
 
-You can drop straight into `bash` with:
-
-    $ docker run --rm -it -v `pwd`/q:/tmp/q kxsys/embedpy bash
-    kx@8ac226623908:~$ conda info
-    
-         active environment : kx
-        active env location : /home/kx/.conda/envs/kx
-    [snipped]
-
-Lastly you can also pipe your program in:
-
-    $ echo 'p)print(1+2)' | docker run --rm -i -v `pwd`/q:/tmp/q kxsys/embedpy q -q
-    3
-
-**N.B.** [build instructions for the image are available](docker/README.md)
+**N.B.** Further options for running and build instructions for the image are available [here](docker/README.md)
 
 ## Usage
 
