@@ -65,8 +65,10 @@ RUN mkdir -p $QHOME
 RUN curl -o $QHOME/l64.zip -L http://dls.kx.com/253h1j3s2941/download/l64.zip \
 	&& [ "$L64_SHA256" = "$(sha256sum $QHOME/l64.zip | cut -b1-64)" ] \
 	&& unzip -d $QHOME $QHOME/l64.zip \
-	&& rm $QHOME/l64.zip
+	&& rm $QHOME/l64.zip \
+	&& apt-get -yy --option=Dpkg::options::=--force-unsafe-io purge unzip
 COPY docker/q.wrapper /usr/local/bin/q
+COPY docker/kc.lic.py /opt/kx/
 
 COPY --from=embedpy /opt/kx/embedPy /opt/kx/embedPy
 RUN ln -s -t $QHOME/l64 /opt/kx/embedPy/l64/p.so \
