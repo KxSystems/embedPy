@@ -5,6 +5,8 @@ os:
 git:
   depth: 1
 script:
+- if [ $TRAVIS_OS_NAME = linux ]; then QLIBDIR=l64; elif [ $TRAVIS_OS_NAME = osx ]; then QLIBDIR=m64; else echo "unknown OS ('$TRAVIS_OS_NAME')" >&2; exit 1; fi; export QLIBDIR
+- mkdir -p q/$QLIBDIR && export QHOME=$(pwd)/QLIBDIR && export PATH=$QHOME/$QLIBDIR:$PATH
 - make p.so
 - echo "Preparing version $TRAVIS_BRANCH-$TRAVIS_COMMIT"
 - tar czf embedPy_$TRAVIS_OS_NAME-$TRAVIS_BRANCH.tgz p.q p.k test.q tests [ml]64/p.so LICENSE README.md
