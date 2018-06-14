@@ -32,6 +32,7 @@ embedPy:{[f;x]
     x0~`.;f;x0~`;py2q f;                                                   / extract as foreign or q
      wrap pyfunc[f]. x]}                                                   / default, call
 unwrap:{$[i.isw x;x`.;x]}
+xunwrap:{$[0=t:type x;.z.s each x;98=t;flip .z.s flip x;99=t;.z.s[key x]!.z.s value x;unwrap x]}
 wfunc:{[f;x]r:wrap f x 0;$[count x:1_x;.[;x];]r}
 i.wf:{[f;x]embedPy[f;x]}
 wrap:ce i.wf@
@@ -99,6 +100,8 @@ sp[`:clear][];
 sp[`:extend]spq;
 / write python stdout/err to 1 and 2
 {.p.import[`sys;x][:;`:write;{x y;count y}y]}'[`:stdout`:stderr;1 2];
+/ set sys.argv
+if[not .p.eval["hasattr";.p.import`sys;`argv]`;.p.import[`sys][:;`argv;enlist""]]
 
 / Cleanup
 {![`.p;();0b;x]}`getseq`ntolist`runs`wfunc`gethelp`sp`spq`loaded;
