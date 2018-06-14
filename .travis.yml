@@ -39,6 +39,7 @@ jobs:
       sudo: required
       services:
         - docker
+      before_install: skip
       script:
         - docker build -t kxsys/embedpy:latest -f docker/Dockerfile .
         - docker tag kxsys/embedpy:latest kxsys/embedpy:$TRAVIS_BRANCH
