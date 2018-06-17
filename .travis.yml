@@ -15,14 +15,16 @@ script:
 - mkdir q && export QHOME=$(pwd)/q && export PATH=$QHOME/$QLIBDIR:$PATH
 - curl -o q/q.zip -L $OD
 - unzip -d q q/q.zip
-- echo -n $QLIC_KC | base64 --decode > q/kc.lic
 - make p.so
+- cp [ml]64/p.so q/$QLIBDIR;
 - echo "Preparing version $TRAVIS_BRANCH-$TRAVIS_COMMIT"
 - tar czf embedPy_$TRAVIS_OS_NAME-$TRAVIS_BRANCH.tgz p.q p.k test.q tests [ml]64/p.so LICENSE README.md
 - echo "Packaged as embedPy_$TRAVIS_OS_NAME-$TRAVIS_BRANCH.zip"
-- cp [ml]64/p.so q/$QLIBDIR
-- pip3 -q install -r tests/requirements.txt
-- q test.q -q
+- if [[ "x$QLIC_KC" != "x" ]]; then
+    echo -n $QLIC_KC |base64 --decode > q/kc.lic;
+    pip3 -q install -r tests/requirements.txt;
+    q test.q -q;
+  fi
 compiler:
 - clang
 deploy:
