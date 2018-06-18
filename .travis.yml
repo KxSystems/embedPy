@@ -15,7 +15,7 @@ script:
 - mkdir q && export QHOME=$(pwd)/q && export PATH=$QHOME/$QLIBDIR:$PATH
 - if [[ "x$OD" != "x" ]]; then
     curl -o q/q.zip -L $OD;
-    unzip -d q q/.zip;
+    unzip -d q q/q.zip;
   else
     echo No kdb+;
   fi
