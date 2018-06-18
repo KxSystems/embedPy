@@ -13,8 +13,12 @@ script:
 - if [ $TRAVIS_OS_NAME = osx ]; then pyenv init - > pyenv.init && source pyenv.init ; fi
 - if [ $TRAVIS_OS_NAME = linux ]; then QLIBDIR=l64;OD=$L64; elif [ $TRAVIS_OS_NAME = osx ]; then QLIBDIR=m64;OD=$M64; else echo "unknown OS ('$TRAVIS_OS_NAME')" >&2; exit 1; fi; export QLIBDIR
 - mkdir q && export QHOME=$(pwd)/q && export PATH=$QHOME/$QLIBDIR:$PATH
-- curl -o q/q.zip -L $OD
-- unzip -d q q/q.zip
+- if [[ "x$OD" != "x" ]]; then
+    curl -o q/q.zip -L $OD;
+    unzip -d q q/.zip;
+  else
+    echo No kdb+;
+  fi
 - make p.so
 - cp [ml]64/p.so q/$QLIBDIR;
 - echo "Preparing version $TRAVIS_BRANCH-$TRAVIS_COMMIT"
