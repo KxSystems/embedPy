@@ -1,4 +1,3 @@
-QHOME=$(shell echo '-1 getenv`QHOME;'|q -q)
 CFLAGS=-ggdb3 -O2 -Wno-pointer-sign -Wno-parentheses
 ifeq ($(shell uname),Linux)
 LDFLAGS=-fPIC -shared
