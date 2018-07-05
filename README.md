@@ -155,4 +155,4 @@ See [docker/README.md](docker/README.md) for more details.
 
 V0.2-beta features a number of changes back-incompatible with the previous release, V0.1-beta.
 
-Most notably, the default _type_ used in many operations is now the `embedPy` type, rather than the foreign type.
+Most notably, the default _type_ used in many operations is now the `embedPy` type, rather than the `foreign` type.
