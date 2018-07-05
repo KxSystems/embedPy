@@ -11,95 +11,148 @@ Please [report issues](https://github.com/KxSystems/embedpy/issues) in this repo
 
 ## Requirements
 
-- kdb+ >=3.5 64-bit
-- Anaconda Python >=3.5.0
+- kdb+ >= 3.5 64-bit
+- Python >= 3.5.0
 
-## Installation
-### Download
 
-Download the appropriate release archive from the [releases](../../releases/latest) page.
+## Overview
 
-Run tests with
-```bash
-q test.q
-```
+You can either
 
-To install, place `p.q` and `p.k` in `$QHOME` and place the library file (`p.so` for OSX/Linux or `p.dll` for Windows)  in `$QHOME/{l64,m64,w64}`
+*   install embedPy to run on your local machine; or 
+*   download or build a Docker image in which to run embedPy
 
-**Watch out** On OSX and Linux if you are using Anaconda python rather than the system python, you should set your LD_LIBRARY_PATH (on Linux) or DYLD_LIBRARY_PATH (on OSX) to your python distributions library directory before starting q to avoid conflicts between libraries which both q and python use (e.g. `libz`, `libssl`) , you can find this directory's location in python.
+There are three ways to install embedPy on your local machine:
+
+1.  Download and install a release
+
+1.  Clone and build from source, on your local machine or in a Docker image
+
+1.  Install with Conda ÔÇô recommended for use with
+
+    -   Anaconda Python
+    -   [mlnotebooks](https://github.com/KxSystems/mlnotebooks) 
+    -   [JupyterQ](https://github.com/KxSystems/jupyterq)
+
+
+### Anaconda Python
+
+If you are using Anaconda Python, we recommend installing with Conda. If, instead, you take option (1) or (2) above, and are using Linux or macOS, set your `LD_LIBRARY_PATH` (Linux) or `DYLD_LIBRARY_PATH` (macOS) to your Python distributions library directory to avoid conflicts between libraries which both q and Python use (e.g. `libz`, `libssl`). You can find this directoryÔÇÖs location in Python.
 
 ```python
 >>> import sysconfig
 >>> sysconfig.get_config_var('LIBDIR')
 ```
 
+### PyQ 
+
+If you are currently using [PyQ](https://code.kx.com/q/interfaces/pyq/), it also has a file `p.so` in `$QHOME/{l64,m64}`. 
+
+You may want to run initially from another directory, without installing. Skip the install step above, and run q in the directory where you unzipped the release.
 
 
-**Watch out** If you are currently using [PyQ](https://code.kx.com/q/interfaces/pyq/), it also has a file `p.so` in `$QHOME/{l64,m64}`. In this case, you may want to run initially from the local directory without installing. Skip the install step and run q in the directory where you unzipped the release to do this.
+## Install on local machine
 
-### Building from source
+### Download and install a release
 
-Build the interface and run sanity checks with
+1.  Download a release archive from the [releases](../../releases/latest) page, and unzip it.
 
+1.  In the unzipped directory, run the tests.
+
+    ```bash
+    $ q test.q
+    ```
+
+1.  Install: put `p.q` and `p.k` in QHOME and the library file (`p.so` for macOS/Linux or `p.dll` for Windows) in `$QHOME/{l64,m64,w64}`. 
+
+
+### Clone and build from source
+
+1.  Clone this repository from GitHub.
+
+1.  To run embedPy without Internet access, download the kdb+ [C API header file](https://raw.githubusercontent.com/KxSystems/kdb/master/c/c/k.h) and place it in the build directory.
+
+1.  Build the interface and run the tests.
+
+    ```bash
+    $ make p.so && q test.q
+    ```
+
+1.  Install: put `p.q` and `p.k` in `$QHOME` and `p.so` in `$QHOME/{l64,m64}`.
+
+
+### Install with Conda
+
+This requires either macOS or Linux.
+
+1.  [Download and install](https://conda.io/docs/user-guide/install/download.html) either the full Anaconda distribution or Miniconda for Python3
+
+2.  Use the `conda` command to install packages as follows:
+
+    ```bash
+    $ conda install -c kx embedPy
+    ```
+
+
+## Run on local machine
+
+Start q with embedPy
 ```bash
-make p.so && q test.q
+$ q p.q
 ```
-If running in an environment without Internet access, you will need to download the kdb+ [C API header file](https://raw.githubusercontent.com/KxSystems/kdb/master/c/c/k.h) manually and place in the build directory.
-
-To install, place `p.q` and `p.k` in `$QHOME` and `p.so` in `$QHOME/{l64,m64}`.
-
-### Docker
-
-If you have [Docker installed](https://www.docker.com/community-edition) you can alternatively run:
-
-    $ docker run -it --name myembedpy kxsys/embedpy
-    kdb+ on demand - Personal Edition
-    
-    [snipped]
-    
-    I agree to the terms of the license agreement for kdb+ on demand Personal Edition (N/y): y
-    
-    If applicable please provide your company name (press enter for none): ACME Limited
-    Please provide your name: Bob Smith
-    Please provide your email (requires validation): bob@example.com
-    KDB+ 3.5 2018.04.25 Copyright (C) 1993-2018 Kx Systems
-    l64/ 4()core 7905MB kx 0123456789ab 172.17.0.2 EXPIRE 2018.12.04 bob@example.com KOD #0000000
-    
-    q)
-
-**N.B.** Further options for running and build instructions for the image are available [here](docker/README.md)
-
-## Usage
-
-From q, load `p.q`.
+Or from q, load `p.q`.
 ```q
 q)\l p.q
 ```
 
+Documentation is on the [embedPy](https://code.kx.com/q/ml/embedpy/) homepage.
 
-## Documentation
 
-Documentation is available on the [embedPy](https://code.kx.com/q/ml/embedpy/) homepage.
+## Run a Docker image
+
+If you have [Docker](https://www.docker.com/community-edition) installed, instead of installing embedPy on your machine, you can run:
+
+```bash
+$ docker run -it --name myembedpy kxsys/embedpy
+kdb+ on demand - Personal Edition
+
+[snipped]
+
+I agree to the terms of the license agreement for kdb+ on demand Personal Edition (N/y): y
+
+If applicable please provide your company name (press enter for none): ACME Limited
+Please provide your name: Bob Smith
+Please provide your email (requires validation): bob@example.com
+KDB+ 3.5 2018.04.25 Copyright (C) 1993-2018 Kx Systems
+l64/ 4()core 7905MB kx 0123456789ab 172.17.0.2 EXPIRE 2018.12.04 bob@example.com KOD #0000000
+
+q)
+```
+
+See [docker/README.md](docker/README.md) for more details.
 
 
 ## Back-incompatible changes
+
 ### V1.0 -> V 1.1
+
 `.p.key` and `.p.value` removed
+
 
 ### V0.2-beta -> V1.0
 
-- Attribute access from embedPy object
+-   Attribute access from `embedPy` object
 
-```q
-q)obj`ATTRNAME   / old
-q)obj`:ATTRNAME  / new
-```
+    ```q
+    q)obj`ATTRNAME   / old
+    q)obj`:ATTRNAME  / new
+    ```
 
-- `embedPy` objects can be called directly without explicitly specifying the call return type, the default return type is an `embedPy` object
+-   `embedPy` objects can be called directly without explicitly specifying the call return type; the default return type is an `embedPy` object
 
 
 ### V0.1-beta -> V0.2beta in V0.2-beta
 
 V0.2-beta features a number of changes back-incompatible with the previous release, V0.1-beta.
 
-Most notably, the default _type_ used in many operations is now the embedPy type, rather than the foreign type. <!-- Differences between these types (and the associated APIs) are set out below. -->
+Most notably, the default _type_ used in many operations is now the `embedPy` type, rather than the foreign type.
