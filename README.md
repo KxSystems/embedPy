@@ -44,11 +44,27 @@ If you are using Anaconda Python, we recommend installing with Conda. If, instea
 >>> sysconfig.get_config_var('LIBDIR')
 ```
 
+
 ### PyQ 
 
 If you are currently using [PyQ](https://code.kx.com/q/interfaces/pyq/), it also has a file `p.so` in `$QHOME/{l64,m64}`. 
 
 You may want to run initially from another directory, without installing. Skip the install step above, and run q in the directory where you unzipped the release.
+
+
+### Test script
+
+The test script `test.q` requires the packages listed in `tests/requirements.txt`, although embedPy does not itself require them. They can be installed using `pip` or `conda`.
+
+```bash
+pip install -r tests/requirements.txt
+```
+or
+```bash
+conda install --file tests/requirements.txt
+```
+
+If the tests all pass, no message is displayed. 
 
 
 ## Install on local machine
@@ -57,7 +73,7 @@ You may want to run initially from another directory, without installing. Skip t
 
 1.  Download a release archive from the [releases](../../releases/latest) page, and unzip it.
 
-1.  In the unzipped directory, run the tests.
+1.  In the unzipped directory, run the [tests](#test-script).
 
     ```bash
     $ q test.q
@@ -72,7 +88,7 @@ You may want to run initially from another directory, without installing. Skip t
 
 1.  To run embedPy without Internet access, download the kdb+ [C API header file](https://raw.githubusercontent.com/KxSystems/kdb/master/c/c/k.h) and place it in the build directory.
 
-1.  Build the interface and run the tests.
+1.  Build the interface and run the [tests](#test-script).
 
     ```bash
     $ make p.so && q test.q
