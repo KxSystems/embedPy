@@ -1,4 +1,5 @@
-R:@[{.p.e x;1b};"import resource";0b]
+R:@[{.p.import x;1b};`resource;0b]
+if[R;.p.e"import resource"];
 pmem:{$[.z.o~`m64;0;$[R;.p.qeval"resource.getrusage(resource.RUSAGE_SELF).ru_maxrss";0]]}
 a:til 100;
 .p.set[`bbb]a;
