@@ -28,7 +28,7 @@ There are three ways to install embedPy on your local machine:
 
 1.  Clone and build from source, on your local machine or in a Docker image
 
-1.  Install with Conda ÔÇô recommended for use with
+1.  Install with Conda - recommended for use with
 
     -   Anaconda Python
     -   [mlnotebooks](https://github.com/KxSystems/mlnotebooks) 
@@ -37,12 +37,13 @@ There are three ways to install embedPy on your local machine:
 
 ### Anaconda Python
 
-If you are using Anaconda Python, we recommend installing with Conda. If, instead, you take option (1) or (2) above, and are using Linux or macOS, set your `LD_LIBRARY_PATH` (Linux) or `DYLD_LIBRARY_PATH` (macOS) to your Python distributions library directory to avoid conflicts between libraries which both q and Python use (e.g. `libz`, `libssl`). You can find this directoryÔÇÖs location in Python.
+If you are using Anaconda Python, we recommend installing with Conda. If, instead, you take option (1) or (2) above, and are using Linux or macOS, set your `LD_LIBRARY_PATH` (Linux) or `DYLD_LIBRARY_PATH` (macOS) to your Python distributions library directory to avoid conflicts between libraries which both q and Python use (e.g. `libz`, `libssl`). You can find this directory's location in Python.
 
 ```python
 >>> import sysconfig
 >>> sysconfig.get_config_var('LIBDIR')
 ```
+
 
 ### PyQ 
 
@@ -51,13 +52,28 @@ If you are currently using [PyQ](https://code.kx.com/q/interfaces/pyq/), it also
 You may want to run initially from another directory, without installing. Skip the install step above, and run q in the directory where you unzipped the release.
 
 
+### Test script
+
+The test script `test.q` requires the packages listed in `tests/requirements.txt`, although embedPy does not itself require them. They can be installed using `pip` or `conda`.
+
+```bash
+pip install -r tests/requirements.txt
+```
+or
+```bash
+conda install --file tests/requirements.txt
+```
+
+If the tests all pass, no message is displayed. 
+
+
 ## Install on local machine
 
 ### Download and install a release
 
 1.  Download a release archive from the [releases](../../releases/latest) page, and unzip it.
 
-1.  In the unzipped directory, run the tests.
+1.  In the unzipped directory, run the [tests](#test-script).
 
     ```bash
     $ q test.q
@@ -72,7 +88,7 @@ You may want to run initially from another directory, without installing. Skip t
 
 1.  To run embedPy without Internet access, download the kdb+ [C API header file](https://raw.githubusercontent.com/KxSystems/kdb/master/c/c/k.h) and place it in the build directory.
 
-1.  Build the interface and run the tests.
+1.  Build the interface and run the [tests](#test-script).
 
     ```bash
     $ make p.so && q test.q
