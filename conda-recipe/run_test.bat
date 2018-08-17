@@ -1,9 +1,9 @@
 if not defined QLIC (
  goto :nokdb
 )
-q conda-recipe/prep_requirements.q -q
+call q conda-recipe/prep_requirements.q -q
 conda install -y -q --file tests\requirements_filtered.txt
-q test.q -q || goto :error
+call q test.q -q || goto :error
 exit /b 0
 
 :error
