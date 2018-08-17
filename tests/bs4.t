@@ -1,3 +1,4 @@
+.t.requiremod`bs4
 bs:.p.import[`bs4]`:BeautifulSoup
 bsobj:bs[.Q.hg`:http://code.kx.com/q/ref/adverbs/;"html.parser"]
 m_find_all:bsobj[`:find_all;*]

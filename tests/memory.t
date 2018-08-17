@@ -1,3 +1,4 @@
+.t.requiremod`resource
 R:@[{.p.import x;1b};`resource;0b]
 if[R;.p.e"import resource"];
 pmem:{$[.z.o~`m64;0;$[R;.p.qeval"resource.getrusage(resource.RUSAGE_SELF).ru_maxrss";0]]}

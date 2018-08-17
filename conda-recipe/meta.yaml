@@ -24,6 +24,7 @@ test:
   source_files:
     - test.q
     - tests/
+    - conda-recipe/prep_requirements.q
 
 about:
   home: https://github.com/KxSystems/embedPy

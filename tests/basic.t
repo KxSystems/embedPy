@@ -4,6 +4,7 @@
 x:(0;1h;"str";`sym)
 r:(0;1; "str";"sym")
 r~.p.eval["lambda x:x";<]x
+.t.requiremod`numpy
 p)import numpy as np
 p)a=np.arange(6,dtype=np.int64).reshape(2,3)
 (2 3#til 6)~.p.py2q .p.pyget`a

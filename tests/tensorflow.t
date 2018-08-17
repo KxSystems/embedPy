@@ -1,3 +1,4 @@
+.t.requiremod`tensorflow
 / tensorflow tests
 setenv[`TF_CPP_MIN_LOG_LEVEL]1#"2"
 p)import tensorflow as tf

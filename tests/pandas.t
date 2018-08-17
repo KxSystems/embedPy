@@ -1,3 +1,4 @@
+requiremod`pandas
 tab2df:{
   r:.p.import[`pandas;`:DataFrame.from_dict;flip 0!x][@;cols x];
   $[count k:keys x;r[`:set_index]k;r]}
