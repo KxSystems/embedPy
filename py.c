@@ -51,3 +51,5 @@ ZV*t;EXP K2(init){ZI i=0;I f,g;S l,h;K n,v;P a,b;P(i,0)l=zs(x),h=zs(y);f=pyl(l);
 #define F(f,i) js(&n,ss(#f));jk(&v,dl(f,i));
  F(eval,1)F(e,1)F(py2q,1)F(q2py,1)F(get,1)F(set,2)F(import,1)F(getattr,2)F(call,3)F(isp,1)F(setconv,1)F(getconv,1)js(&n,ss("numpy"));jk(&v,kb(!!N));
  t=t1();i=1;R xD(n,v);}
+// a kludge for python modules which try to resolve main e.g. scipy.optimize
+int main(){}
