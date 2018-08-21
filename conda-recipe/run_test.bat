@@ -3,7 +3,7 @@ if not defined QLIC (
 )
 call q conda-recipe/prep_requirements.q -q
 conda install -y -q --file tests\requirements_filtered.txt
-call q test.q -q || goto :error
+call q test.q -s 4 -q || goto :error
 exit /b 0
 
 :error
