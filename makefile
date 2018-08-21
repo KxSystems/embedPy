@@ -7,6 +7,7 @@ LDFLAGS=-bundle -undefined dynamic_lookup
 QLIBDIR=m64
 endif
 p.so: $(QLIBDIR)/p.so
+	cp $(QLIBDIR)/p.so .
 $(QLIBDIR)/p.so: py.c py.h k.h
 	mkdir -p $(QLIBDIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@

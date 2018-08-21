@@ -1,3 +1,4 @@
+.t.requiremod`numpy
 p)import numpy as np
 p)a=np.arange(6).reshape(2,3)
 p)b=np.asfortranarray(a)

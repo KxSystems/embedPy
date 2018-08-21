@@ -32,6 +32,7 @@ typedef struct _p _p,*P;struct _p{L r;P t;L n;union{P*p;P v[1];};};typedef struc
  X(P,PyErr_SetString,(P,S))\
  X(I,PyGILState_Ensure,())\
  X(V,PyGILState_Release,(I))\
+ X(I,PyGILState_Check,())\
  X(V,PyEval_InitThreads,())\
  X(I,PyEval_ThreadsInitialized,())\
  X(V*,PyGILState_GetThisThreadState,())\
@@ -115,3 +116,15 @@ ZI pyn(V**v){
 #define X(r,n,a,i) U(n=(T##n(*)a)v[i])
  NF
  R 1;}
+ZI pyi(){
+#if _WIN32
+ I ifd,nfd;HANDLE h;
+ P(INVALID_HANDLE_VALUE==(h=CreateFile("nul",GENERIC_READ,0,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL)),-1);P(-1==(nfd=_open_osfhandle((intptr_t)h,0)),(CloseHandle(h),-1));
+ P(-1==(ifd=dup(fileno(stdin))),(_close(nfd),-1));P(-1==dup2(nfd,fileno(stdin)),(_close(nfd),_close(ifd),-1));
+ Py_InitializeEx(0);
+ dup2(ifd,fileno(stdin));_close(nfd);_close(ifd);
+#else
+ Py_InitializeEx(0);
+#endif
+ R 0;
+}
