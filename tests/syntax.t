@@ -1,5 +1,6 @@
 // Numpy
 
+.t.requiremod`numpy
 np:.p.import`numpy
 t:"f"$til@
 

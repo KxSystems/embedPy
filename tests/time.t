@@ -1,4 +1,5 @@
 T:10#t:.z.p;f:.p.py2q .p.q2py@
+.t.requiremod`numpy 
 ("j"$x)~f x:"p"$t
 ("j"$x)~f x:"m"$t
 ("j"$x)~f x:"d"$t

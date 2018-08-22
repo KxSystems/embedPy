@@ -8,23 +8,15 @@ platform: x64
 build_script:
 - cmd: >-
 
-    curl -fsSL -o k.h https://github.com/KxSystems/kdb/raw/master/c/c/k.h 
+    call build\build.bat
 
-    curl -fsSL -o q.lib https://github.com/KxSystems/kdb/raw/master/w64/q.lib
-
-    call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
-
-    mkdir w64 
-
-    cl /LD /DKXVER=3 /Fep.dll /O2 py.c q.lib
-
-    move p.dll w64 
 after_build:
 - cmd: >-
 
-    if "%APPVEYOR_REPO_TAG%"=="true" ( 7z a embedPy_windows-%APPVEYOR_REPO_TAG_NAME%.zip p.q p.k test.q tests w64/p.dll LICENSE README.md && appveyor PushArtifact embedPy_windows-%APPVEYOR_REPO_TAG_NAME%.zip )
+    call build\package.bat
 
-    if "%APPVEYOR_REPO_TAG%"=="false" ( 7z a embedPy_windows-%APPVEYOR_REPO_BRANCH%-%APPVEYOR_BUILD_VERSION%.zip p.q p.k test.q tests w64/p.dll LICENSE README.md && appveyor PushArtifact embedPy_windows-%APPVEYOR_REPO_BRANCH%-%APPVEYOR_BUILD_VERSION%.zip )
+    call build\anaconda_upload.bat
+
 deploy:
  release: $(appveyor_repo_tag_name)
  provider: GitHub
