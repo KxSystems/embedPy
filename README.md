@@ -12,7 +12,7 @@ Please [report issues](https://github.com/KxSystems/embedpy/issues) in this repo
 ## Requirements
 
 - kdb+ ≥ 3.5 64-bit
-- Python ≥ 3.5.0
+- Python ≥ 3.5.0 (macOS/Linux) ≥ 3.6.0 windows
 
 
 ## Overview

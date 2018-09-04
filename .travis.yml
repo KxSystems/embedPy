@@ -59,7 +59,7 @@ jobs:
         skip_cleanup: true
         on:
           tags: true
-          condition: $TRAVIS_BRANCH =~ ^[0-9]+\. && $TRAVIS_REPOSLUG = KxSystems/embedPy
+          condition: $TRAVIS_BRANCH =~ ^[0-9]+\.
     - &conda_build
       stage: deploy_target
       env:
