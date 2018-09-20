@@ -14,3 +14,4 @@ msg:{", "sv{":"sv string(x;y)}'[key x;value x]}`failed`errored`skipped`total!nf,
 if[(ne+nf);-2 msg;exit 1]
 if[ns;-2"These modules required for tests couldn't be imported:\n\t",("\n\t"sv string distinct MM),"\n\ntry running\n\tpip install -r tests/requirements.txt\n\nor with conda\n\tconda install --file tests/requirements.txt\n";-2 msg];
 \\
+
