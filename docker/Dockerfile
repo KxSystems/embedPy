@@ -62,7 +62,7 @@ ENV QHOME=/opt/kx/q
 ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}/opt/conda/lib
 
 RUN mkdir -p $QHOME
-RUN curl -o $QHOME/l64.zip -L http://dls.kx.com/253h1j3s2941/download/l64.zip \
+RUN curl -o $QHOME/l64.zip -L https://cl.ly/2r1v1v3h0l41/download/l64.zip \
 	&& [ "$L64_SHA256" = "$(sha256sum $QHOME/l64.zip | cut -b1-64)" ] \
 	&& unzip -d $QHOME $QHOME/l64.zip \
 	&& rm $QHOME/l64.zip \
