@@ -65,6 +65,7 @@ RUN mkdir -p $QHOME
 RUN curl -o $QHOME/l64.zip -L https://cl.ly/2r1v1v3h0l41/download/l64.zip \
 	&& [ "$L64_SHA256" = "$(sha256sum $QHOME/l64.zip | cut -b1-64)" ] \
 	&& unzip -d $QHOME $QHOME/l64.zip \
+        && rm $QHOME/l64.zip \
 COPY docker/q.wrapper /usr/local/bin/q
 COPY docker/kc.lic.py /opt/kx/
 
