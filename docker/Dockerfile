@@ -32,7 +32,7 @@ FROM base
 
 ARG VCS_REF=dev
 ARG BUILD_DATE=dev
-ARG L64_SHA256=1439065d5baa0f7d152236733beea20745feb21a43cda62c33591db4fe7a40c5
+ARG L64_SHA256=28c26f796a7fa9267a3061598fe0e1e34208b4deb5932db42adc78f9d2a74481
 
 LABEL	org.label-schema.schema-version="1.0" \
 	org.label-schema.name=embedPy \
