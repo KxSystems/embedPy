@@ -116,3 +116,9 @@ ZI pyn(V**v){
 #define X(r,n,a,i) U(n=(T##n(*)a)v[i])
  NF
  R 1;}
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#elif __GNUC__
+#pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
+#endif

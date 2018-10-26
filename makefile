@@ -1,4 +1,4 @@
-CFLAGS=-ggdb3 -O2 -Wno-pointer-sign -Wno-parentheses
+CFLAGS=-ggdb3 -O2 -Wno-pointer-sign -Wno-parentheses -Wextra -Werror -Wsign-compare -Wwrite-strings
 ifeq ($(shell uname),Linux)
 LDFLAGS=-fPIC -shared
 QLIBDIR=l64
