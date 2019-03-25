@@ -47,8 +47,7 @@ If you are using Anaconda Python, we recommend installing with Conda. If, instea
 
 ### PyQ 
 
-Following the release of version 4.2.0 of [PyQ](https://code.kx.com/q/interfaces/pyq/), both embedPy and PyQ can now be placed easily onto the same computer. This release removes a previous conflict in the `$QHOME/{l64,m64}` where both shared object files were named `p.so`, PyQ now uses a shared object file named `pyq.so`. 
-
+Following the release of version 4.2.0 of PyQ, a previous conflict in `$QHOME/{l64,m64}` where both embedPy and PyQ shared object files had been named `p.so` has been resolved. The PyQ shared object file is now renamed `pyq.so`. For more information on installing PyQ visit [here](https://code.kx.com/v2/interfaces/pyq/).
 
 ### Test script
 
