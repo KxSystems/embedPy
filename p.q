@@ -42,8 +42,7 @@ import:ce wfunc pyimport
 .p.eval:ce wfunc pyeval
 .p.get:ce wfunc pyget
 .p.set:{[f;x;y]f[x]unwrap y;}.p.set
-//.p.key:{wrap pykey$[i.isf x;x;i.isw x;x`.;'`type]}
-//.p.value:{wrap pyvalue$[i.isf x;x;i.isw x;x`.;'`type]}
+`key`value set'{list$[i.isf y;wrap;i.isw y;;'`type][y][x][]}@'`:keys`:values;
 .p.callable:{$[i.isw x;x;i.isf x;wrap[x];'`type]}
 .p.pycallable:{$[i.isw x;x(>);i.isf x;wrap[x](>);'`type]}
 .p.qcallable:{$[i.isw x;x(<);i.isf x;wrap[x](<);'`type]}
