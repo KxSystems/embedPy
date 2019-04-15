@@ -47,7 +47,9 @@ If you are using Anaconda Python, we recommend installing with Conda. If, instea
 
 ### PyQ 
 
-Following the release of version 4.2.0 of PyQ, a previous conflict in `$QHOME/{l64,m64}` where both embedPy and PyQ shared object files had been named `p.so` has been resolved. The PyQ shared object file is now renamed `pyq.so`. For more information on installing PyQ visit [here](https://code.kx.com/v2/interfaces/pyq/).
+If you are currently using [PyQ](https://code.kx.com/q/interfaces/pyq/), it also has a file `p.so` in `$QHOME/{l64,m64}`. 
+
+You may want to run initially from another directory, without installing. Skip the install step above, and run q in the directory where you unzipped the release.
 
 ### Test script
 
