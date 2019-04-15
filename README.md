@@ -47,7 +47,7 @@ If you are using Anaconda Python, we recommend installing with Conda. If, instea
 
 ### PyQ 
 
-If you are currently using [PyQ](https://code.kx.com/q/interfaces/pyq/), it also has a file `p.so` in `$QHOME/{l64,m64}`. 
+If you are currently using [PyQ](https://code.kx.com/q/interfaces/pyq/), both interfaces use a file `p.k` in `$QHOME/{l64,m64}` which results in a conflict when both are installed. 
 
 You may want to run initially from another directory, without installing. Skip the install step above, and run q in the directory where you unzipped the release.
 
