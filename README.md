@@ -2,7 +2,7 @@
 
 
 Allows the kdb+ interpreter to manipulate Python objects and call Python functions.
-Part of the [_Fusion for kdb+_](http://code.kx.com/q/interfaces/fusion/) interface collection.
+Part of the [_Fusion for kdb+_](http://code.kx.com/v2/interfaces/fusion/) interface collection.
 
 Please direct any questions to ai@kx.com.
 
@@ -47,7 +47,7 @@ If you are using Anaconda Python, we recommend installing with Conda. If, instea
 
 ### PyQ 
 
-If you are currently using [PyQ](https://code.kx.com/q/interfaces/pyq/), both interfaces use a file `p.k` in `$QHOME/{l64,m64}` which results in a conflict when both are installed. 
+If you are currently using [PyQ](https://code.kx.com/v2/interfaces/pyq/), both interfaces use a file `p.k` in `$QHOME/{l64,m64}` which results in a conflict when both are installed. 
 
 You may want to run initially from another directory, without installing. Skip the install step above, and run q in the directory where you unzipped the release.
 
@@ -120,7 +120,7 @@ Or from q, load `p.q`.
 q)\l p.q
 ```
 
-Documentation is on the [embedPy](https://code.kx.com/q/ml/embedpy/) homepage.
+Documentation is on the [embedPy](https://code.kx.com/v2/ml/embedpy/) homepage.
 
 
 ## Run a Docker image
