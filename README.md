@@ -2,7 +2,7 @@
 
 
 Allows the kdb+ interpreter to manipulate Python objects and call Python functions.
-Part of the [_Fusion for kdb+_](http://code.kx.com/v2/interfaces/fusion/) interface collection.
+Part of the [_Fusion for kdb+_](https://code.kx.com/v2/interfaces/fusion/) interface collection.
 
 Please direct any questions to ai@kx.com.
 
