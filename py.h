@@ -120,5 +120,7 @@ ZI pyn(V**v){
 #pragma clang diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #elif __GNUC__
+#ifndef __arm__
 #pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
+#endif
 #endif
