@@ -11,8 +11,8 @@ Please [report issues](https://github.com/KxSystems/embedpy/issues) in this repo
 
 ## Requirements
 
-- kdb+ ≥ 3.5 64-bit
-- Python ≥ 3.5.0 (macOS/Linux) ≥ 3.6.0 windows
+- kdb+ ≥ 3.5 64-bit/32-bit(Linux/Arm)
+- Python ≥ 3.5.0 (macOS/Linux/Arm) ≥ 3.6.0 windows
 
 
 ## Overview
@@ -34,6 +34,7 @@ There are three ways to install embedPy on your local machine:
     -   [mlnotebooks](https://github.com/KxSystems/mlnotebooks) 
     -   [JupyterQ](https://github.com/KxSystems/jupyterq)
 
+32-bit Linux/Arm builds require users to build from source, there is not currenly a conda build or provided pre-compiled binary.
 
 ### Anaconda Python
 
@@ -93,7 +94,12 @@ If the tests all pass, no message is displayed.
     $ make p.so && q test.q
     ```
 
-1.  Install: put `p.q` and `p.k` in `$QHOME` and `p.so` in `$QHOME/{l64,m64}`.
+1.  Install: put `p.q` and `p.k` in `$QHOME` and `p.so` in `$QHOME/{l64,l32,m64}`.
+
+
+**Note**
+
+For ease of install on 32-bit Arm and linux it is suggested that a new user should use a miniconda version of python specific to the architecture being used, `for example rpi for raspberry pi`. This is not an explicit requirement but makes install of embedPy and python packages more seamless.
 
 
 ### Install with Conda
