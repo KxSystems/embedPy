@@ -95,15 +95,11 @@ If the tests all pass, no message is displayed.
 
 1.  Install: put `p.q` and `p.k` in `$QHOME` and `p.so` in `$QHOME/{l64,l32,m64}`.
 
-<div class="panel panel-warning">
+
 **Note**
-{: .panel-heading}
-<div class="panel-body">
 
 For ease of install on 32-bit Arm and linux it is suggested that a new user should use a miniconda version of python specific to the architecture being used, `for example rpi for raspberry pi`. This is not an explicit requirement but makes install of embedPy and python packages more seamless.
 
-</div>
-</div>
 
 ### Install with Conda
 
