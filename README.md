@@ -34,6 +34,7 @@ There are three ways to install embedPy on your local machine:
     -   [mlnotebooks](https://github.com/KxSystems/mlnotebooks) 
     -   [JupyterQ](https://github.com/KxSystems/jupyterq)
 
+32-bit Linux/Arm builds require users to build from source, there is not currenly a conda build or provided pre-compiled binary.
 
 ### Anaconda Python
 
