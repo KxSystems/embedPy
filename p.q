@@ -1,4 +1,5 @@
 \d .p
+$[(.z.o like"w*");if[3.6>.z.K;'`$"kdb+ version must be 3.6+"];if[3.5>.z.K;'`$"kdb+ version must be 3.5+"]];
 if[not .P.loaded:-1h=type@[`.p@;`numpy;`];
  sc:{"'",x,"'.join([__import__('sysconfig').get_config_var(v)for v in",ssr[.j.j y;"\"";"'"],"])"};pr:{"print(",x,");"};
  c:"-c \"",pr["'.'.join([str(getattr(__import__('sys').version_info,x))for x in ['major','minor']])"],"\"2>",$[.z.o like"w*";"nul <nul";"/dev/null"];
