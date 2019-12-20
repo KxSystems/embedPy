@@ -17,6 +17,7 @@ conda install -y "conda-build<3.12"                                       || got
 conda install -y anaconda-client conda=4.7.12                             || goto :error
 :: set up kdb+ if available
 if defined QLIC_KC ( echo|set /P=%QLIC_KC% > kc.lic.enc & certutil -decode kc.lic.enc kc.lic)
+echo dir
 set QLIC=%CD%
 if "%APPVEYOR_REPO_TAG%"=="true" ( set EMBEDPY_VERSION=%APPVEYOR_REPO_TAG_NAME% )
 conda build --output conda-recipe > packagenames.txt                      || goto :error
