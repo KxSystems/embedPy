@@ -14,9 +14,11 @@ set PATH=C:\Miniconda3-x64;C:\Miniconda3-x64\Scripts;%PATH%
 call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_amd64
 :: install conda build requirements (use version < 3.12 to avoid warning about verify in output file)
 conda install -y "conda-build<3.12"                                       || goto :error
-conda install -y anaconda-client conda=4.5.1                              || goto :error
+conda install -y anaconda-client conda=4.7.12                             || goto :error
 :: set up kdb+ if available
-if defined QLIC_KC ( echo|set /P=%QLIC_KC% > kc.lic.enc & certutil -decode kc.lic.enc kc.lic & set QLIC=%CD%)
+if defined QLIC_KC ( echo|set /P=%QLIC_KC% > kc.lic.enc & certutil -decode kc.lic.enc kc.lic)
+:: echo dir
+:: set QLIC=CD
 if "%APPVEYOR_REPO_TAG%"=="true" ( set EMBEDPY_VERSION=%APPVEYOR_REPO_TAG_NAME% )
 conda build --output conda-recipe > packagenames.txt                      || goto :error
 conda build -c kx conda-recipe                                            || goto :error

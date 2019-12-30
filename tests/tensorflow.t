@@ -3,7 +3,7 @@
 setenv[`TF_CPP_MIN_LOG_LEVEL]1#"2"
 p)import tensorflow as tf
 p)def fit(x_data,y_data): #adapted from https://www.tensorflow.org/get_started
- W = tf.Variable(tf.random_uniform([1], -1.0, 1.0))
+ W = tf.Variable(tf.random.uniform([1], -1.0, 1.0))
  b = tf.Variable(tf.zeros([1]))
  y = W * x_data + b
  loss = tf.reduce_mean(tf.square(y - y_data))
