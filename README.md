@@ -1,5 +1,6 @@
 # embedPy
 
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/kxsystems/embedPy)](https://github.com/kxsystems/embedpy/releases) [![Travis (.org) branch](https://img.shields.io/travis/kxsystems/embedpy/master?label=travis%20build)](https://travis-ci.org/kxsystems/embedpy/branches) [![AppVeyor branch](https://img.shields.io/appveyor/ci/jhanna-kx/embedpy-ax90d/master?label=appveyor%20build)](https://ci.appveyor.com/project/jhanna-kx/embedpy-ax90d/branch/master)
 
 Allows the kdb+ interpreter to manipulate Python objects and call Python functions.
 Part of the [_Fusion for kdb+_](https://code.kx.com/v2/interfaces/fusion/) interface collection.
