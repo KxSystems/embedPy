@@ -46,3 +46,4 @@ install:
 	install $(TGT) $(Q)
 clean:
 	rm -f p.so
+	rm -f $(QARCH)/p.so
