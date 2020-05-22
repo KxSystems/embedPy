@@ -1,11 +1,12 @@
 \d .p
+$[(.z.o like"w*");if[3.6>.z.K;'`$"kdb+ version must be 3.6+"];if[3.5>.z.K;'`$"kdb+ version must be 3.5+"]];
 if[not .P.loaded:-1h=type@[`.p@;`numpy;`];
  sc:{"'",x,"'.join([__import__('sysconfig').get_config_var(v)for v in",ssr[.j.j y;"\"";"'"],"])"};pr:{"print(",x,");"};
  c:"-c \"",pr["'.'.join([str(getattr(__import__('sys').version_info,x))for x in ['major','minor']])"],"\"2>",$[.z.o like"w*";"nul <nul";"/dev/null"];
  if[(.z.o like"w*")and `3.6>`$first@[system"python3 ",;c;{system"python ",c}];'"embedPy requires python 3.6 or higher on windows"];
- c:"-c \"",pr[$[.z.o like"w*";sc["/python";`BINDIR`VERSION],"+'.dll'";sc["/";`LIBDIR`INSTSONAME]]],pr[$[.z.o like"m*";sc["/";`PYTHONFRAMEWORKPREFIX`INSTSONAME];.z.o like"l*";sc["/";`LIBPL`LDLIBRARY];"''"]],pr["__import__('sys').prefix"],"\"2>",$[.z.o like"w*";"nul <nul";"/dev/null"];
- `L`M`H set'@[system"python3 ",;c;{system"python ",c}];if[count M;if[k~key k:`$":",M;L::M]];
- .p:(`:./p 2:(`init;2))[L;H]]
+ c:"-c \"",pr[$[.z.o like"w*";sc["/python";`BINDIR`VERSION],"+'.dll'";sc["/";`LIBDIR`INSTSONAME]]],pr[$[.z.o like"m*";sc["/";`PYTHONFRAMEWORKPREFIX`INSTSONAME];.z.o like"l*";sc["/libpython";`LIBDIR`LDVERSION],"+'.so'";"''"]],pr["__import__('sys').prefix"],pr["__import__('sys').base_prefix"],"\"2>",$[.z.o like"w*";"nul <nul";"/dev/null"];
+ `L`M`H`B set'@[system"python3 ",;c;{system"python ",c}];if[count M;if[k~key k:`$":",M;L::M]];C:H~B;
+ .p:(`:./p 2:(`init;3))[L;H;C]]
 loaded:.P.loaded
 if[not loaded;
  ei:{eo y _ x;n set .p.get[n:`$(2+x)_(y?"(")#y]value y x;};
@@ -42,8 +43,7 @@ import:ce wfunc pyimport
 .p.eval:ce wfunc pyeval
 .p.get:ce wfunc pyget
 .p.set:{[f;x;y]f[x]unwrap y;}.p.set
-//.p.key:{wrap pykey$[i.isf x;x;i.isw x;x`.;'`type]}
-//.p.value:{wrap pyvalue$[i.isf x;x;i.isw x;x`.;'`type]}
+`key`value set'{list$[i.isf y;wrap;i.isw y;;'`type][y][x][]}@'`:keys`:values;
 .p.callable:{$[i.isw x;x;i.isf x;wrap[x];'`type]}
 .p.pycallable:{$[i.isw x;x(>);i.isf x;wrap[x](>);'`type]}
 .p.qcallable:{$[i.isw x;x(<);i.isf x;wrap[x](<);'`type]}

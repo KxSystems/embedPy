@@ -1,8 +1,9 @@
 # embedPy
 
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/kxsystems/embedPy)](https://github.com/kxsystems/embedpy/releases) [![Travis (.org) branch](https://img.shields.io/travis/kxsystems/embedpy/master?label=travis%20build)](https://travis-ci.org/kxsystems/embedpy/branches) [![AppVeyor branch](https://img.shields.io/appveyor/ci/jhanna-kx/embedpy-ax90d/master?label=appveyor%20build)](https://ci.appveyor.com/project/jhanna-kx/embedpy-ax90d/branch/master)
 
 Allows the kdb+ interpreter to manipulate Python objects and call Python functions.
-Part of the [_Fusion for kdb+_](http://code.kx.com/q/interfaces/fusion/) interface collection.
+Part of the [_Fusion for kdb+_](https://code.kx.com/v2/interfaces/fusion/) interface collection.
 
 Please direct any questions to ai@kx.com.
 
@@ -11,8 +12,8 @@ Please [report issues](https://github.com/KxSystems/embedpy/issues) in this repo
 
 ## Requirements
 
-- kdb+ ≥ 3.5 64-bit
-- Python ≥ 3.5.0 (macOS/Linux) ≥ 3.6.0 windows
+- kdb+ ≥ 3.5 64-bit/32-bit(Linux/Arm)
+- Python ≥ 3.5.0 (macOS/Linux/Arm) ≥ 3.6.0 windows
 
 
 ## Overview
@@ -34,6 +35,7 @@ There are three ways to install embedPy on your local machine:
     -   [mlnotebooks](https://github.com/KxSystems/mlnotebooks) 
     -   [JupyterQ](https://github.com/KxSystems/jupyterq)
 
+32-bit Linux/Arm builds require users to build from source, there is not currenly a conda build or provided pre-compiled binary.
 
 ### Anaconda Python
 
@@ -47,10 +49,9 @@ If you are using Anaconda Python, we recommend installing with Conda. If, instea
 
 ### PyQ 
 
-If you are currently using [PyQ](https://code.kx.com/q/interfaces/pyq/), it also has a file `p.so` in `$QHOME/{l64,m64}`. 
+If you are currently using [PyQ](https://code.kx.com/v2/interfaces/pyq/), both interfaces use a file `p.k` in `$QHOME/{l64,m64}` which results in a conflict when both are installed. 
 
 You may want to run initially from another directory, without installing. Skip the install step above, and run q in the directory where you unzipped the release.
-
 
 ### Test script
 
@@ -94,7 +95,12 @@ If the tests all pass, no message is displayed.
     $ make p.so && q test.q
     ```
 
-1.  Install: put `p.q` and `p.k` in `$QHOME` and `p.so` in `$QHOME/{l64,m64}`.
+1.  Install: put `p.q` and `p.k` in `$QHOME` and `p.so` in `$QHOME/{l64,l32,m64}`.
+
+
+**Note**
+
+For ease of install on 32-bit Arm and linux it is suggested that a new user should use a miniconda version of python specific to the architecture being used, `for example rpi for raspberry pi`. This is not an explicit requirement but makes install of embedPy and python packages more seamless.
 
 
 ### Install with Conda
@@ -121,7 +127,7 @@ Or from q, load `p.q`.
 q)\l p.q
 ```
 
-Documentation is on the [embedPy](https://code.kx.com/q/ml/embedpy/) homepage.
+Documentation is on the [embedPy](https://code.kx.com/v2/ml/embedpy/) homepage.
 
 
 ## Run a Docker image
