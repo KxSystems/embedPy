@@ -25,7 +25,7 @@ script:
 - tar czf embedPy_$TRAVIS_OS_NAME-$TRAVIS_BRANCH.tgz p.q p.k test.q tests [ml]64/p.so LICENSE README.md
 - if [[ "x$QLIC_KC" != "x" ]]; then
     echo -n $QLIC_KC |base64 --decode > q/kc.lic;
-    pip3 -q install -r tests/requirements.txt;
+    pip3 -q install -r tests/requirements.txt --no-cache-dir;
     q test.q -s 4 -q;
   else
     echo No kdb+, no tests;
