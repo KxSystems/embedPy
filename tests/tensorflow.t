@@ -1,9 +1,22 @@
 .t.requiremod`tensorflow
 / tensorflow tests
 setenv[`TF_CPP_MIN_LOG_LEVEL]1#"2"
-p)import tensorflow as tf
+p)def tf_func():
+    import tensorflow
+    if int(tensorflow.__version__[0]) < 2:
+      tf=tensorflow
+      if int(tensorflow.__version__[0]) < 1.15:
+         rnd=tf.random_uniform
+      else:
+        rnd = tf.random.uniform
+    else:
+      tf =tensorflow.compat.v1
+      tf.disable_v2_behavior()
+      rnd = tf.random.uniform
+    return tf,rnd
+p)tf,rnd= tf_func()
 p)def fit(x_data,y_data): #adapted from https://www.tensorflow.org/get_started
- W = tf.Variable(tf.random.uniform([1], -1.0, 1.0))
+ W = tf.Variable(rnd([1], -1.0, 1.0))
  b = tf.Variable(tf.zeros([1]))
  y = W * x_data + b
  loss = tf.reduce_mean(tf.square(y - y_data))

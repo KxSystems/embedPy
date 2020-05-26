@@ -42,6 +42,7 @@ typedef struct _p _p,*P;struct _p{L r;P t;L n;union{P*p;P v[1];};};typedef struc
  X(P,PyObject_Str,(P))\
  X(wchar_t*,Py_DecodeLocale,(S,V*))\
  X(V,Py_SetPythonHome,(wchar_t*))\
+ X(V,Py_SetProgramName,(wchar_t*))\
  X(P,PyImport_AddModule,(S))\
  X(P,PyImport_ImportModule,(S))\
  X(P,PyObject_GetAttrString,(P,S))\
@@ -121,6 +122,8 @@ ZI pyn(V**v){
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #elif __GNUC__
 #ifndef __arm__
+#if __GNUC__ >= 5
 #pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
+#endif
 #endif
 #endif
