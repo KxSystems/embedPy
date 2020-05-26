@@ -8,7 +8,7 @@ git:
 
 before_install:
 - if [ $TRAVIS_OS_NAME = osx ]; then brew outdated pyenv || brew upgrade pyenv ; export PYTHON_CONFIGURE_OPTS="--enable-framework" ; fi
-- PY=$(pyenv install --list | grep -v - |grep -v [a-z]|grep -e  '^  3\.6\..*'|tail -1)
+- PY=$(pyenv install --list | grep -v - |grep -v [a-z]|grep -e  '^  3\.5\..*'|tail -1)
 - pyenv install $PY && pyenv local $PY
 script:
 - if [ $TRAVIS_OS_NAME = osx ]; then pyenv init - > pyenv.init && source pyenv.init ; fi
@@ -25,6 +25,8 @@ script:
 - tar czf embedPy_$TRAVIS_OS_NAME-$TRAVIS_BRANCH.tgz p.q p.k test.q tests [ml]64/p.so LICENSE README.md
 - if [[ "x$QLIC_KC" != "x" ]]; then
     echo -n $QLIC_KC |base64 --decode > q/kc.lic;
+    pip3 install -U setuptools
+    pip3 install -U wheels
     pip3 -q install -r tests/requirements.txt --no-cache-dir;
     q test.q -s 4 -q;
   else
