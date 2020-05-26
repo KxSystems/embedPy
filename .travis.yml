@@ -8,7 +8,7 @@ git:
 
 before_install:
 - if [ $TRAVIS_OS_NAME = osx ]; then brew outdated pyenv || brew upgrade pyenv ; export PYTHON_CONFIGURE_OPTS="--enable-framework" ; fi
-- PY=$(pyenv install --list | grep -v - |grep -v [a-z]|grep -e  '^  3\.5\..*'|tail -1)
+- PY=$(pyenv install --list | grep -v - |grep -v [a-z]|grep -e  '^  3\.6\..*'|tail -1)
 - pyenv install $PY && pyenv local $PY
 script:
 - if [ $TRAVIS_OS_NAME = osx ]; then pyenv init - > pyenv.init && source pyenv.init ; fi
