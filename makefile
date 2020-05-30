@@ -8,10 +8,10 @@ ifeq ($(UNAME_S),Linux)
   OSFLAG  = l
   LDFLAGS = -fPIC -shared
   ifeq ($(UNAME_M),armv7l)
-    CFLAGS  += $(filter-out -Wwrite-strings,$(CFLAGS))
+    CFLAGS  := $(filter-out -Wwrite-strings,$(CFLAGS))
   else
   ifeq ($(UNAME_M),armv6l)
-    CFLAGS  += $(filter-out -Wwrite-strings,$(CFLAGS))
+    CFLAGS  := $(filter-out -Wwrite-strings,$(CFLAGS))
   endif
   endif
 else ifeq ($(UNAME_S),Darwin)
