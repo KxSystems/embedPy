@@ -102,7 +102,7 @@ If the tests all pass, no message is displayed.
 
 * For ease of install on 32-bit Arm and linux it is suggested that a new user should use a miniconda version of python specific to the architecture being used, `for example rpi for raspberry pi`. This is not an explicit requirement but makes install of embedPy and python packages more seamless.
 
-* Installation of embedPy on a 32-bit arm system may also necessitate the addition of the `libpython` shared object to an access point available to embedPy. For example if Python is located within `/usr/lib/arm-linux-gnueabihf/` which is not on accessible then creating a symlink to `/usr/lib` will allow the shared object to be accessed.
+* Installation of embedPy on a 32-bit arm system may also necessitate the addition of the `libpython` shared object to an access point available to embedPy. For example if Python is located within `/usr/lib/arm-linux-gnueabihf/` which may not be accessible then creating a symlink to `/usr/lib` will allow the shared object to be located.
 	```bash
 	ln -s /usr/lib /usr/lib/arm-linux-gnueabihf
 	``` 
