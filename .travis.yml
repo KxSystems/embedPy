@@ -10,6 +10,9 @@ before_install:
 - if [ $TRAVIS_OS_NAME = osx ]; then brew outdated pyenv || brew upgrade pyenv ; export PYTHON_CONFIGURE_OPTS="--enable-framework" ; fi
 - PY=$(pyenv install --list | grep -v - |grep -v [a-z]|grep -e  '^  3\.5\..*'|tail -1)
 - pyenv install $PY && pyenv local $PY
+before_script:
+  - IMPLEMENTATION=$(if [[ "x$TRAVIS_TAG" == "x" ]]; then echo $TRAVIS_BRANCH-$TRAVIS_COMMIT; else echo $TRAVIS_TAG; fi;)
+  - perl -p -i -e 's/EMBEDPYVERSION/`\$\"'${IMPLEMENTATION}'\"/g' p.q
 script:
 - if [ $TRAVIS_OS_NAME = osx ]; then pyenv init - > pyenv.init && source pyenv.init ; fi
 - if [ $TRAVIS_OS_NAME = linux ]; then QLIBDIR=l64;OD=$L64; elif [ $TRAVIS_OS_NAME = osx ]; then QLIBDIR=m64;OD=$M64; else echo "unknown OS ('$TRAVIS_OS_NAME')" >&2; exit 1; fi; export QLIBDIR
