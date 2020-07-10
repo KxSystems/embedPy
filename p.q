@@ -1,4 +1,7 @@
 \d .p
+
+version:@[{EMBEDPYVERSION};0;`development];
+
 $[(.z.o like"w*");if[3.6>.z.K;'`$"kdb+ version must be 3.6+"];if[3.5>.z.K;'`$"kdb+ version must be 3.5+"]];
 if[not .P.loaded:-1h=type@[`.p@;`numpy;`];
  sc:{"'",x,"'.join([__import__('sysconfig').get_config_var(v)for v in",ssr[.j.j y;"\"";"'"],"])"};pr:{"print(",x,");"};
@@ -104,7 +107,7 @@ sp[`:extend]spq;
 {.p.import[`sys;x][:;`:write;{x y;count y}y]}'[`:stdout`:stderr;1 2];
 / set sys.argv
 if[not .p.eval["hasattr";.p.import`sys;`argv]`;.p.import[`sys][:;`argv;enlist""]]
-if[not count .p.import[`sys][`:argv]`;.p.import[`sys][:;`:argv;enlist""]]
+if[not loaded;if[not count .p.import[`sys][`:argv]`;.p.import[`sys][:;`:argv;enlist""]]]
 
 / Cleanup
 {![`.p;();0b;x]}`getseq`ntolist`runs`wfunc`gethelp`sp`spq`loaded;
