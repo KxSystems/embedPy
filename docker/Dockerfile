@@ -65,6 +65,8 @@ ENV QHOME=/opt/kx/q
 ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}/opt/conda/lib
 
 RUN mkdir -p $QHOME
+RUN curl -u $NEXUS_USER:$NEXUS_PASS -o /tmp/l64.zip -L $L64_URL 
+RUN curl -u $NEXUS_USER:$NEXUS_PASS -o l64.zip-L $L64_URL 
 RUN curl -u $NEXUS_USER:$NEXUS_PASS -o /tmp/l64.zip -L $L64_URL \
 	&& [ "$L64_SHA256" = "$(sha256sum /tmp/l64.zip | cut -b1-64)" ] \
 	&& unzip -d $QHOME /tmp/l64.zip \
