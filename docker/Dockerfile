@@ -35,7 +35,6 @@ ARG BUILD_DATE=dev
 ARG L64_URL
 ARG NEXUS_USER
 ARG NEXUS_PASS
-ARG L64_SHA256=28c26f796a7fa9267a3061598fe0e1e34208b4deb5932db42adc78f9d2a74481
 
 LABEL	org.label-schema.schema-version="1.0" \
 	org.label-schema.name=embedPy \
@@ -65,12 +64,7 @@ ENV QHOME=/opt/kx/q
 ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}/opt/conda/lib
 
 RUN mkdir -p $QHOME
-RUN curl -u $NEXUS_USER:$NEXUS_PASS -o /tmp/l64.zip -L $L64_URL 
-RUN curl -u $NEXUS_USER:$NEXUS_PASS -o l64.zip-L $L64_URL 
-RUN  [ "$L64_SHA256" = "$(sha256sum /tmp/l64.zip | cut -b1-64)" ] 
-RUN unzip -d $QHOME /tmp/l64.zip 
 RUN curl -u $NEXUS_USER:$NEXUS_PASS -o /tmp/l64.zip -L $L64_URL \
-	&& [ "$L64_SHA256" = "$(sha256sum /tmp/l64.zip | cut -b1-64)" ] \
 	&& unzip -d $QHOME /tmp/l64.zip \
 	&& rm /tmp/l64.zip \
 	&& apt-get -yy --option=Dpkg::options::=--force-unsafe-io purge unzip
