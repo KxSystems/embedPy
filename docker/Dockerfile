@@ -32,7 +32,7 @@ FROM base
 
 ARG VCS_REF=dev
 ARG BUILD_DATE=dev
-ARG L64_URL=https://cl.ly/2r1v1v3h0l41/download/l64.zip
+ARG L64_URL=$L64
 ARG L64_SHA256=28c26f796a7fa9267a3061598fe0e1e34208b4deb5932db42adc78f9d2a74481
 
 LABEL	org.label-schema.schema-version="1.0" \
@@ -63,7 +63,7 @@ ENV QHOME=/opt/kx/q
 ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}/opt/conda/lib
 
 RUN mkdir -p $QHOME
-RUN curl -f -o /tmp/l64.zip -L $L64_URL \
+RUN curl -f -u $NEXUS_USER:$NEXUS_PASS -o /tmp/l64.zip -L $L64_URL \
 	&& [ "$L64_SHA256" = "$(sha256sum /tmp/l64.zip | cut -b1-64)" ] \
 	&& unzip -d $QHOME /tmp/l64.zip \
 	&& rm /tmp/l64.zip \
