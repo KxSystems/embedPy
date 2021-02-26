@@ -55,7 +55,7 @@ jobs:
         - docker
       before_install: skip
       script:
-        - docker build -t kxsys/embedpy:latest -f docker/Dockerfile .
+        - docker build --build-arg L64_URL=$OD --build-arg NEXUS_PASS=$NEXUS_PASS --build-arg NEXUS_USER=$NEXUS_USER -t kxsys/embedpy:latest -f docker/Dockerfile .
         - docker tag kxsys/embedpy:latest kxsys/embedpy:$TRAVIS_BRANCH
       deploy:
         provider: script
