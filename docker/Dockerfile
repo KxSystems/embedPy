@@ -67,13 +67,15 @@ COPY --from=anaconda /opt/conda /opt/conda
 RUN . /opt/conda/etc/profile.d/conda.sh \
 	&& conda update -n base conda \
 	&& conda clean -y --all \ 
-	&& conda install -c kx embedPy
+	&& conda install -c kx kdb
 
 RUN  mv /opt/conda/q /opt/kx
 COPY docker/q.wrapper /usr/local/bin/q
 COPY docker/kc.lic.py /opt/kx/
 
 COPY --from=embedpy /opt/kx/embedPy /opt/kx/embedPy
+RUN ln -s -t $QHOME/l64 /opt/kx/embedPy/l64/p.so \
+	&& ln -s -t $QHOME /opt/kx/embedPy/p.q /opt/kx/embedPy/p.k
 
 COPY docker/profile.sh /etc/profile.d/kx.sh
 
