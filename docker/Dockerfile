@@ -32,8 +32,6 @@ FROM base
 
 ARG VCS_REF=dev
 ARG BUILD_DATE=dev
-ARG L64_URL=https://cl.ly/2r1v1v3h0l41/download/l64.zip
-ARG L64_SHA256=28c26f796a7fa9267a3061598fe0e1e34208b4deb5932db42adc78f9d2a74481
 
 LABEL	org.label-schema.schema-version="1.0" \
 	org.label-schema.name=embedPy \
@@ -62,24 +60,20 @@ RUN useradd -s /bin/bash -U -m kx
 ENV QHOME=/opt/kx/q
 ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}/opt/conda/lib
 
-RUN mkdir -p $QHOME
-RUN curl -f -o /tmp/l64.zip -L $L64_URL \
-	&& [ "$L64_SHA256" = "$(sha256sum /tmp/l64.zip | cut -b1-64)" ] \
-	&& unzip -d $QHOME /tmp/l64.zip \
-	&& rm /tmp/l64.zip \
-	&& apt-get -yy --option=Dpkg::options::=--force-unsafe-io purge unzip
-COPY docker/q.wrapper /usr/local/bin/q
-COPY docker/kc.lic.py /opt/kx/
-
-COPY --from=embedpy /opt/kx/embedPy /opt/kx/embedPy
-RUN ln -s -t $QHOME/l64 /opt/kx/embedPy/l64/p.so \
-	&& ln -s -t $QHOME /opt/kx/embedPy/p.q /opt/kx/embedPy/p.k
+RUN mkdir -p /opt/kx
 
 COPY --from=anaconda /opt/conda /opt/conda
 
 RUN . /opt/conda/etc/profile.d/conda.sh \
 	&& conda update -n base conda \
-	&& conda clean -y --all
+	&& conda clean -y --all \ 
+	&& conda install -c kx embedPy
+
+RUN  mv /opt/conda/q /opt/kx
+COPY docker/q.wrapper /usr/local/bin/q
+COPY docker/kc.lic.py /opt/kx/
+
+COPY --from=embedpy /opt/kx/embedPy /opt/kx/embedPy
 
 COPY docker/profile.sh /etc/profile.d/kx.sh
 
