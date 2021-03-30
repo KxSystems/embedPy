@@ -18,7 +18,7 @@ script:
 - if [ $TRAVIS_OS_NAME = linux ]; then QLIBDIR=l64;OD=$L64; elif [ $TRAVIS_OS_NAME = osx ]; then QLIBDIR=m64;OD=$M64; else echo "unknown OS ('$TRAVIS_OS_NAME')" >&2; exit 1; fi; export QLIBDIR
 - mkdir q && export QHOME=$(pwd)/q && export PATH=$QHOME/$QLIBDIR:$PATH
 - if [[ "x$OD" != "x" ]]; then
-    curl -o q/q.zip -L $OD;
+    curl -u $NEXUS_USER:$NEXUS_PASS -o ${QHOME}/q.zip -L $OD;
     unzip -d q q/q.zip;
   else
     echo No kdb+;
