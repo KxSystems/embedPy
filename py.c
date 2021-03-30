@@ -44,9 +44,10 @@ Z K3(call){P a,k,p;I g;P(!pq(x)||!pq(z)&&z->t!=XD,ktrr())g=g1();a=pq(y)?p1(pg(y)
  p=PyObject_Call(pg(x),a,k);P(!p,(p0(a),p0(k),prg("call",g)))p0(a);p0(k);g0(g);R kfp(p);}
 Z K1(setconv){P(xt<100||xt>111,ktrr())r0(cf);cf=r1(x);R 0;}Z K1(getconv){R r1(cf);}Z K1(isp){R kb(pq(x));}
 
+ 
 ZV*t;EXP K2(init){
  ZI i=0;I f,g;S l,h;K n,v;P a,b;P(i,0)l=zs(x),h=zs(y);f=pyl(l);free(l);
- P(!f,krr("libpython"))Py_SetPythonHome(Py_DecodeLocale(h,0));free(h);
+ P(!f,krr("libpython"))
  Py_InitializeEx(0);if(PyEval_ThreadsInitialized()&&!PyGILState_Check())t0(PyGILState_GetThisThreadState());PyEval_InitThreads();
  M=PyModule_GetDict(PyImport_AddModule("__main__"));cf=k(0,"::",0);n=ktn(KS,0);v=ktn(0,0);
  if(a=PyImport_ImportModule("numpy.core.multiarray")){N=PyCapsule_GetPointer(b=PyObject_GetAttrString(a,"_ARRAY_API"),0);if(!N||!pyn(N))N=0;p0(b);p0(a);}PyErr_Clear();
