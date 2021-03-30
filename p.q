@@ -104,7 +104,7 @@ spq:distinct("";getenv`QHOME),sp`
 sp[`:clear][];
 sp[`:extend]spq;
 / write python stdout/err to 1 and 2
-{.p.import[`sys;x][:;`:write;{x y;count y}y]}'[`:stdout`:stderr;1 2];
+if[@[{count key .pyq};::;0b];{.p.import[`sys;x][:;`:write;{x y;count y}y]}'[`:stdout`:stderr;1 2]];
 / set sys.argv
 if[not .p.eval["hasattr";.p.import`sys;`argv]`;.p.import[`sys][:;`argv;enlist""]]
 if[not loaded;if[not count .p.import[`sys][`:argv]`;.p.import[`sys][:;`:argv;enlist""]]]
