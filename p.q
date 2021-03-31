@@ -7,7 +7,7 @@ if[not .P.loaded:-1h=type@[`.p@;`numpy;`];
  sc:{"'",x,"'.join([__import__('sysconfig').get_config_var(v)for v in",ssr[.j.j y;"\"";"'"],"])"};pr:{"print(",x,");"};
  c:"-c \"",pr["'.'.join([str(getattr(__import__('sys').version_info,x))for x in ['major','minor']])"],"\"2>",$[.z.o like"w*";"nul <nul";"/dev/null"];
  if[(.z.o like"w*")and `3.6>`$first@[system"python3 ",;c;{system"python ",c}];'"embedPy requires python 3.6 or higher on windows"];
- c:"-c \"",pr[$[.z.o like"w*";sc["/python";`BINDIR`VERSION],"+'.dll'";sc["/";`LIBDIR`INSTSONAME]]],pr[$[.z.o like"m*";sc["/";`PYTHONFRAMEWORKPREFIX`INSTSONAME];.z.o like"l*";sc["/libpython";`LIBDIR`LDVERSION],"+'.so'";"''"]],pr["__import__('sys').prefix"],pr["__import__('sys').path"],"\"2>",$[.z.o like"w*";"nul <nul";"/dev/null"];
+ c:"-c \"",pr[$[.z.o like"w*";sc["/python";`BINDIR`VERSION],"+'.dll'";sc["/";`LIBDIR`INSTSONAME]]],pr[$[.z.o like"m*";sc["/";`PYTHONFRAMEWORKPREFIX`INSTSONAME];.z.o like"l*";sc["/libpython";`LIBDIR`LDVERSION],"+'.so'";"''"]],pr["__import__('sys').prefix"],pr["__import__('sys').base_prefix"],"\"2>",$[.z.o like"w*";"nul <nul";"/dev/null"];
  `L`M`H`B set'@[system"python3 ",;c;{system"python ",c}];if[count M;if[k~key k:`$":",M;L::M]];.P.venv:C:H~B;
  .p:(`:./p 2:(`init;3))[L;H;C]]
 loaded:.P.loaded
