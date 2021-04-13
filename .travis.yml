@@ -35,6 +35,22 @@ script:
   else
     echo No kdb+, no tests;
   fi
+
+## virtualenv
+- pip install virtualenv;
+- virtualenv travisEnv;
+- source travisEnv/bin/activate
+- echo $(which python)
+- if [[ "x$QLIC_KC" != "x" ]]; then
+    echo -n $QLIC_KC |base64 --decode > q/kc.lic;
+    pip install --upgrade pip;
+    pip install --upgrade setuptools;
+    pip -q install -r tests/requirements.txt;
+    q test.q -s 4 -q;
+  else
+    echo No kdb+, no tests;
+  fi
+
 compiler:
 - clang
 deploy:
