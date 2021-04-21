@@ -26,6 +26,7 @@ Q     = $(QHOME)/$(QARCH)
 
 p.so: $(QARCH)/p.so
 	cp $(QARCH)/p.so .
+
 $(QARCH)/p.so: py.c py.h k.h
 	mkdir -p $(QARCH)
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
@@ -42,7 +43,8 @@ k.h:
 q.lib:
 	curl -O -J -L https://github.com/KxSystems/kdb/raw/master/w64/q.lib
 
-install:
+install: p.so
+	cp p.q p.k $(QHOME)
 	install $(TGT) $(Q)
 clean:
 	rm -f p.so

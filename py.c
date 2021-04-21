@@ -6,8 +6,24 @@ ZV*t1(){R PyEval_SaveThread();}ZV t0(V*t){PyEval_RestoreThread(t);}ZP M;ZV**N;ZP
 ZP p1(P p){Py_IncRef(p);R p;}ZV p0(P p){Py_DecRef(p);}ZI pt(P p,P t){P u=PyObject_Type(p);I f;f=(u==t||PyType_IsSubtype(u,t));p0(u);R f;}
 ZP pg(K x){R(P)(kK(x)[1]);}ZV pd(K x){I g=g1();p0(pg(x));g0(g);}ZK kfp(P p){K x=knk(2,pd,p);R xt=112,x;}ZI pq(K x){R xt==112&&xn==2&&*kK(x)==(K)pd;}
 ZK kfg(P p){R PyCapsule_GetPointer(p,"k");}ZV kfd(P p){r0(kfg(p));}ZP pfk(K x){R PyCapsule_New(r1(x),"k",kfd);}
-ZK prr(S s){Z __thread C b[4096];J n=sizeof(b)-1;P t,v,d,a;*b=0;strncat(b,s,n);PyErr_Fetch(&t,&v,&d);if(t){PyErr_NormalizeException(&t,&v,&d);
- strncat(strncat(b,": ",n),PyUnicode_AsUTF8AndSize(a=PyObject_Str(v),0),n);p0(a);p0(t);p0(v);p0(d);}R krr(b);}ZK prg(S s,I g){K r=prr(s);g0(g);R r;}
+ZK prr(S s){Z __thread C b[4096];J n=sizeof(b)-1;
+ P t,v,d,a,k,l,pymod,pyfunc,pyval,pystr;*b=0;strncat(b,s,n);
+ S errEnv=getenv("EMBEDPY_ERROR");
+ PyErr_Fetch(&t,&v,&d);
+ PyErr_NormalizeException(&t,&v,&d);
+ if(t){
+  a=PyObject_Str(v);
+  if(strcmp(errEnv,"True")==0){
+   pymod=PyImport_ImportModule("traceback");
+   pyfunc=PyObject_GetAttrString(pymod,"format_exception");p0(pymod);
+   pyval=PyObject_CallFunctionObjArgs(pyfunc,t,v,d,NULL);p0(pyfunc);
+   pystr=PyObject_Str(pyval);p0(pyval);
+   strncat(strncat(b,": ",n),PyUnicode_AsUTF8AndSize(pystr,0),n);p0(pystr);
+   }
+  else{strncat(strncat(b,": ",n),PyUnicode_AsUTF8AndSize(a,0),n);p0(a);}
+  p0(t);p0(v);p0(d);}
+ R krr(b);}
+ZK prg(S s,I g){K r=prr(s);g0(g);R r;}
 
 ZK ko(P);ZK cf;//k from python
 ZK kstr(I t,P p){K r;L n;S s=t==KG?PyBytes_AsStringAndSize(p,&s,&n)<0?0:s:PyUnicode_AsUTF8AndSize(p,&n);P(!s,prr("kstr"))r=kpn(s,n);R r->t=t,r;}

@@ -2,6 +2,7 @@
 
 version:@[{EMBEDPYVERSION};0;`development];
 
+if[(not ""~err_env:getenv[`EMBEDPY_ERROR]);if[not "True"~err_env;'"'EMBEDPY_ERROR' must be set to 'True' to be valid"]];
 $[(.z.o like"w*");if[3.6>.z.K;'`$"kdb+ version must be 3.6+"];if[3.5>.z.K;'`$"kdb+ version must be 3.5+"]];
 if[not .P.loaded:-1h=type@[`.p@;`numpy;`];
  sc:{"'",x,"'.join([__import__('sysconfig').get_config_var(v)for v in",ssr[.j.j y;"\"";"'"],"])"};pr:{"print(",x,");"};
