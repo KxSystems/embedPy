@@ -13,12 +13,14 @@ ZK prr(S s){Z __thread C b[4096];J n=sizeof(b)-1;
  PyErr_NormalizeException(&t,&v,&d);
  if(t){
   a=PyObject_Str(v);
-  if(strcmp(errEnv,"True")==0){
+  if(errEnv){
    pymod=PyImport_ImportModule("traceback");
    pyfunc=PyObject_GetAttrString(pymod,"format_exception");p0(pymod);
    pyval=PyObject_CallFunctionObjArgs(pyfunc,t,v,d,NULL);p0(pyfunc);
    pystr=PyObject_Str(pyval);p0(pyval);
-   strncat(strncat(b,": ",n),PyUnicode_AsUTF8AndSize(pystr,0),n);p0(pystr);
+   if(pystr){strncat(strncat(b,": ",n),PyUnicode_AsUTF8AndSize(pystr,0),n);}
+   else{strncat(strncat(b,": ",n),PyUnicode_AsUTF8AndSize(a,0),n);}
+   p0(pystr);p0(a);
    }
   else{strncat(strncat(b,": ",n),PyUnicode_AsUTF8AndSize(a,0),n);p0(a);}
   p0(t);p0(v);p0(d);}
