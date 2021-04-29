@@ -117,6 +117,8 @@ ZI pyl(S l){
 #undef X
  R 1;}
 
+#define BUFFSIZE 4096
+
 ZI pyn(V**v){
 #define X(r,n,a,i) U(n=(T##n(*)a)v[i])
  NF
