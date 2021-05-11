@@ -2,23 +2,21 @@
 ZS zs(K x){S s=memcpy(malloc(xn+1),xG,xn);R s[xn]=0,s;}Z K1(cs){K r,y;P(xt||!xn,r1(x))DO(xn,P(10!=kK(x)[i]->t,r1(x)))r=ktn(KS,xn);DO(xn,y=kK(x)[i];kS(r)[i]=sn(y->G0,y->n))R r;}
 ZK at(K x,J i){R!xt?r1(kK(x)[i]):k(0,"@",r1(x),kj(i),0);}ZJ cn(K x){J n;x=k(0,"#:",r1(x),0);n=xt==-KJ?xj:nj;R r0(x),n;}ZK val(K x){R k(0,".:",r1(x),0);}
 ZI g1(){R PyGILState_Ensure();}ZV g0(I g){PyGILState_Release(g);}ZK ktrr(){R krr("type");}ZP ptrr(){R PyErr_BadArgument();}
-ZV*t1(){R PyEval_SaveThread();}ZV t0(V*t){PyEval_RestoreThread(t);}ZP M;ZV**N;ZP pe(K x){R PyErr_SetString(PyExc_RuntimeError,xs);}
+ZV*t1(){R PyEval_SaveThread();}ZV t0(V*t){PyEval_RestoreThread(t);}ZP M,errfmt;ZV**N;ZP pe(K x){R PyErr_SetString(PyExc_RuntimeError,xs);}
 ZP p1(P p){Py_IncRef(p);R p;}ZV p0(P p){Py_DecRef(p);}ZI pt(P p,P t){P u=PyObject_Type(p);I f;f=(u==t||PyType_IsSubtype(u,t));p0(u);R f;}
 ZP pg(K x){R(P)(kK(x)[1]);}ZV pd(K x){I g=g1();p0(pg(x));g0(g);}ZK kfp(P p){K x=knk(2,pd,p);R xt=112,x;}ZI pq(K x){R xt==112&&xn==2&&*kK(x)==(K)pd;}
 ZK kfg(P p){R PyCapsule_GetPointer(p,"k");}ZV kfd(P p){r0(kfg(p));}ZP pfk(K x){R PyCapsule_New(r1(x),"k",kfd);}
 ZJ pyerr=0;J updbuff(J b){R BUFFSIZE-b-1;}
 ZK prr(S s){
  Z __thread C b[BUFFSIZE];
- P t,v,d,a,pymod,pyfunc,pyval,pystr;*b=0;
+ P t,v,d,a,pyval,pystr;*b=0;
  strncat(b,s,updbuff(strlen(b)));
  PyErr_Fetch(&t,&v,&d);
  PyErr_NormalizeException(&t,&v,&d);
  if(t){
   a=PyObject_Str(v);
   if(pyerr){
-   pymod=PyImport_ImportModule("traceback");
-   pyfunc=PyObject_GetAttrString(pymod,"format_exception");p0(pymod);
-   pyval=PyObject_CallFunctionObjArgs(pyfunc,t,v,d,NULL);p0(pyfunc);
+   pyval=PyObject_CallFunctionObjArgs(errfmt,t,v,d,NULL);
    pystr=PyObject_Str(pyval);p0(pyval);
    if(pystr){a=pystr;}p0(pystr);
    }
@@ -65,7 +63,7 @@ Z K2(getattr){P p;I g;P(y->t!=-KS||!pq(x),ktrr())g=g1();p=PyObject_GetAttrString
 Z K3(call){P a,k,p;I g;P(!pq(x)||!pq(z)&&z->t!=XD,ktrr())g=g1();a=pq(y)?p1(pg(y)):pseq(1,y);P(!a,prg("call a",g))k=pq(z)?p1(pg(z)):pdict(z);P(!k,(p0(a),prg("call k",g)))
  p=PyObject_Call(pg(x),a,k);P(!p,(p0(a),p0(k),prg("call",g)))p0(a);p0(k);g0(g);R kfp(p);}
 Z K1(setconv){P(xt<100||xt>111,ktrr())r0(cf);cf=r1(x);R 0;}Z K1(getconv){R r1(cf);}Z K1(isp){R kb(pq(x));}
-Z K1(setpyerr){P(xt!=-KJ,ktrr())pyerr=xj;R 0;}Z K1(getpyerr){R kj(pyerr);}
+Z K1(setpyerr){P(xt!=-KJ,ktrr())P(!errfmt,krr("traceback.format_exception"))pyerr=xj;R 0;}Z K1(getpyerr){R kj(pyerr);}
 
 
 ZV*t;EXP K2(init){
@@ -74,6 +72,7 @@ ZV*t;EXP K2(init){
  Py_InitializeEx(0);if(PyEval_ThreadsInitialized()&&!PyGILState_Check())t0(PyGILState_GetThisThreadState());PyEval_InitThreads();
  M=PyModule_GetDict(PyImport_AddModule("__main__"));cf=k(0,"::",0);n=ktn(KS,0);v=ktn(0,0);
  if(a=PyImport_ImportModule("numpy.core.multiarray")){N=PyCapsule_GetPointer(b=PyObject_GetAttrString(a,"_ARRAY_API"),0);if(!N||!pyn(N))N=0;p0(b);p0(a);}PyErr_Clear();
+ if(a=PyImport_ImportModule("traceback")){errfmt=PyObject_GetAttrString(a,"format_exception");p0(a);}PyErr_Clear();
 #define F(f,i) js(&n,ss(#f));jk(&v,dl(f,i));
  F(setpyerr,1)F(getpyerr,1)F(eval,1)F(e,1)F(py2q,1)F(q2py,1)F(get,1)F(set,2)F(import,1)F(getattr,2)F(call,3)F(isp,1)F(setconv,1)F(getconv,1)js(&n,ss("numpy"));
  jk(&v,kb(!!N));t=t1();i=1;R xD(n,v);}
