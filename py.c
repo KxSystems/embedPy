@@ -6,27 +6,11 @@ ZV*t1(){R PyEval_SaveThread();}ZV t0(V*t){PyEval_RestoreThread(t);}ZP M,errfmt;Z
 ZP p1(P p){Py_IncRef(p);R p;}ZV p0(P p){Py_DecRef(p);}ZI pt(P p,P t){P u=PyObject_Type(p);I f;f=(u==t||PyType_IsSubtype(u,t));p0(u);R f;}
 ZP pg(K x){R(P)(kK(x)[1]);}ZV pd(K x){I g=g1();p0(pg(x));g0(g);}ZK kfp(P p){K x=knk(2,pd,p);R xt=112,x;}ZI pq(K x){R xt==112&&xn==2&&*kK(x)==(K)pd;}
 ZK kfg(P p){R PyCapsule_GetPointer(p,"k");}ZV kfd(P p){r0(kfg(p));}ZP pfk(K x){R PyCapsule_New(r1(x),"k",kfd);}
-ZJ pyerr=0;J updbuff(J b){R BUFFSIZE-b-1;}
-ZK prr(S s){
- Z __thread C b[BUFFSIZE];
- P t,v,d,a,pyval,pystr;*b=0;
- strncat(b,s,updbuff(strlen(b)));
- PyErr_Fetch(&t,&v,&d);
- PyErr_NormalizeException(&t,&v,&d);
- if(t){
-  a=PyObject_Str(v);
-  if(pyerr){
-   pyval=PyObject_CallFunctionObjArgs(errfmt,t,v,d,NULL);
-   pystr=PyObject_Str(pyval);p0(pyval);
-   if(pystr){a=pystr;}p0(pystr);
-   }
-  strncat(
-    strncat(b,": ",updbuff(strlen(b))),
-    PyUnicode_AsUTF8AndSize(a,0),
-    updbuff(strlen(b))
-    );
-  p0(t);p0(v);p0(d);p0(a);}
- R krr(b);}
+ZJ pyerr=0;ZS updbuff(S d,S s,J*n){J k=strnlen(s,*n);memcpy(d,s,k);*n=*n>k?*n-k:0;R d+k;}
+ZK prr(S s){Z __thread C b[BUFFSIZE];S p=b;J n=sizeof(b)-1;P t,v,d,a;p=updbuff(p,s,&n);PyErr_Fetch(&t,&v,&d);
+ if(t&&n){p=updbuff(p,": ",&n);PyErr_NormalizeException(&t,&v,&d);
+  if(pyerr)a=PyObject_CallFunctionObjArgs(errfmt,t,v,d,NULL),p0(v),v=a;p=updbuff(p,PyUnicode_AsUTF8AndSize(a=PyObject_Str(v),0),&n);p0(t);p0(v);p0(d);p0(a);}
+ if(!n){n=2;updbuff(p-2,"..",&n);}R *p=0,krr(b);}
 ZK prg(S s,I g){K r=prr(s);g0(g);R r;}
 
 ZK ko(P);ZK cf;//k from python
