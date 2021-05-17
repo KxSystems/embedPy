@@ -49,8 +49,6 @@ Z K3(call){P a,k,p;I g;P(!pq(x)||!pq(z)&&z->t!=XD,ktrr())g=g1();a=pq(y)?p1(pg(y)
 Z K1(setconv){P(xt<100||xt>111,ktrr())r0(cf);cf=r1(x);R 0;}Z K1(getconv){R r1(cf);}Z K1(isp){R kb(pq(x));}
 Z K1(setpyerr){P(xt!=-KJ,ktrr())P(!errfmt,krr("traceback.format_exception"))pyerr=xj;R 0;}Z K1(getpyerr){R kj(pyerr);}
 
-
- 
  ZV*t;EXP K3(init){ZI i=0;I f,g;S l,h,hh;K n,v;P a,b,pyhome;P(i,0)l=zs(x),h=zs(y),hh=zs(z);f=pyl(l);free(l);
  P(!f,krr("libpython"))
  Py_SetPythonHome(Py_DecodeLocale(h,0));Py_SetProgramName(Py_DecodeLocale(hh,0));free(h);free(hh);Py_InitializeEx(0);if(PyEval_ThreadsInitialized()&&!PyGILState_Check())t0(PyGILState_GetThisThreadState());PyEval_InitThreads();
