@@ -84,6 +84,8 @@ typedef struct _p _p,*P;struct _p{L r;P t;L n;union{P*p;P v[1];};};typedef struc
  X(P,PyDict_SetItem,(P,P,P))\
  X(P,PyDict_Keys,(P))\
  X(P,PyDict_Values,(P))\
+ X(P,PyObject_CallFunctionObjArgs,(P,...))\
+ X(P,PyImport_Import,(P))\
 
 //https://docs.scipy.org/doc/numpy/reference/c-api.html https://github.com/numpy/numpy/blob/master/numpy/core/code_generators/numpy_api.py
 #undef PyCFunction_New
@@ -114,6 +116,8 @@ ZI pyl(S l){
  P(!d,0)PF
 #undef X
  R 1;}
+
+#define BUFFSIZE 4096
 
 ZI pyn(V**v){
 #define X(r,n,a,i) U(n=(T##n(*)a)v[i])
