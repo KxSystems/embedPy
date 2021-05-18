@@ -114,4 +114,4 @@ if[not loaded;if[not count .p.import[`sys][`:argv]`;.p.import[`sys][:;`:argv;enl
 {@[`.p;x;:;.p.import[`builtins]hsym x]}each`tuple`list`dict`isinstance;
 
 / VirtualEnv warning for windows users
-if[.P.env&.z.o like"w*";-1"Warning: Python version used in embedPy points towards your BASE version of Python, not the python installed in the virtual environment";]
+if[.P.env&.z.o like"w*";-1"Warning: Virtual Environments not supported for embedPy on Windows. Using the 'BASE' version of Python, not the virtual environment Python";]
