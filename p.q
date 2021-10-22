@@ -2,19 +2,22 @@
 
 version:@[{EMBEDPYVERSION};0;`development];
 
-$[(.z.o like"w*");if[3.6>.z.K;'`$"kdb+ version must be 3.6+"];if[3.5>.z.K;'`$"kdb+ version must be 3.5+"]];
+o:first string .z.o;
+$[o="w";if[3.6>.z.K;'`$"kdb+ version must be 3.6+"];if[3.5>.z.K;'`$"kdb+ version must be 3.5+"]];
 if[not .P.loaded:-1h=type@[`.p@;`numpy;`];
  sc:{"'",x,"'.join([__import__('sysconfig').get_config_var(v)for v in",ssr[.j.j y;"\"";"'"],"])"};pr:{"print(",x,");"};
- c:"-c \"",pr["'.'.join([str(getattr(__import__('sys').version_info,x))for x in ['major','minor']])"],"\"2>",$[.z.o like"w*";"nul <nul";"/dev/null"];
- if[(.z.o like"w*")and `3.6>`$first@[system"python3 ",;c;{system"python ",c}];'"embedPy requires python 3.6 or higher on windows"];
- c:"-c \"",pr[$[.z.o like"w*";sc["/python";`BINDIR`VERSION],"+'.dll'";sc["/";`LIBDIR`INSTSONAME]]],pr[$[.z.o like"m*";sc["/";`PYTHONFRAMEWORKPREFIX`INSTSONAME];.z.o like"l*";sc["/libpython";`LIBDIR`LDVERSION],"+'.so'";"''"]],pr["__import__('sys').base_prefix"],pr["__import__('sys').prefix"],pr["__import__('sys').executable"],"\"2>",$[.z.o like"w*";"nul <nul";"/dev/null"];
- `L`M`H`P`B set'@[system"python3 ",;c;{system"python ",c}];if[count M;if[k~key k:`$":",M;L::M]];.P.env:not H~P;
+ c:"-c \"",pr["'.'.join([str(getattr(__import__('sys').version_info,x))for x in ['major','minor']])"],"\"2>",$[o="w";"nul <nul";"/dev/null"];
+ if[(o="w")and `3.6>`$first@[system"python3 ",;c;{system"python ",c}];'"embedPy requires python 3.6 or higher on windows"];
+ c:"-c \"",pr[$[o="w";sc["/python";`BINDIR`VERSION];sc["/libpython";`LIBDIR`LDVERSION]],"+'",$[o="w";".dll";o="l";".so";".dylib"],"'"],pr["__import__('sys').base_prefix"],pr["__import__('sys').prefix"],pr["__import__('sys').executable"],"\"2>",$[o="w";"nul <nul";"/dev/null"];
+ `L`H`P`B set'@[system"python3 ",;c;{system"python ",c}];
+ .P.env:not H~P;
  .p:(`:./p 2:(`init;3))[L;H;B]]
 loaded:.P.loaded
 if[not loaded;
  ei:{eo y _ x;n set .p.get[n:`$(2+x)_(y?"(")#y]value y x;};
  eo:.p.e;
- e:{$["def"~3#x;$[x[3]in"<*>";ei 3;eo];"class"~5#x;$[x[5]in"*>";ei 5;eo];eo]x}];
+ e:{$["def"~3#x;$[x[3]in"<*>";ei 3;eo];"class"~5#x;$[x[5]in"*>";ei 5;eo];eo]x}
+ ];
 k)c:{'[y;x]}/|:         / compose list of functions
 k)ce:{'[y;x]}/enlist,|: / compose with enlist (for variadic functions)
 
