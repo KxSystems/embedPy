@@ -49,9 +49,12 @@ Z K3(call){P a,k,p;I g;P(!pq(x)||!pq(z)&&z->t!=XD,ktrr())g=g1();a=pq(y)?p1(pg(y)
 Z K1(setconv){P(xt<100||xt>111,ktrr())r0(cf);cf=r1(x);R 0;}Z K1(getconv){R r1(cf);}Z K1(isp){R kb(pq(x));}
 Z K1(setpyerr){P(xt!=-KJ,ktrr())P(!errfmt,krr("traceback.format_exception"))pyerr=xj;R 0;}Z K1(getpyerr){R kj(pyerr);}
 
- ZV*t;EXP K3(init){ZI i=0;I f,g;S l,h,hh;K n,v;P a,b,pyhome;P(i,0)l=zs(x),h=zs(y),hh=zs(z);f=pyl(l);free(l);
+ZV*t;EXP K3(init){ZI i=0;I f,g;S l,h,hh;K n,v;P a,b,pyhome;P(i,0)l=zs(x),h=zs(y),hh=zs(z);f=pyl(l);free(l);
  P(!f,krr("libpython"))
- Py_SetPythonHome(Py_DecodeLocale(h,0));Py_SetProgramName(Py_DecodeLocale(hh,0));free(h);free(hh);Py_InitializeEx(0);if(PyEval_ThreadsInitialized()&&!PyGILState_Check())t0(PyGILState_GetThisThreadState());PyEval_InitThreads();
+ if(!Py_IsInitialized()){
+  Py_SetPythonHome(Py_DecodeLocale(h,0));Py_SetProgramName(Py_DecodeLocale(hh,0));Py_InitializeEx(0);
+  if(PyEval_ThreadsInitialized()&&!PyGILState_Check())t0(PyGILState_GetThisThreadState());PyEval_InitThreads();
+  }
  M=PyModule_GetDict(PyImport_AddModule("__main__"));cf=k(0,"::",0);n=ktn(KS,0);v=ktn(0,0);
  if(a=PyImport_ImportModule("numpy.core.multiarray")){N=PyCapsule_GetPointer(b=PyObject_GetAttrString(a,"_ARRAY_API"),0);if(!N||!pyn(N))N=0;p0(b);p0(a);}PyErr_Clear();
  if(a=PyImport_ImportModule("traceback")){errfmt=PyObject_GetAttrString(a,"format_exception");p0(a);}PyErr_Clear();
