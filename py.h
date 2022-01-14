@@ -86,6 +86,7 @@ typedef struct _p _p,*P;struct _p{L r;P t;L n;union{P*p;P v[1];};};typedef struc
  X(P,PyDict_Values,(P))\
  X(P,PyObject_CallFunctionObjArgs,(P,...))\
  X(P,PyImport_Import,(P))\
+ X(I,Py_IsInitialized,())\
 
 //https://docs.scipy.org/doc/numpy/reference/c-api.html https://github.com/numpy/numpy/blob/master/numpy/core/code_generators/numpy_api.py
 #undef PyCFunction_New
@@ -110,7 +111,7 @@ ZI pyl(S l){
  HMODULE d=LoadLibrary(l);
 #define X(r,n,a) U(n=(T##n(*)a)GetProcAddress(d,#n))
 #else
- V*d=dlopen(l,RTLD_NOW|RTLD_GLOBAL);
+ V*d=dlopen(getenv("UNDER_PYTHON")?NULL:l,RTLD_NOW|RTLD_GLOBAL);
 #define X(r,n,a) U(n=dlsym(d,#n))
 #endif
  P(!d,0)PF
