@@ -14,7 +14,16 @@ Please [report issues](https://github.com/KxSystems/embedpy/issues) in this repo
 
 - kdb+ ≥ 3.5 64-bit/32-bit(Linux/Arm)
 - Python ≥ 3.5.0 (macOS/Linux/Arm) ≥ 3.6.0 windows
+- numpy < 1.22
 
+> :warning: **numpy version**: Due to a breaking change with the numpy C api conversions between Python and q arrays is unsupported.
+>	```
+>	q)np:.p.import[`numpy]
+>	q)np[`:__version__]`
+>	"1.22.1"
+>	q)np[`:arange][10]`
+>	foreign
+>	```
 
 ## Overview
 
