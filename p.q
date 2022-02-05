@@ -17,7 +17,7 @@ loaded:.P.loaded
 if[not loaded;
  ei:{eo y _ x;n set .p.get[n:`$(2+x)_(y?"(")#y]value y x;};
  eo:.p.e;
- e:{$["def"~3#x;$[x[3]in"<*>";ei 3;eo];"class"~5#x;$[x[5]in"*>";ei 5;eo];eo]x}
+ e:{$["def"~3#x;$[x[3]in"<*>";ei 3;eo];"class"~5#x;$[x[5]in"*>";ei 5;eo];eo]x};
  ];
 k)c:{'[y;x]}/|:         / compose list of functions
 k)ce:{'[y;x]}/enlist,|: / compose with enlist (for variadic functions)
@@ -118,4 +118,8 @@ if[not loaded;if[not count .p.import[`sys][`:argv]`;.p.import[`sys][:;`:argv;enl
 {@[`.p;x;:;.p.import[`builtins]hsym x]}each`tuple`list`dict`isinstance;
 
 / VirtualEnv warning for windows users
-if[.P.env&.z.o like"w*";-1"Warning: Virtual Environments not supported for embedPy on Windows. Using the 'BASE' version of Python, not the virtual environment Python";]
+if[.P.env&.z.o like"w*";-2"Warning:\n\tVirtual Environments not supported for embedPy on Windows.\n\tUsing the 'BASE' version of Python, not the virtual environment Python";]
+
+/ Add warning for unsupported numpy 1.22
+{np:@[.p.import;`numpy;{:(::)}];if[any 1 21<"J"$-1_vs["."]np[`:__version__]`;-2"Warning:\n\tDue to a bug in the numpy C api, conversions between q and numpy objects for 'numpy>=1.22'\n\tare unsupported at this time. Please downgrade your numpy version.";]}`
+
