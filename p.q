@@ -118,4 +118,8 @@ if[not loaded;if[not count .p.import[`sys][`:argv]`;.p.import[`sys][:;`:argv;enl
 {@[`.p;x;:;.p.import[`builtins]hsym x]}each`tuple`list`dict`isinstance;
 
 / VirtualEnv warning for windows users
-if[.P.env&.z.o like"w*";-1"Warning: Virtual Environments not supported for embedPy on Windows. Using the 'BASE' version of Python, not the virtual environment Python";]
+if[.P.env&.z.o like"w*";-2"Warning:\n\tVirtual Environments not supported for embedPy on Windows.\n\tUsing the 'BASE' version of Python, not the virtual environment Python";]
+
+/ Add warning for unsupported numpy 1.22
+{np:@[.p.import;`numpy;{:(::)}];if[any 1 21<"J"$-1_vs["."]np[`:__version__]`;-2"Warning:\n\tDue to a bug in the numpy C api, conversions between q and numpy objects for 'numpy>=1.22'\n\tare unsupported at this time. Please downgrade your numpy version.";]}`
+
