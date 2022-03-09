@@ -1,4 +1,4 @@
-FROM debian:9 AS base
+FROM debian:10 AS base
 
 # do not clean here, its cleaned later!
 RUN apt-get update \
@@ -67,7 +67,8 @@ COPY --from=anaconda /opt/conda /opt/conda
 RUN . /opt/conda/etc/profile.d/conda.sh \
 	&& conda update -n base conda \
 	&& conda clean -y --all \ 
-	&& conda install -c kx kdb
+	&& conda install -y numpy==1.20.3 \
+	&& conda install -c kx kdb	
 
 RUN  mv /opt/conda/q /opt/kx
 COPY docker/q.wrapper /usr/local/bin/q
