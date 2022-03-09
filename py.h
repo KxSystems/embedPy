@@ -42,6 +42,7 @@ typedef struct _p _p,*P;struct _p{L r;P t;L n;union{P*p;P v[1];};};typedef struc
  X(P,PyObject_Str,(P))\
  X(wchar_t*,Py_DecodeLocale,(S,V*))\
  X(V,Py_SetPythonHome,(wchar_t*))\
+ X(V,Py_SetProgramName,(wchar_t*))\
  X(P,PyImport_AddModule,(S))\
  X(P,PyImport_ImportModule,(S))\
  X(P,PyObject_GetAttrString,(P,S))\
@@ -54,7 +55,7 @@ typedef struct _p _p,*P;struct _p{L r;P t;L n;union{P*p;P v[1];};};typedef struc
  X(P,Py_CompileString,(S,S,I))\
  X(P,PyCapsule_New,(V*,S,V*))\
  X(V*,PyCapsule_GetPointer,(P,S))\
- X(P,PyCFunction_New,(D*,P))\
+ X(P,PyCFunction_NewEx,(D*,P,P))\
  X(_p,_Py_TrueStruct,)\
  X(_p,_Py_FalseStruct,)\
  X(_p,_Py_NoneStruct,)\
@@ -83,8 +84,13 @@ typedef struct _p _p,*P;struct _p{L r;P t;L n;union{P*p;P v[1];};};typedef struc
  X(P,PyDict_SetItem,(P,P,P))\
  X(P,PyDict_Keys,(P))\
  X(P,PyDict_Values,(P))\
+ X(P,PyObject_CallFunctionObjArgs,(P,...))\
+ X(P,PyImport_Import,(P))\
+ X(I,Py_IsInitialized,())\
 
 //https://docs.scipy.org/doc/numpy/reference/c-api.html https://github.com/numpy/numpy/blob/master/numpy/core/code_generators/numpy_api.py
+#undef PyCFunction_New
+#define PyCFunction_New(x,y) PyCFunction_NewEx(x,y,NULL)
 #define NF \
  X(_p,PyArray_Type,,2)\
  X(_p,PyGenericArrType_Type,,10)\
@@ -105,12 +111,14 @@ ZI pyl(S l){
  HMODULE d=LoadLibrary(l);
 #define X(r,n,a) U(n=(T##n(*)a)GetProcAddress(d,#n))
 #else
- V*d=dlopen(l,RTLD_NOW|RTLD_GLOBAL);
+ V*d=dlopen(getenv("UNDER_PYTHON")?NULL:l,RTLD_NOW|RTLD_GLOBAL);
 #define X(r,n,a) U(n=dlsym(d,#n))
 #endif
  P(!d,0)PF
 #undef X
  R 1;}
+
+#define BUFFSIZE 4096
 
 ZI pyn(V**v){
 #define X(r,n,a,i) U(n=(T##n(*)a)v[i])
@@ -120,5 +128,9 @@ ZI pyn(V**v){
 #pragma clang diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #elif __GNUC__
+#ifndef __arm__
+#if __GNUC__ >= 5
 #pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
+#endif
+#endif
 #endif
