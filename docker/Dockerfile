@@ -83,7 +83,7 @@ COPY docker/profile.sh /etc/profile.d/kx.sh
 USER kx
 
 RUN . /opt/conda/etc/profile.d/conda.sh \
-	&& conda create -y -n kx python=3 --no-default-packages
+	&& conda create -y -n kx python=3.9 --no-default-packages
 
 USER root
 
