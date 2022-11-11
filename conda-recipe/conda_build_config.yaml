@@ -1,6 +1,8 @@
+CONDA_BUILD_SYSROOT:
+ - /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk # [osx]
+target_platform: # [osx]
+ - osx-64        # [osx]
+ - osx-arm64     # [osx]
 python:
-  - 3.5 [unix]
-  - 3.6
-  - 3.7
-  - 3.8
   - 3.9
+  - 3.10

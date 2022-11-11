@@ -3,6 +3,9 @@ image:
 - Visual Studio 2017
 artifacts:
 - path: embedPy_windows-$(appveyor_repo_tag_name).zip
+init:
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
 skip_non_tags: false
 platform: x64
 build_script:

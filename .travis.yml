@@ -1,5 +1,8 @@
 stage: standalone
 language: c
+dist:
+ - focal
+osx_image: xcode12.5
 os:
 - linux
 - osx
@@ -15,7 +18,7 @@ before_install:
       wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
     fi
   - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
+  - source "$HOME/miniconda/etc/profile.d/conda.sh"
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
@@ -25,40 +28,19 @@ before_script:
   - perl -p -i -e 's/EMBEDPYVERSION/`\$\"'${IMPLEMENTATION}'\"/g' p.q
 
 script:
-  - if [ $TRAVIS_OS_NAME = osx ]; then pyenv init - > pyenv.init && source pyenv.init ; fi
-  - if [ $TRAVIS_OS_NAME = linux ]; then QLIBDIR=l64;OD=$L64; elif [ $TRAVIS_OS_NAME = osx ]; then QLIBDIR=m64;OD=$M64; else echo "unknown OS ('$TRAVIS_OS_NAME')" >&2; exit 1; fi; export QLIBDIR
-  - mkdir q && export QHOME=$(pwd)/q && export PATH=$QHOME/$QLIBDIR:$PATH
-  - if [[ "x$OD" != "x" ]]; then
-      curl -u $NEXUS_USER:$NEXUS_PASS -o ${QHOME}/q.zip -L $OD;
-      unzip -d q q/q.zip;
-    else
-      echo No kdb+;
-    fi
-
+  - if [ $TRAVIS_OS_NAME = linux ]; then QLIBDIR=l64; elif [ $TRAVIS_OS_NAME = osx ]; then QLIBDIR=m64; else echo "unknown OS ('$TRAVIS_OS_NAME')" >&2; exit 1; fi; export QLIBDIR
+  - conda create -n bld -c kx/label/dev kdb ;
+  - conda activate bld
   - make p.so
-  - cp [ml]64/p.so q/$QLIBDIR;
+  - cp [ml]64/p.so $QHOME/$QLIBDIR;
   - tar czf embedPy_$TRAVIS_OS_NAME-$TRAVIS_BRANCH.tgz p.q p.k test.q tests [ml]64/p.so LICENSE README.md
   - if [[ "x$QLIC_KC" != "x" ]]; then
-      echo -n $QLIC_KC |base64 --decode > q/kc.lic;
+      echo -n $QLIC_KC |base64 --decode > $QHOME/kc.lic;
+      export QLIC_KC=;
       pip install --upgrade pip;
-      pip install --upgrade setuptools;
       pip -q install -r tests/requirements.txt;
       q test.q -s 4 -q;
-    else
-      echo No kdb+, no tests;
-    fi
-
-  ## virtualenv
-  - pip install virtualenv;
-  - virtualenv travisEnv;
-  - source travisEnv/bin/activate
-  - echo $(which python)
-  - if [[ "x$QLIC_KC" != "x" ]]; then
-      echo -n $QLIC_KC |base64 --decode > q/kc.lic;
-      pip install --upgrade pip;
-      pip install --upgrade setuptools;
-      pip -q install -r tests/requirements.txt;
-      q test.q -s 4 -q;
+      echo DONE TEST;
     else
       echo No kdb+, no tests;
     fi
@@ -115,8 +97,9 @@ jobs:
         - if [ $TRAVIS_OS_NAME = linux ]; then QLIBDIR=l64; elif [ $TRAVIS_OS_NAME = osx ]; then QLIBDIR=m64; fi; export QLIBDIR
         - if [[ "x$QLIC_KC" != "x" ]]; then mkdir -p q; echo -n $QLIC_KC |base64 --decode > q/kc.lic; export QLIC=$($PREFIX)/q; fi
         - export EMBEDPY_VERSION=$TRAVIS_BRANCH
-        - conda build conda-recipe --output -c kx > packagenames.txt
-        - conda build -c kx conda-recipe --no-long-test-prefix
+        - conda build conda-recipe --output -c kx/label/dev > packagenames.txt
+        - if [[  "$TRAVIS_OS_NAME" == "osx" ]]; then export CHANS="-c conda-forge"; fi
+        - conda build -c kx/label/dev $CHANS conda-recipe --no-long-test-prefix
       deploy:
         provider: script
         script:

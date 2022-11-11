@@ -56,34 +56,26 @@ RUN apt-get -yy --option=Dpkg::options::=--force-unsafe-io --no-install-recommen
 
 RUN passwd -d root
 RUN useradd -s /bin/bash -U -m kx
-
-ENV QHOME=/opt/kx/q
-ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}/opt/conda/lib
-
-RUN mkdir -p /opt/kx
+ENV KX_IN_DOCKER=Y
 
 COPY --from=anaconda /opt/conda /opt/conda
 
 RUN . /opt/conda/etc/profile.d/conda.sh \
 	&& conda update -n base conda \
-	&& conda clean -y --all \ 
-	&& conda install -y numpy==1.20.3 \
-	&& conda install -c kx kdb	
+	&& conda clean -y --all
 
-RUN  mv /opt/conda/q /opt/kx
-COPY docker/q.wrapper /usr/local/bin/q
-COPY docker/kc.lic.py /opt/kx/
-
-COPY --from=embedpy /opt/kx/embedPy /opt/kx/embedPy
-RUN ln -s -t $QHOME/l64 /opt/kx/embedPy/l64/p.so \
-	&& ln -s -t $QHOME /opt/kx/embedPy/p.q /opt/kx/embedPy/p.k
 
 COPY docker/profile.sh /etc/profile.d/kx.sh
+COPY --from=embedpy /opt/kx/embedPy /opt/kx/embedPy
 
 USER kx
 
 RUN . /opt/conda/etc/profile.d/conda.sh \
-	&& conda create -y -n kx python=3.9 --no-default-packages
+	&& conda create -y -n kx python --no-default-packages \
+        && conda activate kx \
+        && conda install -c kx kdb \
+        && ln -s -t $QHOME/l64 /opt/kx/embedPy/l64/p.so \
+        && ln -s -t $QHOME /opt/kx/embedPy/p.q /opt/kx/embedPy/p.k
 
 USER root
 
