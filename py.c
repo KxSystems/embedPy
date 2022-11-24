@@ -52,7 +52,7 @@ Z K1(setpyerr){P(xt!=-KJ,ktrr())P(!errfmt,krr("traceback.format_exception"))pyer
 ZV*t;EXP K3(init){ZI i=0;I f;S l,h,hh;K n,v;P a,b,c=0;P(i,0)l=zs(x),h=zs(y),hh=zs(z);f=pyl(l);free(l);P(!f,krr("libpython"))
  Py_SetPythonHome(Py_DecodeLocale(h,0));Py_SetProgramName(Py_DecodeLocale(hh,0));free(hh);free(h);Py_InitializeEx(0);if(PyEval_ThreadsInitialized()&&!PyGILState_Check())t0(PyGILState_GetThisThreadState());PyEval_InitThreads();
  M=PyModule_GetDict(PyImport_AddModule("__main__"));cf=k(0,"::",0);n=ktn(KS,0);v=ktn(0,0);
- if((a=PyImport_ImportModule("numpy.core.multiarray"))||(PyErr_Print(),c=PyImport_ImportModule("numpy.core.multiarray"))){N=PyCapsule_GetPointer(b=PyObject_GetAttrString(a?a:c,"_ARRAY_API"),0);if(!N||!pyn(N))N=0;p0(b);p0(a);p0(c);}PyErr_Clear();
+ if((a=PyImport_ImportModule("numpy.core.multiarray"))||(PyErr_Clear(),c=PyImport_ImportModule("numpy.core.multiarray"))){N=PyCapsule_GetPointer(b=PyObject_GetAttrString(a?a:c,"_ARRAY_API"),0);if(!N||!pyn(N))N=0;p0(b);p0(a);p0(c);}PyErr_Clear();
  if(a=PyImport_ImportModule("traceback")){errfmt=PyObject_GetAttrString(a,"format_exception");p0(a);}PyErr_Clear();
 #define F(f,i) js(&n,ss(#f));jk(&v,dl(f,i));
  F(setpyerr,1)F(getpyerr,1)F(eval,1)F(e,1)F(py2q,1)F(q2py,1)F(get,1)F(set,2)F(import,1)F(getattr,2)F(call,3)F(isp,1)F(setconv,1)F(getconv,1)js(&n,ss("numpy"));
