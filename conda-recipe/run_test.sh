@@ -12,4 +12,3 @@ then
 else
  echo cross compile, no tests
 fi
-

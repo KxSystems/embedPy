@@ -26,7 +26,6 @@ typedef struct _p _p,*P;struct _p{L r;P t;L n;union{P*p;P v[1];};};typedef struc
  X(V,Py_DecRef,(P))\
  X(V,Py_IncRef,(P))\
  X(V,PyErr_Clear,())\
- X(V,PyErr_Print,())\
  X(V,PyErr_Fetch,(P*,P*,P*))\
  X(V,PyErr_NormalizeException,(P*,P*,P*))\
  X(P,PyErr_BadArgument,())\
