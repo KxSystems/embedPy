@@ -35,7 +35,7 @@ test: q
 	pip3 install -r tests/requirements.txt
 	cp $(platform)/p.so .
 	QHOME=$(P)/q QLIC=$(P) $(P)/q/$(platform)/q test.q -s 4
-	ci/test_virtualenv.sh
+	ci/test_virtualenv.sh $(P) $(platform)
 
 #release and deploy
 l64/ghrelease:
