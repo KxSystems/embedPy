@@ -2,10 +2,12 @@ ifeq ($(platform),l64)
  CNDPLAT := linux-64
  CNDURL  := https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
  RMRPATH := patchelf --remove-rpath
+ RELPLAT := linux
 else
  CNDPLAT := osx-64
  CNDURL  := https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
  RMRPATH := install_name_tool -delete_rpath @loader_path/../../lib
+ RELPLAT := osx
 endif
 P ?= $(HOME)/.gitlab-runner
 KDBF   ?= kdb-4.0-20221026.tar.bz2
@@ -40,7 +42,7 @@ test: q
 #release and deploy
 l64/ghrelease:
 	gpg -d --batch $(P)/ghtoken.gpg |gh auth login --with-token
-	gh release create -d -p -R KxSystems/embedpy --generate-notes $(CI_COMMIT_TAG) embedPy-*-$(CI_COMMIT_TAG).tgz
+	gh release create -d -p -R KxSystems/embedpy --generate-notes $(CI_COMMIT_TAG) embedPy_*-$(CI_COMMIT_TAG).tgz
 
 $(platform)/conda: conda
 	ci/conda.sh $(P) $(CNDENV) $(CNDCHN)
@@ -49,4 +51,4 @@ l64/docker:
 	docker tag kxsys/embedpy:latest kxsys/embedpy:$(CI_COMMIT_TAG)
 	#echo $(DOCKER_PASSWORD)|docker login --username $(DOCKER_USERNAME) --password-stdin && docker push kxsys/embedpy:latest && docker push kxsys/embedpy:$(CI_COMMIT_TAG)
 $(platform)/github:
-	tar czf embedPy-$(platform)-$(CI_COMMIT_TAG).tgz p.q p.k test.q tests $(platform)/p.so LICENSE README.md
+	tar czf embedPy_$(RELPLAT)-$(CI_COMMIT_TAG).tgz p.q p.k test.q tests $(platform)/p.so LICENSE README.md
