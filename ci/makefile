@@ -10,7 +10,7 @@ else
  RELPLAT := osx
 endif
 P ?= $(HOME)/.gitlab-runner
-KDBF   ?= kdb-4.0-20221026.tar.bz2
+KDBF   ?= kdb-4.0-20221202.tar.bz2
 KDBURL := https://anaconda.org/kx/kdb/4.0/download/$(CNDPLAT)/$(KDBF)
 CNDENV := bld_$(platform)
 CNDCHN ?= kx
