@@ -73,7 +73,7 @@ USER kx
 RUN . /opt/conda/etc/profile.d/conda.sh \
 	&& conda create -y -n kx python --no-default-packages \
         && conda activate kx \
-        && conda install -c kx kdb \
+        && conda install -c kx/label/dev kdb \
         && ln -s -t $QHOME/l64 /opt/kx/embedPy/l64/p.so \
         && ln -s -t $QHOME /opt/kx/embedPy/p.q /opt/kx/embedPy/p.k
 

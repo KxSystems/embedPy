@@ -13,7 +13,7 @@ P ?= $(HOME)/.gitlab-runner
 KDBF   ?= kdb-4.0-20221202.tar.bz2
 KDBURL := https://anaconda.org/kx/kdb/4.0/download/$(CNDPLAT)/$(KDBF)
 CNDENV := bld_$(platform)
-CNDCHN ?= kx
+CNDCHN ?= kx/label/dev
 #prereqs
 q: $(P)/q/$(platform)/q
 #strip conda rpaths
