@@ -110,7 +110,7 @@ If the tests all pass, no message is displayed.
 
 > **Note**
 > 
-> For ease of install on 32-bit Arm and linux it is suggested that a new user should use a miniconda version of python specific to the architecture being used, `for example rpi for raspberry pi`. This is not an explicit requirement but makes install of embedPy and python packages more seamless.
+> For ease of install on 32-bit Arm and Linux we suggest a new user use a miniconda version of Python specific to the architecture being used, for example `rpi` for Raspberry Pi. This is not an explicit requirement but makes install of embedPy and Python packages more seamless.
 
 
 ### Install with Conda
