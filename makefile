@@ -17,6 +17,8 @@ ifeq ($(UNAME_S),Linux)
 else ifeq ($(UNAME_S),Darwin)
   OSFLAG  = m
   LDFLAGS = -bundle -undefined dynamic_lookup
+  CC=clang
+  CFLAGS += -arch arm64 -arch x86_64
 endif
 
 TGT   = p.so

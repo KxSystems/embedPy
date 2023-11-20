@@ -1,6 +1,6 @@
 # ![Python](python.png) embedPy
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/kxsystems/embedPy)](https://github.com/kxsystems/embedpy/releases) [![Travis (.org) branch](https://img.shields.io/travis/kxsystems/embedpy/master?label=travis%20build)](https://travis-ci.org/kxsystems/embedpy/branches) [![AppVeyor branch](https://img.shields.io/appveyor/ci/jhanna-kx/embedpy-ax90d/master?label=appveyor%20build)](https://ci.appveyor.com/project/jhanna-kx/embedpy-ax90d/branch/master)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/kxsystems/embedPy)](https://github.com/kxsystems/embedpy/releases) [![AppVeyor branch](https://img.shields.io/appveyor/ci/jhanna-kx/embedpy-ax90d/master?label=appveyor%20build)](https://ci.appveyor.com/project/jhanna-kx/embedpy-ax90d/branch/master)
 
 Allows the kdb+ interpreter to manipulate Python objects and call Python functions.
 Part of the [_Fusion for kdb+_](https://code.kx.com/q/interfaces/) interface collection.
@@ -13,18 +13,8 @@ Please [report issues](https://github.com/KxSystems/embedpy/issues) in this repo
 ## Requirements
 
 - kdb+ ≥ 3.5 64-bit/32-bit(Linux/Arm)
-- Python ≥ 3.5.0 (macOS/Linux/Arm) ≥ 3.6.0 windows
-- numpy < 1.22
+- Python ≥ 3.8.0 (macOS/Linux/Arm) ≥ 3.8.0 windows
 
-> :warning: **numpy version**: Due to a breaking change with the numpy C API conversions between Python and q arrays is unsupported.
->
-> ```q
-> q)np:.p.import[`numpy]
-> q)np[`:__version__]`
-> "1.22.1"
-> q)np[`:arange][10]`
-> foreign
-> ```
 
 ## Overview
 

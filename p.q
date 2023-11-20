@@ -4,7 +4,6 @@ version:@[{EMBEDPYVERSION};0;`development];
 
 o:first string .z.o;
 $[o="w";if[3.6>.z.K;'`$"kdb+ version must be 3.6+"];if[3.5>.z.K;'`$"kdb+ version must be 3.5+"]];
-if[(o="w")&count getenv[`UNDER_PYTHON];'"embedPy running within a Python process not supported for Windows"];
 if[not .P.loaded:-1h=type@[`.p@;`numpy;`];
  sc:{"'",x,"'.join([__import__('sysconfig').get_config_var(v)for v in",ssr[.j.j y;"\"";"'"],"])"};pr:{"print(",x,");"};
  c:"-c \"",pr["'.'.join([str(getattr(__import__('sys').version_info,x))for x in ['major','minor']])"],"\"2>",$[o="w";"nul <nul";"/dev/null"];
@@ -119,10 +118,3 @@ if[not loaded;if[not count .p.import[`sys][`:argv]`;.p.import[`sys][:;`:argv;enl
 
 / VirtualEnv warning for windows users
 if[.P.env&.z.o like"w*";-2"Warning:\n\tVirtual Environments not supported for embedPy on Windows.\n\tUsing the 'BASE' version of Python, not the virtual environment Python";]
-
-/ Add warning for unsupported numpy 1.22
-{np:@[.p.import;`numpy;{(::)}];if[np~(::);:np];
- if[any 1 21<"J"$-1_vs["."]np[`:__version__]`;
- -2"Warning:\n\tDue to a bug in the numpy C api, conversions between q and numpy objects for 'numpy>=1.22'\n\tare unsupported at this time. Please downgrade your numpy version.";]
- }`
-

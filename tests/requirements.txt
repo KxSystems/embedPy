@@ -1,6 +1,5 @@
 numpy
 beautifulsoup4
 pandas
-tensorflow
 scipy
 matplotlib
