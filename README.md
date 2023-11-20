@@ -1,9 +1,9 @@
-# embedPy
+# ![Python](python.png) embedPy
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/kxsystems/embedPy)](https://github.com/kxsystems/embedpy/releases) [![AppVeyor branch](https://img.shields.io/appveyor/ci/jhanna-kx/embedpy-ax90d/master?label=appveyor%20build)](https://ci.appveyor.com/project/jhanna-kx/embedpy-ax90d/branch/master)
 
 Allows the kdb+ interpreter to manipulate Python objects and call Python functions.
-Part of the [_Fusion for kdb+_](https://code.kx.com/v2/interfaces/fusion/) interface collection.
+Part of the [_Fusion for kdb+_](https://code.kx.com/q/interfaces/) interface collection.
 
 Please direct any questions to ai@kx.com.
 
@@ -49,7 +49,7 @@ If you are using Anaconda Python, we recommend installing with Conda. If, instea
 
 ### PyQ 
 
-If you are currently using [PyQ](https://code.kx.com/v2/interfaces/pyq/), both interfaces use a file `p.k` in `$QHOME/{l64,m64}` which results in a conflict when both are installed. 
+If you are currently using [PyQ](https://github.com/KxSystems/pyq), both interfaces use a file `p.k` in `$QHOME/{l64,m64}` which results in a conflict when both are installed. 
 
 You may want to run initially from another directory, without installing. Skip the install step above, and run q in the directory where you unzipped the release.
 
@@ -77,7 +77,7 @@ If the tests all pass, no message is displayed.
 1.  In the unzipped directory, run the [tests](#test-script).
 
     ```bash
-    $ q test.q
+    q test.q
     ```
 
 1.  Install: put `p.q` and `p.k` in QHOME and the library file (`p.so` for macOS/Linux or `p.dll` for Windows) in `$QHOME/{l64,m64,w64}`. 
@@ -92,15 +92,15 @@ If the tests all pass, no message is displayed.
 1.  Build the interface and run the [tests](#test-script).
 
     ```bash
-    $ make p.so && q test.q
+    make p.so && q test.q
     ```
 
 1.  Install: put `p.q` and `p.k` in `$QHOME` and `p.so` in `$QHOME/{l64,l32,m64}`.
 
 
-**Note**
-
-For ease of install on 32-bit Arm and linux it is suggested that a new user should use a miniconda version of python specific to the architecture being used, `for example rpi for raspberry pi`. This is not an explicit requirement but makes install of embedPy and python packages more seamless.
+> **Note**
+> 
+> For ease of install on 32-bit Arm and Linux we suggest a new user use a miniconda version of Python specific to the architecture being used, for example `rpi` for Raspberry Pi. This is not an explicit requirement but makes install of embedPy and Python packages more seamless.
 
 
 ### Install with Conda
@@ -120,14 +120,14 @@ This requires either macOS or Linux.
 
 Start q with embedPy
 ```bash
-$ q p.q
+q p.q
 ```
 Or from q, load `p.q`.
 ```q
 q)\l p.q
 ```
 
-Documentation is on the [embedPy](https://code.kx.com/v2/ml/embedpy/) homepage.
+Documentation is in the :open_file_folder: [`docs`](docs) folder.
 
 
 ## Run a Docker image
